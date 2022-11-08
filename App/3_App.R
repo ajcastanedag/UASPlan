@@ -1,6 +1,6 @@
 pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes")
 
-setwd("D://PhD//2_SideJobs//UASPlatform//App")
+setwd("D://PhD//2_SideJobs//UASPlan//App")
 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"/www"))
 
@@ -21,7 +21,7 @@ ui <- tagList(
                       icon = icon("table"),
                       sidebarLayout(
                         sidebarPanel(width = 5,
-                                     textInput("misionN", "Mision", ""),
+                                     textInput("misionN", "Mision Name", ""),
                                      textInput("pilot", "Pilot", ""),
                                      textInput("copilot", "Co-Pilot", ""),
                                      dateInput("DoF", "Date:", value = as.character(Sys.Date()), daysofweekdisabled = c(0)),
