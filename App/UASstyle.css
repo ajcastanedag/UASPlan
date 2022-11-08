@@ -1,0 +1,133 @@
+input[type="number"] {
+  max-width: 80%;
+}
+
+/* my sexy logo*/
+h1 {
+    text-decoration:none;
+    border:0;
+    width : 550px;
+    height : 50px;
+    margin : 0;
+    padding : 0;
+    right: 25px;
+    top: 5px;
+    position: relative;
+    background : url(bikair.png) no-repeat 0 0;
+}
+
+/* Tables*/
+.dataTables_length label,
+                  .dataTables_filter label,
+                  .dataTables_info {
+                      color: white!important;
+                      }
+
+                  .paginate_button {
+                      background: white!important;
+                  }
+
+                  thead {
+                      color: white;
+                      }
+
+
+
+
+div.outer {
+  position: fixed;
+  top: 41px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Customize fonts */
+body, label, input, button, select { 
+  font-family: Plexes !important;
+  font-weight: 200;
+}
+
+h1, h3, h4 { font-weight: 400; }
+
+#controls {
+  /* Appearance */
+  background-color: slate;
+  padding: 0 20px 20px 20px;
+  cursor: move;
+  /* Fade out while not hovering */
+  opacity: 0.80;
+  zoom: 0.9;
+  
+}
+#controls:hover {
+  /* Fade in while hovering */
+  opacity: 0.95;
+  transition-delay: 0;
+}
+
+/* Position and style citation */
+#cite {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  font-size: 12px;
+}
+
+/* If not using map tiles, show a white background */
+.leaflet-container {
+  background-color: grey!important;
+}
+
+div.main {
+
+  background-color: #282C31;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  grid-gap: 10px;
+ 
+
+
+
+}
+
+/*list of names*/
+div.team{
+column-count: 2;
+column-gap: auto;
+column-rule: 1px solid transparent;
+}
+
+ul.name{
+  
+text-align: left;
+
+list-style-type: circle;
+
+}
+
+h2{font-weight: 400;
+text-align: center;
+}
+
+/*icons*/
+div.cu{ 
+  text-align: left;
+  margin-left: 30%;
+}
+
+/* unvisited link */
+a:link {
+  color: white;
+}
+
+/* visited link */
+a:visited {
+  color: silver;
+}
