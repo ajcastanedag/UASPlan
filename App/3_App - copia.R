@@ -21,13 +21,13 @@ ui <- tagList(
              windowTitle="JMU UAS Flight book",
              theme = shinytheme("slate"),
              #######################################################################  INFO Tab
-             tabPanel("Info",
-                      tags$head(
-                        # Include our custom CSS
-                        includeCSS("UASstyle.css")
-                      ),
-                      icon = icon("circle-info"),
-             ),
+             # tabPanel("Info",
+             #          tags$head(
+             #            # Include our custom CSS
+             #            includeCSS("UASstyle.css")
+             #          ),
+             #          icon = icon("circle-info"),
+             # ),
              #######################################################################  Create Flight Project
              tabPanel("Create Project",
                       tags$head(
