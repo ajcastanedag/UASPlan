@@ -13,11 +13,10 @@ SetUpMaker <- function(id, label = "Counter") {
 }
 
 ################################################################################
-ReturnWD <- function(){
+ReturnWD <- function(rootDrive){
   
-  MainDir <- as.character(choose.dir())
-  print(MainDir)
-  #setwd(MainDir)
+  return(paste0(rootDrive,))
+
 
 }
 ################################################################################

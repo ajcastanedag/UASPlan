@@ -6,7 +6,7 @@ MissionDir_Base <- easycsv::choose_dir()
 setwd(MissionDir_Base)
 ##############################################################
 CreateWintraRGB  <- function(WrkDir, MissionName){
-  root <- "D:\\0_Document\\FolderStructures\\"
+  root <- "D:\\PhD\\2_SideJobs\\UASPlan\\App\\FolderStructures\\"
   Structure <- noquote(readLines(paste0(root,"WingtraRGB.txt"))) 
   Structure[7] <- paste0(Structure[7],"_",MissionName)
   write.table(Structure, file = "WingtraRGB.bat", sep="",
@@ -15,10 +15,8 @@ CreateWintraRGB  <- function(WrkDir, MissionName){
   Sys.sleep(0.5)
   file.remove("WingtraRGB.bat")
   print(paste0(MissionDir_Base,"\\",MissionName))
-  
 }
 ##############################################################
-
 # Create standard directory
 CreateWintraRGB(MissionDir_Base,"Mission2")
 
