@@ -1,34 +1,45 @@
+####################### Folder Structure Functions ############################ ----
+# This section contains all the functions that call the txt files that contain
+# the folder structures for the aircraft - sensor combinations. The txt files are
+# converted in .bat files and executed in the windows shell, finally the .bat file
+# is erased.
 ################################################################################
-SetUpMaker <- function(id, label = "Counter") {
-  ns <- NS(id)
-  tagList(
-    splitLayout(cellWidths = c("45%", "45%"),
-                selectInput("AirCraft", "Aircraft",
-                            c("",  "Phantom4", "DJI-M600", "DJI-M300", "Wingtra")),
-                selectInput("Sensor", "Sensor",
-                            c("",  "RGB", "Altum", "MX-Dual", "L1", "H20T")),
-    ),
-    verbatimTextOutput(ns("out"))
-  )
-}
-
-################################################################################
-ReturnWD <- function(rootDrive){
+### Phantom 4 
+CreatePhantomRGB  <- function(WrkDir, MissionName){
+  root <- "D:\\0_Document\\FolderStructures\\"
+  Structure <- noquote(readLines(paste0(root,"PhantomRGB.txt"))) 
+  Structure[7] <- paste0(Structure[7],"_",MissionName)
+  write.table(Structure, file = "PhantomRGB.bat", sep="",
+              row.names = FALSE, col.names = FALSE,  quote = FALSE)
+  shell.exec("PhantomRGB.bat")
+  Sys.sleep(0.5)
+  file.remove("PhantomRGB.bat")
+  print(paste0(MissionDir_Base,"\\",MissionName))
   
-  return(paste0(rootDrive,))
+}
+### Altum
+CreateAltum  <- function(WrkDir, MissionName){
+  root <- "D:\\0_Document\\FolderStructures\\"
+  Structure <- noquote(readLines(paste0(root,"ALTUM.txt"))) 
+  Structure[7] <- paste0(Structure[7],"_",MissionName)
+  write.table(Structure, file = "ALTUM.bat", sep="",
+              row.names = FALSE, col.names = FALSE,  quote = FALSE)
+  shell.exec("ALTUM.bat")
+  Sys.sleep(0.5)
+  file.remove("ALTUM.bat")
+}
+############################################################################### ----  
 
 
-}
-################################################################################
-getRemoveButton <- function(n, idS = "", lab = "Pit") {
-  if (stringr::str_length(idS) > 0) idS <- paste0(idS, "-")
-  ret <- shinyInput(actionButton, n,
-                    'button_', label = "Remove",
-                    onclick = sprintf('Shiny.onInputChange(\"%sremove_button_%s\",  this.id)' ,idS, lab))
-  return (ret)
-}
 
-shinyInput <- function(FUN, n, id, ses, ...) {
-  as.character(FUN(paste0(id, n), ...))
-}
+
+
+############################################################################### ----  
+
+
+
+
+
+
+
 ################################################################################

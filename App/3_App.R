@@ -1,79 +1,85 @@
+#########################    UAS JMU PLATFORM    ############################### ----
+# 
+# 
+# 
+# 
+################################################################################
+##### Load libraries                                                            -----
 pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
-               "leaflet", "tidyverse", "rmarkdown", "shinyBS")
-
+               "leaflet", "tidyverse", "rmarkdown", "shinyBS", "filesstrings",
+               "easycsv", "filesstrings")
+##### Set working directory (temporal for testing)                              ----- 
 setwd("D://PhD//2_SideJobs//UASPlan//App")
-
+##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"/www"))
-
+##### Create empty data frame for storing flights                               ----- 
 Data <- data.frame(Date=character(),
                    Aircraft=character(), 
                    Sensor=character(), 
                    Name=character(),
                    stringsAsFactors=FALSE) 
-
+##### Include Functions file                                                    ----- 
 source("0_Functions.R")
-
-# Possible output locations general directory (E drive)
-rootDrive <- "C:/Users/anc65jk/Desktop/Tetsers/"
-
-#file.sources <- c("1_GUI.R","2_Server.R")
-#invisible(sapply(file.sources,source,.GlobalEnv))
-
+##### Possible output locations general directory (E drive)                     ----- 
+rootDrive <- "\\\\132.187.202.41\\d$\\1_Projects"
+################################################################################
+#################################    UI   ###################################### ----
 ui <- tagList(
   useShinyjs(),
-  navbarPage(title = div(img(src='pics/Logo.png', style="margin-top: -10px; padding-right:10px; padding-bottom:10px", height = 50)),
+  navbarPage(title = div(img(src='pics/Logo.png',
+                             style="margin-top: -10px; padding-right:10px; padding-bottom:10px",
+                             height = 50)),
              windowTitle="JMU UAS Flight book",
              theme = shinytheme("slate"),
              ###################################################################
-             # INFO Tab ---- 
-             # tabPanel("Info",
-             #          tags$head(
-             #            # Include our custom CSS
-             #            includeCSS("UASstyle.css")
-             #          ),
-             #          icon = icon("circle-info"),
-             #          
-             #          fluidPage(
-             #            titlePanel("Important information"),
-             #            tags$hr(style="border-color: gray;"),
-             #            fluidRow(
-             #              column(4, align="center",
-             #                     selectInput("AirCraftM", "Aircraft",
-             #                                 c("","Phantom4", "DJI-M600", "DJI-M300", "Wingtra"))
-             #                     ),
-             #              column(4, align="center",
-             #                     selectInput("SensorM", "Sensor",
-             #                                 c("","RGB", "RX1R II", "Altum", "MX-Dual", "LiAir V","L1", "H20T"))
-             #                     ),
-             #              column(4, align="center",
-             #                     selectInput("RTKstat", "RTK",
-             #                                 c("NO", "YES"))
-             #              )
-             #            ),
-             #            
-             #            br(),
-             #            tags$hr(style="border-color: gray;"),
-             #            
-             #            fluidRow(
-             #              column(12, align="center",
-             #                     uiOutput("MDdisplay"))
-             #              ),
-             #            
-             #            br(),
-             #            tags$hr(style="border-color: gray;"),
-             #            
-             #             fluidRow(
-             #               column(3, div(style = "height:50px"),
-             #                      actionButton("getPro", "Protocol", icon = icon("arrow-down")),
-             #                      actionButton("getCheck", "Check List", icon = icon("arrow-down")),
-             #                      offset = 9)
-             #               
-             #             ),
-             #          ),
-             #          ),
-             # ---- 
+             # INFO Tab                                                         ---- 
+             tabPanel("Info",
+                      tags$head(
+                        # Include our custom CSS
+                        includeCSS("UASstyle.css")
+                      ),
+                      icon = icon("circle-info"),
+
+                      fluidPage(
+                        titlePanel("Important information"),
+                        tags$hr(style="border-color: gray;"),
+                        fluidRow(
+                          column(4, align="center",
+                                 selectInput("AirCraftM", "Aircraft",
+                                             c("","Phantom4", "DJI-M600", "DJI-M300", "Wingtra"))
+                                 ),
+                          column(4, align="center",
+                                 selectInput("SensorM", "Sensor",
+                                             c("","RGB", "RX1R II", "Altum", "MX-Dual", "LiAir V","L1", "H20T"))
+                                 ),
+                          column(4, align="center",
+                                 selectInput("RTKstat", "RTK",
+                                             c("NO", "YES"))
+                          )
+                        ),
+
+                        br(),
+                        tags$hr(style="border-color: gray;"),
+
+                        fluidRow(
+                          column(12, align="center",
+                                 uiOutput("MDdisplay"))
+                          ),
+
+                        br(),
+                        tags$hr(style="border-color: gray;"),
+
+                         fluidRow(
+                           column(3, div(style = "height:50px"),
+                                  actionButton("getPro", "Protocol", icon = icon("arrow-down")),
+                                  actionButton("getCheck", "Check List", icon = icon("arrow-down")),
+                                  offset = 9)
+
+                         ),
+                      ),
+                      ),
              ###################################################################
-             # Create Flight Project ----  
+             # Create Flight Project                                            ----  
              tabPanel("Create Project",
                       tags$head(
                         # Include our custom CSS
@@ -119,9 +125,8 @@ ui <- tagList(
                                   br(),
                                   DT::dataTableOutput("FlightsDF"))
                       )),
-             # ---- 
              ###################################################################
-             # Load Project Tab ----  
+             # Load Project Tab                                                 ----  
              tabPanel("Load Project", 
                        tags$head(
                          # Include our custom CSS
@@ -130,13 +135,14 @@ ui <- tagList(
                        icon = icon("table"),
                        
              )
-             # ---- 
+             ################################################################### 
   )
 )
-
 ################################################################################
+##############################    SERVER   ##################################### ----
 server <- function(input, output, session) {
   
+  #### Render elements ----
   output$MDdisplay <- renderUI({includeMarkdown("./Protocols/Introduction.md")})
   
   output$rootLoc <- renderUI({
@@ -248,14 +254,11 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$add, {
-    
     print(c(as.character(input$DoF),input$AirCraft,input$Sensor, "test" ))
-    
     Data %>% add_row(Date=as.character(input$DoF),
             Aircraft=input$AirCraft, 
             Sensor=input$Sensor, 
             Name="test")
-    
     print(Data)
   })
   
@@ -310,6 +313,7 @@ server <- function(input, output, session) {
   })
   
 }
-
-
+################################################################################
+###########################    EXECUTE APP   ################################### ----
 shinyApp(ui,server)          
+################################################################################
