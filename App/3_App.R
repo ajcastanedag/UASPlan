@@ -9,7 +9,7 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
                "leaflet", "tidyverse", "rmarkdown", "shinyBS", "filesstrings",
                "easycsv", "filesstrings")
 ##### Set working directory (temporal for testing)                              ----- 
-setwd("D://PhD//2_SideJobs//UASPlan//App")
+setwd("\\\\132.187.202.41\\d$\\0_Document\\UASPlan")
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"/www"))
 ##### Create empty data frame for storing flights                               ----- 
