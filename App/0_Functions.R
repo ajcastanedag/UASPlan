@@ -4,42 +4,30 @@
 # converted in .bat files and executed in the windows shell, finally the .bat file
 # is erased.
 ################################################################################
-### Phantom 4 
-CreatePhantomRGB  <- function(WrkDir, MissionName){
-  root <- "D:\\0_Document\\FolderStructures\\"
-  Structure <- noquote(readLines(paste0(root,"PhantomRGB.txt"))) 
-  Structure[7] <- paste0(Structure[7],"_",MissionName)
-  write.table(Structure, file = "PhantomRGB.bat", sep="",
+### Create Folder structure based on root name, sensor combination and standard name
+CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat){
+  # Change directory to Target location
+  setwd(TargetLoc)
+  # Read TXT structure depending on configuration UAV-Sensor
+  if(SetUp == "Phantom4RGB"){
+    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\PhantomRGB.txt")))
+  } else if(SetUp == "WingtraAltum"){
+    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraAltum.txt")))
+  } else if(SetUp == "WingtraRGB") {
+    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraAltum.txt")))
+  }else(print("ERROR"))
+  
+  Structure[grep('foldername=', Structure)] <- paste0(Structure[grep('set foldername=', Structure)],MissionName)
+  write.table(Structure, file = "Temporal.bat", sep="",
               row.names = FALSE, col.names = FALSE,  quote = FALSE)
-  shell.exec("PhantomRGB.bat")
+  shell.exec("Temporal.bat")
   Sys.sleep(0.5)
-  file.remove("PhantomRGB.bat")
-  print(paste0(MissionDir_Base,"\\",MissionName))
+  file.remove("Temporal.bat")
+  
+  setwd(paste0(TargetLoc,"\\",MissionName))
+  fileConn<-file("FlightLog.txt")
+  writeLines(LogDat, fileConn)
+  close(fileConn)
   
 }
-### Altum
-CreateAltum  <- function(WrkDir, MissionName){
-  root <- "D:\\0_Document\\FolderStructures\\"
-  Structure <- noquote(readLines(paste0(root,"ALTUM.txt"))) 
-  Structure[7] <- paste0(Structure[7],"_",MissionName)
-  write.table(Structure, file = "ALTUM.bat", sep="",
-              row.names = FALSE, col.names = FALSE,  quote = FALSE)
-  shell.exec("ALTUM.bat")
-  Sys.sleep(0.5)
-  file.remove("ALTUM.bat")
-}
-############################################################################### ----  
-
-
-
-
-
-############################################################################### ----  
-
-
-
-
-
-
-
 ################################################################################
