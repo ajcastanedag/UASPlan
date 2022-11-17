@@ -1,34 +1,33 @@
+####################### Folder Structure Functions ############################ ----
+# This section contains all the functions that call the txt files that contain
+# the folder structures for the aircraft - sensor combinations. The txt files are
+# converted in .bat files and executed in the windows shell, finally the .bat file
+# is erased.
 ################################################################################
-SetUpMaker <- function(id, label = "Counter") {
-  ns <- NS(id)
-  tagList(
-    splitLayout(cellWidths = c("45%", "45%"),
-                selectInput("AirCraft", "Aircraft",
-                            c("",  "Phantom4", "DJI-M600", "DJI-M300", "Wingtra")),
-                selectInput("Sensor", "Sensor",
-                            c("",  "RGB", "Altum", "MX-Dual", "L1", "H20T")),
-    ),
-    verbatimTextOutput(ns("out"))
-  )
-}
-
-################################################################################
-ReturnWD <- function(rootDrive){
+### Create Folder structure based on root name, sensor combination and standard name
+CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat){
+  # Change directory to Target location
+  setwd(TargetLoc)
+  # Read TXT structure depending on configuration UAV-Sensor
+  if(SetUp == "Phantom4RGB"){
+    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\PhantomRGB.txt")))
+  } else if(SetUp == "WingtraAltum"){
+    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraAltum.txt")))
+  } else if(SetUp == "WingtraRGB") {
+    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraAltum.txt")))
+  }else(print("ERROR"))
   
-  return(paste0(rootDrive,))
-
-
-}
-################################################################################
-getRemoveButton <- function(n, idS = "", lab = "Pit") {
-  if (stringr::str_length(idS) > 0) idS <- paste0(idS, "-")
-  ret <- shinyInput(actionButton, n,
-                    'button_', label = "Remove",
-                    onclick = sprintf('Shiny.onInputChange(\"%sremove_button_%s\",  this.id)' ,idS, lab))
-  return (ret)
-}
-
-shinyInput <- function(FUN, n, id, ses, ...) {
-  as.character(FUN(paste0(id, n), ...))
+  Structure[grep('foldername=', Structure)] <- paste0(Structure[grep('set foldername=', Structure)],MissionName)
+  write.table(Structure, file = "Temporal.bat", sep="",
+              row.names = FALSE, col.names = FALSE,  quote = FALSE)
+  shell.exec("Temporal.bat")
+  Sys.sleep(0.5)
+  file.remove("Temporal.bat")
+  
+  setwd(paste0(TargetLoc,"\\",MissionName))
+  fileConn<-file("FlightLog.txt")
+  writeLines(LogDat, fileConn)
+  close(fileConn)
+  
 }
 ################################################################################

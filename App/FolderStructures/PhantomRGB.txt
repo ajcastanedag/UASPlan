@@ -4,7 +4,7 @@ for /f "skip=1" %%i in ('wmic os get localdatetime') do if not defined fulldate 
 set year=%fulldate:~2,2%
 set month=%fulldate:~4,2%
 set day=%fulldate:~6,2%
-set foldername=%day%%month%%year%_Phantom_RGB
+set foldername=
 
 md %foldername%\0_Images
 md %foldername%\1_Agisoft

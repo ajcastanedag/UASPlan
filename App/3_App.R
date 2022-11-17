@@ -1,79 +1,91 @@
+#########################    UAS JMU PLATFORM    ############################### ----
+# 
+# 
+# 
+# 
+################################################################################
+##### Load libraries                                                            -----
 pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
-               "leaflet", "tidyverse", "rmarkdown", "shinyBS")
-
-setwd("D://PhD//2_SideJobs//UASPlan//App")
-
-addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"/www"))
-
+               "leaflet", "tidyverse", "rmarkdown", "shinyBS", "easycsv")
+##### Set working directory (temporal for testing)                              ----- 
+Root <- "\\\\132.187.202.41\\d$\\0_Document\\UASPlan\\App"
+setwd(Root)
+##### Add resource path                                                         ----- 
+addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
+##### Create empty data frame for storing flights                               ----- 
 Data <- data.frame(Date=character(),
                    Aircraft=character(), 
                    Sensor=character(), 
                    Name=character(),
                    stringsAsFactors=FALSE) 
+##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
+source("D:/PhD/2_SideJobs/UASPlan/App/0_Functions.R")
 
-source("0_Functions.R")
-
-# Possible output locations general directory (E drive)
-rootDrive <- "C:/Users/anc65jk/Desktop/Tetsers/"
-
-#file.sources <- c("1_GUI.R","2_Server.R")
-#invisible(sapply(file.sources,source,.GlobalEnv))
-
+##### Possible output locations general directory (E drive)                     ----- 
+TargetDrive <- "\\\\132.187.202.41\\d$\\1_Projects"
+################################################################################
+#################################    UI   ###################################### ----
 ui <- tagList(
   useShinyjs(),
-  navbarPage(title = div(img(src='pics/Logo.png', style="margin-top: -10px; padding-right:10px; padding-bottom:10px", height = 50)),
+  navbarPage(title = div(img(src='pics/Logo.png',
+                             style="margin-top: -10px; padding-right:10px; padding-bottom:10px",
+                             height = 50)),
              windowTitle="JMU UAS Flight book",
              theme = shinytheme("slate"),
              ###################################################################
-             # INFO Tab ---- 
+             # INFO Tab                                                         ---- 
              # tabPanel("Info",
              #          tags$head(
              #            # Include our custom CSS
              #            includeCSS("UASstyle.css")
              #          ),
              #          icon = icon("circle-info"),
-             #          
+             # 
              #          fluidPage(
              #            titlePanel("Important information"),
              #            tags$hr(style="border-color: gray;"),
              #            fluidRow(
-             #              column(4, align="center",
+             #              column(3, align="center",
              #                     selectInput("AirCraftM", "Aircraft",
              #                                 c("","Phantom4", "DJI-M600", "DJI-M300", "Wingtra"))
              #                     ),
-             #              column(4, align="center",
+             #              column(3, align="center",
              #                     selectInput("SensorM", "Sensor",
              #                                 c("","RGB", "RX1R II", "Altum", "MX-Dual", "LiAir V","L1", "H20T"))
              #                     ),
-             #              column(4, align="center",
+             #              column(3, align="center",
              #                     selectInput("RTKstat", "RTK",
              #                                 c("NO", "YES"))
+             #              ),
+             #              column(3, align="center",
+             #                     actionButton("rst", "Reset", style = 'margin-top:25px', width = "100%")
+             # 
              #              )
+             # 
              #            ),
-             #            
+             # 
              #            br(),
              #            tags$hr(style="border-color: gray;"),
-             #            
+             # 
              #            fluidRow(
              #              column(12, align="center",
              #                     uiOutput("MDdisplay"))
              #              ),
-             #            
+             # 
              #            br(),
              #            tags$hr(style="border-color: gray;"),
-             #            
+             # 
              #             fluidRow(
              #               column(3, div(style = "height:50px"),
              #                      actionButton("getPro", "Protocol", icon = icon("arrow-down")),
              #                      actionButton("getCheck", "Check List", icon = icon("arrow-down")),
              #                      offset = 9)
-             #               
+             # 
              #             ),
              #          ),
              #          ),
-             # ---- 
              ###################################################################
-             # Create Flight Project ----  
+             # Create Flight Project                                            ----  
              tabPanel("Create Project",
                       tags$head(
                         # Include our custom CSS
@@ -82,15 +94,26 @@ ui <- tagList(
                       icon = icon("location"),
                       sidebarLayout(
                         sidebarPanel(width = 5,
-                                     h4(strong("Flight Data"), align = "left"),
+                                     
+                                     h4(strong("Flight Data"),
+                                        align = "left"),
+                                     
                                      uiOutput("rootLoc"),
-                                     textInput("misnam", "Mision Name", ""),
+                                     
+                                     textInput("misnam",
+                                               "Mision Name", ""),
+                                     
                                      splitLayout(cellWidths = c("50%", "50%"),
                                                  textInput("pilot", "Pilot", ""),
                                                  textInput("copilot", "Co-Pilot", "")
                                                  
                                      ),
-                                     dateInput("DoF", "Date:", value = as.character(Sys.Date()), daysofweekdisabled = c(0)) ,
+                                     
+                                     dateInput("DoF",
+                                               "Date:",
+                                               value = as.character(Sys.Date()),
+                                               daysofweekdisabled = c(0),
+                                               format = "yyyy_dd_mm") ,
                                      h4(strong("Area of Interest"), align = "left"), 
                                      fileInput("AOI", NULL, accept = c(".txt",".TXT")),
                                      h4(strong("Flights"), align = "left"),
@@ -103,15 +126,17 @@ ui <- tagList(
                                      actionButton("add", NULL, icon = icon("plus"), width = "100%"),
                                      
                                      h4(strong("Log Information:"), align = "left"),
-                                     textAreaInput("caption", NULL, "Add mission comments here...", height = "200px"),
+                                     textAreaInput("LogInformation",
+                                                   NULL,
+                                                   value = "",
+                                                   placeholder = "Add mission comments here...",
+                                                   height = "150px"),
                                      
                                      tags$hr(style="border-color: gray;"),
                                      actionButton("crateStruct",
                                                   "Please fill fields",
                                                   icon = NULL,
                                                   width = "100%"),
-                                                 
-                                     
 
                         ),
                         
@@ -119,34 +144,44 @@ ui <- tagList(
                                   br(),
                                   DT::dataTableOutput("FlightsDF"))
                       )),
-             # ---- 
              ###################################################################
-             # Load Project Tab ----  
-             tabPanel("Load Project", 
-                       tags$head(
-                         # Include our custom CSS
-                         includeCSS("UASstyle.css")
-                       ),
-                       icon = icon("table"),
-                       
-             )
-             # ---- 
+             # Load Project Tab                                                 ----  
+             # tabPanel("Load Project",
+             #           tags$head(
+             #             # Include our custom CSS
+             #             includeCSS("UASstyle.css")
+             #           ),
+             #           icon = icon("table"),
+             # 
+             # )
+             ################################################################### 
   )
 )
-
 ################################################################################
+##############################    SERVER   ##################################### ----
 server <- function(input, output, session) {
   
+  #### Render elements ----
+  # Load introduction information
   output$MDdisplay <- renderUI({includeMarkdown("./Protocols/Introduction.md")})
   
   output$rootLoc <- renderUI({
     selectInput("rootLoc", "Project Location",
-                choices = c("", list.dirs(path = rootDrive,
+                choices = c("", list.dirs(path = TargetDrive,
                                           full.names = FALSE,
                                           recursive = FALSE)),
                 selected = "")
   })
   
+  output$map <- leaflet::renderLeaflet({
+    base.map() 
+  })
+  
+  output$FlightsDF <- DT::renderDataTable({
+    DT::datatable(Data, options = list(lengthMenu = c(15, 30, 45), pageLength = 15))
+  }, rownames = FALSE, height = 100)
+  
+  #### Observe Events ----
   observeEvent(input$AirCraft, {
     if(input$AirCraft == "Phantom4"){
       updateSelectInput(session,
@@ -237,66 +272,51 @@ server <- function(input, output, session) {
       updateSelectInput(session,
                         "RTKstat",
                         choices = "YES",
-                        selected = "YES")
-    }
-    else (
+                        selected = "YES")} else (
       updateSelectInput(session,
                         "RTKstat",
                         choices = c("YES","NO"),
                         selected = "NO"))
-    
   })
   
   observeEvent(input$add, {
-    
     print(c(as.character(input$DoF),input$AirCraft,input$Sensor, "test" ))
-    
     Data %>% add_row(Date=as.character(input$DoF),
             Aircraft=input$AirCraft, 
             Sensor=input$Sensor, 
             Name="test")
-    
     print(Data)
   })
   
-  output$FlightsDF <- DT::renderDataTable({
-      DT::datatable(Data, options = list(lengthMenu = c(15, 30, 45), pageLength = 15))
-    }, rownames = FALSE, height = 100)
-
-  output$map <- leaflet::renderLeaflet({
-    # call reactive map
-    base.map() 
+  observeEvent(input$rst,{
+    updateSelectInput(session,
+                      "SensorM",
+                      selected = "")
+    updateSelectInput(session,
+                      "AirCraftM",
+                      selected = "")
   })
   
-  # Create base map (tiles + gray path) on a reactive function
-  base.map <- reactive({
-    leaflet() %>% 
-      addProviderTiles(providers$CartoDB.Positron, group = 'Cartographic',
-                       options = providerTileOptions(opacity = 0.9)) %>%
-      addScaleBar(position = "bottomleft",
-                  scaleBarOptions(maxWidth = 100, metric = TRUE, imperial = TRUE,
-                                  updateWhenIdle = TRUE)) %>%
-      fitBounds(9.96941167653942, 49.7836214950253, 9.983155389252369,49.789472652132595)
-  })
-  
+  # Function to call the creation of the folder system !!!!
   observeEvent(input$crateStruct, {
     
-    print(paste0(rootDrive,input$rootLoc))
+    Target <- paste0(TargetDrive,"\\",input$rootLoc,"\\")
+    SetUp <- paste0(input$AirCraft, input$Sensor)
+    Mission <- paste0(input$DoF,"_",input$misnam,"_",SetUp)
     
-    print(paste0(input$DoF,"_",input$misnam))
+    CreateFolder(Root, Target, Mission, SetUp, input$LogInformation)
     
+    updateSelectInput(session,
+                      "Sensor",
+                      selected = "")
+    updateSelectInput(session,
+                      "AirCraft",
+                      selected = "")
     
-    print(c(input$misnam,
-            input$pilot,
-            input$copilot))
-
-  })
-  
-  ListenFields <- reactive({
-    list(input$rootLoc,
-         input$misnam,
-         input$pilot,
-         input$copilot)
+    updateTextAreaInput(session,
+                        "LogInformation",
+                        value = "")
+    
   })
   
   observeEvent(ListenFields(),{
@@ -309,7 +329,28 @@ server <- function(input, output, session) {
     }
   })
   
+  #### Reactive Funtions ----
+  # Create base map (tiles + gray path) on a reactive function                  ----
+  base.map <- reactive({
+    leaflet() %>% 
+      addProviderTiles(providers$CartoDB.Positron, group = 'Cartographic',
+                       options = providerTileOptions(opacity = 0.9)) %>%
+      addScaleBar(position = "bottomleft",
+                  scaleBarOptions(maxWidth = 100, metric = TRUE, imperial = TRUE,
+                                  updateWhenIdle = TRUE)) %>%
+      fitBounds(9.96941167653942, 49.7836214950253, 9.983155389252369,49.789472652132595)
+  })
+  
+  # React to the input information values                                       ---- 
+  ListenFields <- reactive({
+    list(input$rootLoc,
+         input$misnam,
+         input$pilot,
+         input$copilot)
+  })
+
 }
-
-
+################################################################################
+###########################    EXECUTE APP   ################################### ----
 shinyApp(ui,server)          
+################################################################################
