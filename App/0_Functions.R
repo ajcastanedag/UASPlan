@@ -21,7 +21,7 @@ CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat){
   write.table(Structure, file = "Temporal.bat", sep="",
               row.names = FALSE, col.names = FALSE,  quote = FALSE)
   shell.exec("Temporal.bat")
-  Sys.sleep(0.5)
+  Sys.sleep(1)
   file.remove("Temporal.bat")
   
   setwd(paste0(TargetLoc,"\\",MissionName))
