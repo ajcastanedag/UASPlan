@@ -12,12 +12,6 @@ Root <- "\\\\132.187.202.41\\d$\\0_Document\\UASPlan\\App"
 setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
-##### Create empty data frame for storing flights                               ----- 
-Data <- data.frame(Date=character(),
-                   Aircraft=character(), 
-                   Sensor=character(), 
-                   Name=character(),
-                   stringsAsFactors=FALSE) 
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
 source("D:/PhD/2_SideJobs/UASPlan/App/0_Functions.R")
 
@@ -117,14 +111,13 @@ ui <- tagList(
                                      h4(strong("Area of Interest"), align = "left"), 
                                      fileInput("AOI", NULL, accept = c(".txt",".TXT")),
                                      h4(strong("Flights"), align = "left"),
-                                     splitLayout(cellWidths = c("50%", "50%"),
+                                     splitLayout(cellWidths = c("44%", "44%", "12%"),
                                                  selectInput("AirCraft", "Aircraft",
                                                              c("", "Phantom4", "DJI-M600", "DJI-M300", "Wingtra")),
                                                  selectInput("Sensor", "Sensor",
-                                                             c("","RGB", "Altum", "MX-Dual", "L1", "H20T"))
+                                                             c("","RGB", "Altum", "MX-Dual", "L1", "H20T")),
+                                                 actionButton("add", NULL, icon = icon("plus"), style = 'margin-top:25px', width = "100%")
                                      ),
-                                     actionButton("add", NULL, icon = icon("plus"), width = "100%"),
-                                     
                                      h4(strong("Log Information:"), align = "left"),
                                      textAreaInput("LogInformation",
                                                    NULL,
@@ -161,10 +154,11 @@ ui <- tagList(
 ##############################    SERVER   ##################################### ----
 server <- function(input, output, session) {
   
-  #### Render elements ----
+  #### Render elements                                                          ----
   # Load introduction information
   output$MDdisplay <- renderUI({includeMarkdown("./Protocols/Introduction.md")})
   
+  # Get the folder options from remote folder (D)
   output$rootLoc <- renderUI({
     selectInput("rootLoc", "Project Location",
                 choices = c("", list.dirs(path = TargetDrive,
@@ -173,14 +167,33 @@ server <- function(input, output, session) {
                 selected = "")
   })
   
+  # Render leaflet map with a reactive function base.map()                     
   output$map <- leaflet::renderLeaflet({
     base.map() 
   })
   
-  output$FlightsDF <- DT::renderDataTable({
-    DT::datatable(Data, options = list(lengthMenu = c(15, 30, 45), pageLength = 15))
-  }, rownames = FALSE, height = 100)
+  # Create empty data frame for storing flights                              
+  Data <- data.frame(Date=character(),
+                     Aircraft=character(), 
+                     Sensor=character(), 
+                     Name=character(),
+                     stringsAsFactors=FALSE) 
   
+  # Render table only  with initial options
+  output$FlightsDF <- DT::renderDataTable(addData(), editable = TRUE)
+  
+  addData <- eventReactive(input$add, {
+    if(input$add>0){
+      tmp <- data.frame(Date=input$DoF,
+                         Aircraft=input$AirCraft,
+                         Sensor=input$Sensor,
+                         Name=input$misnam,
+                         stringsAsFactors=FALSE)
+      Data <<- rbind(Data, tmp)
+    }
+    Data
+  }, ignoreNULL = FALSE)
+
   #### Observe Events ----
   observeEvent(input$AirCraft, {
     if(input$AirCraft == "Phantom4"){
@@ -277,15 +290,6 @@ server <- function(input, output, session) {
                         "RTKstat",
                         choices = c("YES","NO"),
                         selected = "NO"))
-  })
-  
-  observeEvent(input$add, {
-    print(c(as.character(input$DoF),input$AirCraft,input$Sensor, "test" ))
-    Data %>% add_row(Date=as.character(input$DoF),
-            Aircraft=input$AirCraft, 
-            Sensor=input$Sensor, 
-            Name="test")
-    print(Data)
   })
   
   observeEvent(input$rst,{

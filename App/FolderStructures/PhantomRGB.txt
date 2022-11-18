@@ -1,5 +1,5 @@
+@pushd %~dp0
 @echo off
-
 for /f "skip=1" %%i in ('wmic os get localdatetime') do if not defined fulldate set fulldate=%%i
 set year=%fulldate:~2,2%
 set month=%fulldate:~4,2%
@@ -14,5 +14,5 @@ md %foldername%\4_FlightFiles
 type nul > %foldername%\FlightLog.txt
 
 echo %foldername%
-
+@popd
 pause
