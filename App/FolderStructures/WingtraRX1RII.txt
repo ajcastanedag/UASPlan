@@ -1,18 +1,20 @@
+@pushd %~dp0
 @echo off
-
 for /f "skip=1" %%i in ('wmic os get localdatetime') do if not defined fulldate set fulldate=%%i
 set year=%fulldate:~2,2%
 set month=%fulldate:~4,2%
 set day=%fulldate:~6,2%
-set foldername=%day%%month%%year%_Wingtra_RGB
+set foldername=
 
 md %foldername%\0_Images
+md %foldername%\0_Images\Original
+md %foldername%\0_Images\Geotag
 md %foldername%\1_Agisoft
 md %foldername%\2_Results
 md %foldername%\3_Media
 md %foldername%\4_FlightFiles
+
 type nul > %foldername%\FlightLog.txt
 
 echo %foldername%
-
-pause
+@popd
