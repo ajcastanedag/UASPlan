@@ -5,7 +5,7 @@
 # is erased.
 ################################################################################
 ### Create Folder structure based on root name, sensor combination and standard name
-CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat){
+CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Aoi_Pol){
   # Change directory to Target location
   setwd(TargetLoc)
   # Read TXT structure depending on configuration UAV-Sensor
@@ -29,20 +29,29 @@ CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat){
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraAltum.txt")))
   } else if(SetUp == "WingtraRX1RII") {
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraRX1RII.txt")))
-  }
-  else(print("ERROR"))
-  
+  } else(print("ERROR"))
+  # Modify the line that contains foldername= and add the dinamic values
   Structure[grep('foldername=', Structure)] <- paste0(Structure[grep('set foldername=', Structure)],MissionName)
+  # Create Bat File with modified structure
   write.table(Structure, file = "Temporal.bat", sep="",
               row.names = FALSE, col.names = FALSE,  quote = FALSE)
+  # Call system console, execute bat file and delete it
   shell.exec("Temporal.bat")
   Sys.sleep(1)
   file.remove("Temporal.bat")
-
-  setwd(paste0(TargetLoc,"\\",MissionName))
+  # Add log information to created text file "FlightLog.txt"
+  setwd(paste0(TargetLoc,"\\",MissionName,"\\4_FlightFiles\\"))
   fileConn<-file("FlightLog.txt")
   writeLines(LogDat, fileConn)
   close(fileConn)
-  
+  # Save GPKG file with ,modified or imported polygon
+  if(!is.null(Aoi_Pol)){
+    print("There is smth")
+    st_write(Aoi_Pol,
+             paste0(TargetLoc,"\\",MissionName,"\\4_FlightFiles\\AOI.gpkg"),
+             delete_layer=TRUE
+             )
+    
+  }
 }
 ################################################################################

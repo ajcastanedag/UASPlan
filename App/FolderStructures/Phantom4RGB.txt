@@ -11,8 +11,7 @@ md %foldername%\1_Agisoft
 md %foldername%\2_Results
 md %foldername%\3_Media
 md %foldername%\4_FlightFiles
-
-type nul > %foldername%\FlightLog.txt
+type nul > %foldername%\4_FlightFiles\FlightLog.txt
 
 echo %foldername%
 @popd
