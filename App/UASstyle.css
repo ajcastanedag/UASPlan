@@ -19,17 +19,15 @@ h1 {
 /* Tables*/
 .dataTables_length label,
                   .dataTables_filter label,
-                  .dataTables_info {
-                      color: white!important;
-                      }
+                  .dataTables_info {color: white!important;}
+                  .paginate_button {background: white!important;}
+                  .dataTables_wrapper {color: white!important;}
+                  thead {color: white;}
 
-                  .paginate_button {
-                      background: white!important;
-                  }
 
-                  thead {
-                      color: white;
-                      }
+
+
+
 
 
 

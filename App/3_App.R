@@ -29,62 +29,63 @@ ui <- tagList(
              theme = shinytheme("slate"),
              ###################################################################
              # # INFO Tab                                                         ---- 
-             # tabPanel("Info",
-             #          tags$head(
-             #            # Include our custom CSS
-             #            includeCSS("UASstyle.css")
-             #          ),
-             #          icon = icon("circle-info"),
-             # 
-             #          fluidPage(
-             #            titlePanel("Important information"),
-             #            tags$hr(style="border-color: gray;"),
-             #            fluidRow(
-             #              column(3, align="center",
-             #                     selectInput("AirCraftM", "Aircraft",
-             #                                 c("","Phantom4", "DJIM600", "DJIM300", "Wingtra"))
-             #                     ),
-             #              column(3, align="center",
-             #                     selectInput("SensorM", "Sensor",
-             #                                 c("","RGB", "RX1RII", "Altum", "MXDual", "LiAirV","L1", "H20T"))
-             #                     ),
-             #              column(3, align="center",
-             #                     selectInput("RTKstat", "RTK",
-             #                                 c("NO", "YES"))
-             #              ),
-             #              column(3, align="center",
-             #                     actionButton("rst", "Reset", style = 'margin-top:25px', width = "100%")
-             # 
-             #              )
-             # 
-             #            ),
-             # 
-             #            br(),
-             #            tags$hr(style="border-color: gray;"),
-             # 
-             #            fluidRow(
-             #              column(12, align="center",
-             #                     uiOutput("MDdisplay"))
-             #              ),
-             # 
-             #            br(),
-             #            tags$hr(style="border-color: gray;"),
-             # 
-             #             fluidRow(
-             #               column(3, div(style = "height:50px"),
-             #                      actionButton("getPro", "Protocol", icon = icon("arrow-down")),
-             #                      actionButton("getCheck", "Check List", icon = icon("arrow-down")),
-             #                      offset = 9)
-             # 
-             #             ),
-             #          ),
-             #          ),
+             tabPanel("Info",
+                      tags$head(
+                        # Include our custom CSS
+                        includeCSS("UASstyle.css")
+                      ),
+                      icon = icon("circle-info"),
+
+                      fluidPage(
+                        titlePanel("Important information"),
+                        tags$hr(style="border-color: gray;"),
+                        fluidRow(
+                          column(3, align="center",
+                                 selectInput("AirCraftM", "Aircraft",
+                                             c("","Phantom4", "DJIM600", "DJIM300", "Wingtra"))
+                                 ),
+                          column(3, align="center",
+                                 selectInput("SensorM", "Sensor",
+                                             c("","RGB", "RX1RII", "Altum", "MXDual", "LiAirV","L1", "H20T"))
+                                 ),
+                          column(3, align="center",
+                                 selectInput("RTKstat", "RTK",
+                                             c("NO", "YES"))
+                          ),
+                          column(3, align="center",
+                                 actionButton("rst", "Reset", style = 'margin-top:25px', width = "100%")
+
+                          )
+
+                        ),
+
+                        br(),
+                        tags$hr(style="border-color: gray;"),
+
+                        fluidRow(
+                          column(12, align="center",
+                                 uiOutput("MDdisplay"))
+                          ),
+
+                        br(),
+                        tags$hr(style="border-color: gray;"),
+
+                         fluidRow(
+                           column(3, div(style = "height:50px"),
+                                  actionButton("getPro", "Protocol", icon = icon("arrow-down")),
+                                  actionButton("getCheck", "Check List", icon = icon("arrow-down")),
+                                  offset = 9)
+
+                         ),
+                      ),
+                      ),
              ###################################################################
              # Create Flight Project                                            ----  
              tabPanel("Create Project",
                       tags$head(
                         # Include our custom CSS
-                        #includeCSS("UASstyle.css")
+                        includeCSS("UASstyle.css"),
+                        
                       ),
                       icon = icon("location"),
                       sidebarLayout(
@@ -136,18 +137,31 @@ ui <- tagList(
                         
                         mainPanel(leafletOutput("map"), width = 7,
                                   br(),
+                                  
                                   DT::dataTableOutput("FlightsDF"))
                       )),
              ###################################################################
              #Load Project Tab                                                 ----
              tabPanel("Load Project",
-                       tags$head(
-                         # Include our custom CSS
-                         includeCSS("UASstyle.css")
-                       ),
-                       icon = icon("table"),
-
+                      tags$head(
+                        # Include our custom CSS
+                        includeCSS("UASstyle.css")
+                      ),
+                      icon = icon("table"),
+                      
+             ),
+             ###################################################################
+             # Processing wizard                                                 ----
+             tabPanel("Processing Wizzard",
+                      tags$head(
+                        # Include our custom CSS
+                        includeCSS("UASstyle.css")
+                      ),
+                      icon = icon("hat-wizard"),
+                      
              )
+             ###################################################################
+             
              ################################################################### 
   )
 )
