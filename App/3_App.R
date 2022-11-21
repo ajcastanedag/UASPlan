@@ -7,15 +7,16 @@
 ##### Load libraries                                                            -----
 pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
                "leaflet","leaflet.extras", "tidyverse", "rmarkdown", "shinyBS",
-               "easycsv","sf")
+               "easycsv","sf","sfheaders")
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\d$\\0_Document\\UASPlan\\App"
-Root<- "D:\\UASPlan\\App"
+#Root<- "D:\\UASPlan\\App"
+Root <- "D:\\PhD_Main\\UASPlan\\App"
 setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
-source("D:/UASPlan/App/0_Functions.R")
+source(paste0(getwd(),"\\0_Functions.R"))
 ##### Possible output locations general directory (E drive)                     ----- 
 TargetDrive <- "\\\\132.187.202.41\\d$\\1_Projects"
 ################################################################################
@@ -344,7 +345,9 @@ server <- function(input, output, session) {
         
         CreateFolder(Root, Target, Mission, SetUp, input$LogInformation, Aoi_Pol)
         
-        print(Aoi_Pol)
+        NewPol <<- input$mymap_draw_edited_features
+        
+
       }
     }
     
@@ -372,16 +375,26 @@ server <- function(input, output, session) {
     }
   })
   
+  # Edited Features
+  observeEvent(input$map_draw_edited_features, {
+    print("Edited Features")
+    Aoi_Pol <<- ModPolToSf(input$map_draw_edited_features)
+  })
+  
   #### Reactive Functions ----
   # Create base map (tiles + gray path) on a reactive function                  ----
   base.map <- reactive({
-    RenderedMap <- leaflet() %>% 
+    RenderedMap <- leaflet() %>%
       addProviderTiles(providers$CartoDB.Positron, group = 'Cartographic',
                        options = providerTileOptions(opacity = 0.9)) %>%
       addScaleBar(position = "bottomleft",
                   scaleBarOptions(maxWidth = 100, metric = TRUE, imperial = TRUE,
                                   updateWhenIdle = TRUE)) %>%
-      fitBounds(9.96941167653942, 49.7836214950253, 9.983155389252369,49.789472652132595) 
+      fitBounds(9.96941167653942, 49.7836214950253, 9.983155389252369,49.789472652132595) %>%
+      addLayersControl(position = "topright",
+                       overlayGroups = "Imported") %>%
+      addDrawToolbar(targetGroup = "Imported",
+                     editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) 
     
     if(!is.null(input$AOI)){
       Aoi_Pol <<- st_read(input$AOI$datapath) %>% st_transform(4326)
@@ -397,7 +410,8 @@ server <- function(input, output, session) {
                          overlayGroups = "Imported") %>%
         addDrawToolbar(
           targetGroup = "Imported",
-          editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) 
+          editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) #%>%
+        #addStyleEditor()
       
     }
     
