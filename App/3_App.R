@@ -7,11 +7,11 @@
 ##### Load libraries                                                            -----
 pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
                "leaflet","leaflet.extras", "tidyverse", "rmarkdown", "shinyBS",
-               "easycsv","sf","sfheaders")
+               "easycsv","sf","sfheaders","shinyalert","glue")
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\d$\\0_Document\\UASPlan\\App"
-#Root<- "D:\\UASPlan\\App"
-Root <- "D:\\PhD_Main\\UASPlan\\App"
+Root<- "D:\\UASPlan\\App"
+#Root <- "D:\\PhD_Main\\UASPlan\\App"
 setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
@@ -115,11 +115,13 @@ ui <- tagList(
                                      fileInput("AOI", NULL, accept = c(".gpkg")),
                                      h4(strong("Flights"), align = "left"),
                                      splitLayout(cellWidths = c("44%", "44%", "12%"),
-                                                 selectInput("AirCraft", "Aircraft",
-                                                             c("", "Phantom4", "DJIM600", "DJIM300", "Wingtra")),
-                                                 selectInput("Sensor", "Sensor",
-                                                             c("","RGB", "Altum", "MXDual", "L1", "H20T")),
-                                                 actionButton("add", NULL, icon = icon("plus"), style = 'margin-top:21px', width = "100%")
+                                                 selectizeInput("AirCraft", "Aircraft",
+                                                             c("", "Phantom4", "DJIM600", "DJIM300", "Wingtra"),
+                                                             options = list(dropdownParent = 'body')),
+                                                 selectizeInput("Sensor", "Sensor",
+                                                             c("","RGB", "Altum", "MXDual", "L1", "H20T"),
+                                                             options = list(dropdownParent = 'body')),
+                                                 actionButton("add", NULL, icon = icon("plus"), style = 'margin-top:25px', width = "100%")
                                      ),
                                      h4(strong("Log Information:"), align = "left"),
                                      textAreaInput("LogInformation",
@@ -169,6 +171,19 @@ ui <- tagList(
 ################################################################################
 ##############################    SERVER   ##################################### ----
 server <- function(input, output, session) {
+  #### Create objects                                                           ----
+  # Create empty SP object to store loaded AOI
+  Aoi_Pol <<- NULL
+  
+  # Create empty SP array to store all modified AOI
+  Aoi_Arr <<- NULL
+  
+  # Create empty data frame for storing flights                                               
+  Data <- data.frame(Date=character(),
+                     Aircraft=character(), 
+                     Sensor=character(), 
+                     Name=character(),
+                     stringsAsFactors=FALSE)
   
   #### Render elements                                                          ----
   # Load introduction information
@@ -188,19 +203,12 @@ server <- function(input, output, session) {
     base.map() 
   })
   
-  # Create empty data frame for storing flights                                               
-  Data <- data.frame(Date=character(),
-                     Aircraft=character(), 
-                     Sensor=character(), 
-                     Name=character(),
-                     stringsAsFactors=FALSE) 
-  
-  # Create empty SP object to store loaded AOI
-  Aoi_Pol <- NULL
-  
   # Render table only  with initial options
-  output$FlightsDF <- DT::renderDataTable(addData(), editable = TRUE)
+  output$FlightsDF <- DT::renderDataTable(addData(),
+                                          editable = TRUE,
+                                          options = list(dom = 't'))
   
+  #### Reactive events                                                          ----
   # Include the filled data into the table and reset fields
   addData <- eventReactive(input$add, {
     if(input$add>0 &&
@@ -209,13 +217,20 @@ server <- function(input, output, session) {
        input$misnam != "" &&
        input$pilot != "" &&
        input$copilot != ""){
-
+      
+      
+      serial_no <- 1 + nrow(Data)
+        
       tmp <- data.frame(Date=input$DoF,
                          Aircraft=input$AirCraft,
                          Sensor=input$Sensor,
                          Name=input$misnam,
                          stringsAsFactors=FALSE)
+      
       Data <<- rbind(Data, tmp)
+      
+      Aoi_Arr <<- rbind(Aoi_Arr, Aoi_Pol$geometry)
+      
     }
     updateSelectInput(session,
                       "Sensor",
@@ -226,7 +241,8 @@ server <- function(input, output, session) {
     Data
   }, ignoreNULL = FALSE)
 
-  #### Observe Events ----
+  #### Observe Events                                                           ----
+  # Update Sensor options depending on selected Aircraft
   observeEvent(input$AirCraft, {
     if(input$AirCraft == "Phantom4"){
       updateSelectInput(session,
@@ -250,6 +266,7 @@ server <- function(input, output, session) {
                            choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAirV","L1", "H20T"))
   }) 
   
+  # Update SensorM options depending on selected Aircraft
   observeEvent(input$AirCraftM, {
     if(input$AirCraftM == "Phantom4"){
       updateSelectInput(session,
@@ -273,6 +290,7 @@ server <- function(input, output, session) {
                            choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAir V","L1", "H20T"))
   }) 
   
+  # Render markdown depending on selected set up and suggest RTK 
   observeEvent(input$SensorM, {
     if(input$SensorM == ""){
       output$MDdisplay <- renderUI({includeMarkdown("./Protocols/Introduction.md")})
@@ -309,20 +327,19 @@ server <- function(input, output, session) {
     else if(input$AirCraftM == "Wingtra" && input$SensorM == "Altum"){
       output$MDdisplay <- renderUI({includeMarkdown("./Protocols/WingtraAltum.md")})
     }
-  })
-  
-  observeEvent(input$SensorM, {
+    
     if(input$SensorM %in% c("LiAirV","L1")){
       updateSelectInput(session,
                         "RTKstat",
                         choices = "YES",
                         selected = "YES")} else (
-      updateSelectInput(session,
-                        "RTKstat",
-                        choices = c("YES","NO"),
-                        selected = "NO"))
+                          updateSelectInput(session,
+                                            "RTKstat",
+                                            choices = c("YES","NO"),
+                                            selected = "NO"))
   })
   
+  # Button to clean SetUp opctions
   observeEvent(input$rst,{
     updateSelectInput(session,
                       "SensorM",
@@ -343,28 +360,26 @@ server <- function(input, output, session) {
         SetUp <- paste0(Data[i,"Aircraft"], Data[i,"Sensor"])
         Mission <- paste0(Data[i,"Date"],"_",Data[i,"Name"],"_",SetUp)
         
-        CreateFolder(Root, Target, Mission, SetUp, input$LogInformation, Aoi_Pol)
+        CreateFolder(Root, Target, Mission, SetUp, input$LogInformation, Aoi_Arr[[i]])
         
-        NewPol <<- input$mymap_draw_edited_features
+        updateSelectInput(session,
+                          "Sensor",
+                          selected = "")
+        updateSelectInput(session,
+                          "AirCraft",
+                          selected = "")
         
-
+        updateTextAreaInput(session,
+                            "LogInformation",
+                            value = "")
       }
-    }
+    } else(shinyalert("Oops!", "No flights added to the table!.", type = "error"))
     
     
-    updateSelectInput(session,
-                      "Sensor",
-                      selected = "")
-    updateSelectInput(session,
-                      "AirCraft",
-                      selected = "")
-    
-    updateTextAreaInput(session,
-                        "LogInformation",
-                        value = "")
     
   })
   
+  # Function to change the status of the crateStruct button to "ready"
   observeEvent(ListenFields(),{
     TempVals <- c(input$rootLoc, input$misnam, input$pilot, input$copilot)
     if(all(TempVals != "")){
@@ -377,16 +392,22 @@ server <- function(input, output, session) {
   
   # Edited Features
   observeEvent(input$map_draw_edited_features, {
-    print("Edited Features")
     Aoi_Pol <<- ModPolToSf(input$map_draw_edited_features)
   })
   
-  #### Reactive Functions ----
-  # Create base map (tiles + gray path) on a reactive function                  ----
+  # Created Features
+  observeEvent(input$map_draw_new_feature, {
+    Aoi_Pol <<- ModPolToSf(input$map_draw_new_feature, T)
+  })
+  
+  #### Reactive Functions                                                       ----
+  # Create base map (tiles + gray path) on a reactive function                  
   base.map <- reactive({
     RenderedMap <- leaflet() %>%
-      addProviderTiles(providers$CartoDB.Positron, group = 'Cartographic',
-                       options = providerTileOptions(opacity = 0.9)) %>%
+      addProviderTiles(providers$Esri.WorldImagery, group = 'Cartographic',
+                       options = providerTileOptions(opacity = 1)) %>%
+      addProviderTiles(providers$Stamen.Toner, group = 'Cartographic',
+                       options = providerTileOptions(opacity = 0.3)) %>%
       addScaleBar(position = "bottomleft",
                   scaleBarOptions(maxWidth = 100, metric = TRUE, imperial = TRUE,
                                   updateWhenIdle = TRUE)) %>%
@@ -397,7 +418,7 @@ server <- function(input, output, session) {
                      editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) 
     
     if(!is.null(input$AOI)){
-      Aoi_Pol <<- st_read(input$AOI$datapath) %>% st_transform(4326)
+      Aoi_Pol <<- st_read(input$AOI$datapath, quiet = TRUE) %>% st_transform(4326)
 
       RenderedMap <- RenderedMap %>% addPolygons(data = Aoi_Pol,
                                                  color = "green",
@@ -418,7 +439,7 @@ server <- function(input, output, session) {
     return(RenderedMap)
   })
   
-  # React to the input information values                                       ---- 
+  # React to the input information values                                       
   ListenFields <- reactive({
     list(input$rootLoc,
          input$misnam,

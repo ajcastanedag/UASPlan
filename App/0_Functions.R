@@ -4,8 +4,8 @@
 # converted in .bat files and executed in the windows shell, finally the .bat file
 # is erased.
 ################################################################################
-### Create Folder structure based on root name, sensor combination and standard name
-CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Aoi_Pol){
+### Create Folder structure based on root, name, setup and standard name
+CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Pol){
   # Change directory to Target location
   setwd(TargetLoc)
   # Read TXT structure depending on configuration UAV-Sensor
@@ -50,8 +50,8 @@ CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Aoi_Pol){
   close(fileConn)
   
   # Save GPKG file with ,modified or imported polygon
-  if(!is.null(Aoi_Pol)){
-    st_write(Aoi_Pol,
+  if(!is.null(Pol)){
+    st_write(GeneratePol(Pol),
              paste0(TargetLoc,"\\",MissionName,"\\4_FlightFiles\\AOI.gpkg"),
              delete_layer=TRUE
              )
@@ -59,29 +59,48 @@ CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Aoi_Pol){
   }
 }
 ################################################################################
-
-ModPolToSf <- function(Pol){
+### Transform leaflet mods on AOI into new polygon (SF)
+ModPolToSf <- function(Pol, New=F){
   
-  Coor <- unlist(Pol$features[[1]]$geometry$coordinates)
+  if(New == F){
+    # Un-list coordinates from new object
+    Coor <- unlist(Pol$features[[1]]$geometry$coordinates)
+  } else if(New == T){
+    Coor <- unlist(Pol$geometry$coordinates)
+  }
   
-  Longitude<-Coor[seq(1,length(Coor), 2)] 
-  Latitude<-Coor[seq(2,length(Coor), 2)]
   
-  Df <- data.frame(lon = Longitude,
-                   lat = Latitude)
+  # Create data frame to store pair of coordinates
+  Df <- data.frame(lon = Coor[seq(1,length(Coor), 2)],
+                   lat = Coor[seq(2,length(Coor), 2)])
   
+  # Create SF object using sfheaders
   sf <- sfheaders::sf_polygon(
     obj = Df
     , x = "lon"
     , y = "lat"
   )
+  
+  # Assign coordinate system
   sf::st_crs( sf ) <- 4326
   
   return(sf)
-  
-
 }
 ################################################################################
+# Transform geometries from DT into sf objects to export individually
+GeneratePol <- function(GeomSF){
+  # Aoi_Arr[[2]]
+  SfObj <- st_geometry(GeomSF) %>% st_sf()
+  
+  # Assign coordinate system
+  sf::st_crs( SfObj ) <- 4326
+  
+  return(SfObj)
+}
+################################################################################
+
+
+
 # library(leaflet.extras)
 # library(shiny)
 # 
@@ -133,4 +152,9 @@ ModPolToSf <- function(Pol){
 # }
 # 
 # shinyApp(ui, server)
+
+
+
+
+
 
