@@ -10,8 +10,8 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
                "easycsv","sf","sfheaders","shinyalert","glue")
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\d$\\0_Document\\UASPlan\\App"
-Root<- "D:\\UASPlan\\App"
-#Root <- "D:\\PhD_Main\\UASPlan\\App"
+#Root<- "D:\\UASPlan\\App"
+Root <- "D:\\PhD_Main\\UASPlan\\App"
 setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
@@ -95,24 +95,22 @@ ui <- tagList(
                                      h4(strong("Flight Data"),
                                         align = "left"),
                                      
-                                     uiOutput("rootLoc"),
-                                     
-                                     textInput("misnam",
-                                               "Mision Name", ""),
-                                     
                                      splitLayout(cellWidths = c("50%", "50%"),
-                                                 textInput("pilot", "Pilot", ""),
-                                                 textInput("copilot", "Co-Pilot", "")
+                                                 uiOutput("rootLoc"),
+                                                 textInput("misnam","Mision Name", "")
                                                  
                                      ),
-                                     
-                                     dateInput("DoF",
-                                               "Date:",
-                                               value = as.character(Sys.Date()),
-                                               daysofweekdisabled = c(0),
-                                               format = "yyyy_dd_mm") ,
-                                     h4(strong("Area of Interest"), align = "left"), 
-                                     fileInput("AOI", NULL, accept = c(".gpkg")),
+                                     splitLayout(cellWidths = c("35%", "35%","30%"),
+                                                 textInput("pilot", "Pilot", ""),
+                                                 textInput("copilot", "Co-Pilot", ""),
+                                                 dateInput("DoF",
+                                                           "Date:",
+                                                           value = as.character(Sys.Date()),
+                                                           daysofweekdisabled = c(0),
+                                                           format = "yyyy_dd_mm")
+                                     ),
+                                     #h4(strong("Area of Interest"), align = "left"), 
+                                     fileInput("AOI", "Area of Interest", accept = c(".gpkg")),
                                      h4(strong("Flights"), align = "left"),
                                      splitLayout(cellWidths = c("44%", "44%", "12%"),
                                                  selectizeInput("AirCraft", "Aircraft",
@@ -121,14 +119,14 @@ ui <- tagList(
                                                  selectizeInput("Sensor", "Sensor",
                                                              c("","RGB", "Altum", "MXDual", "L1", "H20T"),
                                                              options = list(dropdownParent = 'body')),
-                                                 actionButton("add", NULL, icon = icon("plus"), style = 'margin-top:25px', width = "100%")
+                                                 actionButton("add", NULL, icon = icon("plus"), style = 'margin-top:23px', width = "100%"),
                                      ),
                                      h4(strong("Log Information:"), align = "left"),
                                      textAreaInput("LogInformation",
                                                    NULL,
                                                    value = "",
                                                    placeholder = "Add mission comments here...",
-                                                   height = "150px"),
+                                                   height = "125px"),
                                      
                                      tags$hr(style="border-color: gray;"),
                                      actionButton("crateStruct",
@@ -138,7 +136,7 @@ ui <- tagList(
 
                         ),
                         
-                        mainPanel(leafletOutput("map"), width = 7,
+                        mainPanel(leafletOutput("map", height = "60vh"), width = 7,
                                   br(),
                                   
                                   DT::dataTableOutput("FlightsDF"))
@@ -191,11 +189,12 @@ server <- function(input, output, session) {
   
   # Get the folder options from remote folder (D)
   output$rootLoc <- renderUI({
-    selectInput("rootLoc", "Project Location",
+    selectizeInput("rootLoc", "Project Location",
                 choices = c("", list.dirs(path = TargetDrive,
                                           full.names = FALSE,
                                           recursive = FALSE)),
-                selected = "")
+                selected = "",
+                options = list(dropdownParent = 'body'))
   })
   
   # Render leaflet map with a reactive function base.map()                     
@@ -218,7 +217,6 @@ server <- function(input, output, session) {
        input$pilot != "" &&
        input$copilot != ""){
       
-      
       serial_no <- 1 + nrow(Data)
         
       tmp <- data.frame(Date=input$DoF,
@@ -231,7 +229,12 @@ server <- function(input, output, session) {
       
       Aoi_Arr <<- rbind(Aoi_Arr, Aoi_Pol$geometry)
       
+    } else if (!is.null(input$FlightsDF_rows_selected)) {
+      
+      Data <<- Data[-as.numeric(input$FlightsDF_rows_selected),]
+      Aoi_Arr <<- Aoi_Arr[-as.numeric(input$FlightsDF_rows_selected),]
     }
+    
     updateSelectInput(session,
                       "Sensor",
                       selected = "")
@@ -360,7 +363,17 @@ server <- function(input, output, session) {
         SetUp <- paste0(Data[i,"Aircraft"], Data[i,"Sensor"])
         Mission <- paste0(Data[i,"Date"],"_",Data[i,"Name"],"_",SetUp)
         
-        CreateFolder(Root, Target, Mission, SetUp, input$LogInformation, Aoi_Arr[[i]])
+        LogInfo <- c(input$rootLoc,
+                     input$misnam,
+                     input$pilot,
+                     input$copilot,
+                     Data[i,"Date"],
+                     #input$AOI,
+                     Data[i,"Aircraft"],
+                     Data[i,"Sensor"],
+                     input$LogInformation)
+        
+        CreateFolder(Root, Target, Mission, SetUp, LogInfo, Aoi_Arr[[i]])
         
         updateSelectInput(session,
                           "Sensor",
@@ -373,7 +386,7 @@ server <- function(input, output, session) {
                             "LogInformation",
                             value = "")
       }
-    } else(shinyalert("Oops!", "No flights added to the table!.", type = "error"))
+    } else(shinyalert("Error!", "No flights added to the table!.", type = "error"))
     
     
     
@@ -388,6 +401,19 @@ server <- function(input, output, session) {
                          "Create project structure",
                          icon = icon("plus"))
     }
+  })
+  
+  # use SelectedCel status to change +/- sybol on add button 
+  observeEvent(SelectedCel(),{
+    if(SelectedCel()){
+      updateActionButton(session,"add",icon = icon("minus"))
+      shinyjs::disable("AirCraft")
+      shinyjs::disable("Sensor")
+      
+    } else{
+      updateActionButton(session,"add",icon = icon("plus"))
+      shinyjs::enable("AirCraft")
+      shinyjs::enable("Sensor")}
   })
   
   # Edited Features
@@ -446,6 +472,9 @@ server <- function(input, output, session) {
          input$pilot,
          input$copilot)
   })
+  
+  # React to selection of cell in Table 
+  SelectedCel <- reactive({!is.null(input$FlightsDF_rows_selected)})  
 
 }
 ################################################################################

@@ -31,7 +31,7 @@ CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Pol){
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraRX1RII.txt")))
   } else(print("ERROR"))
   
-  # Modify the line that contains foldername= and add the dinamic values
+  # Modify the line that contains foldername= and add the dynamic values
   Structure[grep('foldername=', Structure)] <- paste0(Structure[grep('set foldername=', Structure)],MissionName)
   
   # Create Bat File with modified structure
@@ -45,9 +45,9 @@ CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Pol){
   
   # Add log information to created text file "FlightLog.txt"
   setwd(paste0(TargetLoc,"\\",MissionName,"\\4_FlightFiles\\"))
-  fileConn<-file("FlightLog.txt")
-  writeLines(LogDat, fileConn)
-  close(fileConn)
+  
+  # Fill basic information in Log File
+  MakeLog(Root, LogDat)
   
   # Save GPKG file with ,modified or imported polygon
   if(!is.null(Pol)){
@@ -98,8 +98,33 @@ GeneratePol <- function(GeomSF){
   return(SfObj)
 }
 ################################################################################
+#
+MakeLog <- function(Root, LogDat){
+  
+  print("MakeLog Called")
+  
+  file.copy(from=paste0(Root,"\\LogStructure\\FlightLog.txt"),
+            to=getwd())
+  
+  LogFile <- noquote(readLines("FlightLog.txt"))
+  
+  LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',LogDat[1])
+  LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',LogDat[2])
+  LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',LogDat[3])
+  LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',LogDat[4])
+  LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',as.character(Sys.Date()))
+  LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',LogDat[5])
+  LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',LogDat[6])
+  LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',LogDat[7])
+  LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",LogDat[8])
+  
+  # Update Log file 
+  write.table(LogFile, file = "FlightLog.txt", sep="",
+              row.names = FALSE, col.names = FALSE,  quote = FALSE)
+  
 
-
+}
+################################################################################
 
 # library(leaflet.extras)
 # library(shiny)

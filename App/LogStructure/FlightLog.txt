@@ -1,0 +1,24 @@
+UAS-JMU Flight logger
+=====================
+
+
+Versioning
+=====================
+
+FlightData
+=====================
+* Project Location:
+* Mission Name:
+* Pilot:
+* Copilot:
+* Date of creation:
+* Date of Flight:
+* Aircraft:
+* Sensor:
+
+PlatformLogger
+=====================
+
+
+ProcessingData
+=====================
