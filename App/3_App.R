@@ -7,12 +7,12 @@
 ##### Load libraries                                                            -----
 pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
                "leaflet","leaflet.extras", "tidyverse", "rmarkdown", "shinyBS",
-               "easycsv","sf","sfheaders","shinyalert","glue")
+               "easycsv","sf","sfheaders","shinyalert")
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
-#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
+#Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
@@ -30,7 +30,7 @@ ui <- tagList(
              windowTitle="JMU UAS Flight book",
              theme = shinytheme("slate"),
              ###################################################################
-             # # INFO Tab                                                         ---- 
+             # # INFO Tab                                                       ---- 
              tabPanel("Info",
                       tags$head(
                         # Include our custom CSS
@@ -120,7 +120,10 @@ ui <- tagList(
                                                  selectizeInput("Sensor", "Sensor",
                                                              c("","RGB", "Altum", "MXDual", "L1", "H20T"),
                                                              options = list(dropdownParent = 'body')),
-                                                 actionButton("add", NULL, icon = icon("plus"), style = 'margin-top:23px', width = "100%"),
+                                                 actionButton("add", NULL, icon = icon("plus"),
+                                                              style = 'margin-top:23px',
+                                                              size ="lg",
+                                                              width = "100%"),
                                      ),
                                      h4(strong("Log Information:"), align = "left"),
                                      textAreaInput("LogInformation",
@@ -143,7 +146,7 @@ ui <- tagList(
                                   DT::dataTableOutput("FlightsDF"))
                       )),
              ###################################################################
-             #Load Project Tab                                                 ----
+             #Load Project Tab                                                  ----
              tabPanel("Load Project",
                       tags$head(
                         # Include our custom CSS
@@ -153,7 +156,7 @@ ui <- tagList(
                       
              ),
              ###################################################################
-             # Processing wizard                                                 ----
+             # Processing wizard                                                ----
              tabPanel("Processing Wizzard",
                       tags$head(
                         # Include our custom CSS
@@ -480,5 +483,9 @@ server <- function(input, output, session) {
 }
 ################################################################################
 #######################    EXECUTE THE APP   ################################### ----
+# {library(shiny)
+#   vwr = dialogViewer('modellvergleiche-irt-with-brms', width = 1600, height = 1200)
+#   runGadget(shinyAppDir(appDir = 'D:\\UASPlan\\App\\'), viewer = vwr)
+# } # Run app in presized window
 shinyApp(ui,server)          
 ################################################################################

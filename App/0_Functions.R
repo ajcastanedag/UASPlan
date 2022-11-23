@@ -8,7 +8,7 @@
 CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Pol){
   # Change directory to Target location
   setwd(TargetLoc)
-  # Read TXT structure depending on configuration UAV-Sensor
+  # Read TXT structure depending on configuration UAV-Sensor                    ----
   if(SetUp == "DJIM300Altum"){
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM300Altum.txt")))
   } else if(SetUp == "DJIM300MXDual"){
@@ -30,9 +30,11 @@ CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Pol){
   } else if(SetUp == "WingtraRX1RII") {
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraRX1RII.txt")))
   } else(print("ERROR"))
-  
+  #####
   # Modify the line that contains foldername= and add the dynamic values
   Structure[grep('foldername=', Structure)] <- paste0(Structure[grep('set foldername=', Structure)],MissionName)
+  
+  print(Structure)
   
   # Create Bat File with modified structure
   write.table(Structure, file = "Temporal.bat", sep="",
@@ -43,20 +45,20 @@ CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Pol){
   Sys.sleep(1)
   file.remove("Temporal.bat")
   
-  # Add log information to created text file "FlightLog.txt"
-  setwd(paste0(TargetLoc,"\\",MissionName,"\\4_FlightFiles\\"))
-  
-  # Fill basic information in Log File
-  MakeLog(Root, LogDat)
-  
-  # Save GPKG file with ,modified or imported polygon
-  if(!is.null(Pol)){
-    st_write(GeneratePol(Pol),
-             paste0(TargetLoc,"\\",MissionName,"\\4_FlightFiles\\AOI.gpkg"),
-             delete_layer=TRUE
-             )
-    
-  }
+  # # Add log information to created text file "FlightLog.txt"
+  # setwd(paste0(TargetLoc,"\\",MissionName,"\\3_FlightFiles\\0_Log\\"))
+  # 
+  # # Fill basic information in Log File
+  # MakeLog(Root, LogDat)
+  # 
+  # # Save GPKG file with ,modified or imported polygon
+  # if(!is.null(Pol)){
+  #   st_write(GeneratePol(Pol),
+  #            paste0(TargetLoc,"\\",MissionName,"\\3_FlightFiles\\0_Log\\AOI.gpkg"),
+  #            delete_layer=TRUE
+  #            )
+  #   
+  # }
 }
 ################################################################################
 ### Transform leaflet mods on AOI into new polygon (SF)
