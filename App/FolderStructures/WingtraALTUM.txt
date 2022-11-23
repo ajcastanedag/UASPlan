@@ -9,9 +9,16 @@ set foldername=
 md %foldername%\0_Images
 md %foldername%\1_Agisoft
 md %foldername%\2_Results
-md %foldername%\3_Media
-md %foldername%\4_FlightFiles
-type nul > %foldername%\FlightLog.txt
+md %foldername%\2_Results\0_Codes
+md %foldername%\2_Results\1_Reports
+md %foldername%\2_Results\2_QGis
+md %foldername%\2_Results\3_Raster
+md %foldername%\2_Results\4_Vector
+md %foldername%\2_Results\5_PointCloud
+md %foldername%\3_FlightFiles\0_Log
+md %foldername%\3_FlightFiles\1_Plan
+md %foldername%\3_FlightFiles\2_Other
+md %foldername%\4_Media
 
 echo %foldername%
 @popd
