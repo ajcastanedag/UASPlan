@@ -8,6 +8,7 @@ set foldername=
 
 md %foldername%\0_Images
 md %foldername%\0_Images\T
+md %foldername%\0_Images\T_Cal
 md %foldername%\0_Images\W
 md %foldername%\0_Images\Z
 md %foldername%\1_Agisoft

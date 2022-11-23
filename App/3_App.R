@@ -1,7 +1,7 @@
 #########################    UAS JMU PLATFORM    ############################### ----
-# 
-# 
-# 
+# Do not close when setwd() fails.
+# Add reset all fields button.
+# Fill markdown files with information (from drive)
 # 
 ################################################################################
 ##### Load libraries                                                            -----
@@ -10,8 +10,8 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
                "easycsv","sf","sfheaders","shinyalert")
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
-Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
-#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 setwd(Root)
 ##### Add resource path                                                         ----- 
@@ -34,10 +34,9 @@ ui <- tagList(
              tabPanel("Info",
                       tags$head(
                         # Include our custom CSS
-                        includeCSS("UASstyle.css")
-                      ),
+                        includeCSS("UASstyle.css")),
                       icon = icon("circle-info"),
-
+                      # Start fluid Page
                       fluidPage(
                         titlePanel("Important information"),
                         tags$hr(style="border-color: gray;"),
@@ -56,14 +55,11 @@ ui <- tagList(
                           ),
                           column(3, align="center",
                                  actionButton("rst", "Reset", style = 'margin-top:25px', width = "100%")
-
                           )
-
                         ),
-
+                        
                         br(),
                         tags$hr(style="border-color: gray;"),
-
                         fluidRow(
                           column(12, align="center",
                                  uiOutput("MDdisplay"))
@@ -77,7 +73,6 @@ ui <- tagList(
                                   actionButton("getPro", "Protocol", icon = icon("arrow-down")),
                                   actionButton("getCheck", "Check List", icon = icon("arrow-down")),
                                   offset = 9)
-
                          ),
                       ),
                       ),
@@ -86,9 +81,7 @@ ui <- tagList(
              tabPanel("Create Project",
                       tags$head(
                         # Include our custom CSS
-                        includeCSS("UASstyle.css"),
-                        
-                      ),
+                        includeCSS("UASstyle.css"),),
                       icon = icon("location"),
                       sidebarLayout(
                         sidebarPanel(width = 5,
@@ -98,9 +91,7 @@ ui <- tagList(
                                      
                                      splitLayout(cellWidths = c("50%", "50%"),
                                                  uiOutput("rootLoc"),
-                                                 textInput("misnam","Mision Name", "")
-                                                 
-                                     ),
+                                                 textInput("misnam","Mision Name", "")),
                                      splitLayout(cellWidths = c("35%", "35%","30%"),
                                                  textInput("pilot", "Pilot", ""),
                                                  textInput("copilot", "Co-Pilot", ""),
@@ -108,9 +99,7 @@ ui <- tagList(
                                                            "Date:",
                                                            value = as.character(Sys.Date()),
                                                            daysofweekdisabled = c(0),
-                                                           format = "yyyy_dd_mm")
-                                     ),
-                                     #h4(strong("Area of Interest"), align = "left"), 
+                                                           format = "yyyy_dd_mm")),
                                      fileInput("AOI", "Area of Interest", accept = c(".gpkg")),
                                      h4(strong("Flights"), align = "left"),
                                      splitLayout(cellWidths = c("44%", "44%", "12%"),
@@ -123,22 +112,18 @@ ui <- tagList(
                                                  actionButton("add", NULL, icon = icon("plus"),
                                                               style = 'margin-top:23px',
                                                               size ="lg",
-                                                              width = "100%"),
-                                     ),
+                                                              width = "100%"),),
                                      h4(strong("Log Information:"), align = "left"),
                                      textAreaInput("LogInformation",
                                                    NULL,
                                                    value = "",
                                                    placeholder = "Add mission comments here...",
                                                    height = "125px"),
-                                     
                                      tags$hr(style="border-color: gray;"),
                                      actionButton("crateStruct",
                                                   "Please fill fields",
                                                   icon = NULL,
-                                                  width = "100%"),
-
-                        ),
+                                                  width = "100%"),),
                         
                         mainPanel(leafletOutput("map", height = "60vh"), width = 7,
                                   br(),
@@ -152,8 +137,7 @@ ui <- tagList(
                         # Include our custom CSS
                         includeCSS("UASstyle.css")
                       ),
-                      icon = icon("table"),
-                      
+                      icon = icon("table"),        
              ),
              ###################################################################
              # Processing wizard                                                ----
@@ -162,9 +146,7 @@ ui <- tagList(
                         # Include our custom CSS
                         includeCSS("UASstyle.css")
                       ),
-                      icon = icon("hat-wizard"),
-                      
-             )
+                      icon = icon("hat-wizard"),)
              ###################################################################
              
              ################################################################### 
