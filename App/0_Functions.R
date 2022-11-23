@@ -101,12 +101,7 @@ GeneratePol <- function(GeomSF){
 #
 MakeLog <- function(Root, LogDat){
   
-  print("MakeLog Called")
-  
-  file.copy(from=paste0(Root,"\\LogStructure\\FlightLog.txt"),
-            to=getwd())
-  
-  LogFile <- noquote(readLines("FlightLog.txt"))
+  LogFile <- noquote(readLines(paste0(Root,"\\LogStructure\\FlightLog.txt")))
   
   LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',LogDat[1])
   LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',LogDat[2])
@@ -119,7 +114,7 @@ MakeLog <- function(Root, LogDat){
   LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",LogDat[8])
   
   # Update Log file 
-  write.table(LogFile, file = "FlightLog.txt", sep="",
+  write.table(LogFile, file = paste0("FlightLog_",LogDat[2],".md"), sep="",
               row.names = FALSE, col.names = FALSE,  quote = FALSE)
   
 

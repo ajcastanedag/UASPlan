@@ -9,9 +9,9 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
                "leaflet","leaflet.extras", "tidyverse", "rmarkdown", "shinyBS",
                "easycsv","sf","sfheaders","shinyalert","glue")
 ##### Set working directory (temporal for testing)                              ----- 
-#Root <- "\\\\132.187.202.41\\d$\\0_Document\\UASPlan\\App"
+Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"
 #Root<- "D:\\UASPlan\\App"
-Root <- "D:\\PhD_Main\\UASPlan\\App"
+#Root <- "D:\\PhD_Main\\UASPlan\\App"
 setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
