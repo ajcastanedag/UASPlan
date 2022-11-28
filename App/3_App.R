@@ -10,9 +10,9 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
                "easycsv","sf","sfheaders","shinyalert")
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
-#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
+#Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
@@ -137,8 +137,19 @@ ui <- tagList(
                         # Include our custom CSS
                         includeCSS("UASstyle.css")
                       ),
-                      icon = icon("table"),        
-             ),
+                      icon = icon("table"),
+                      sidebarLayout(
+                        sidebarPanel(width = 5,
+                                     h4(strong("Import Project Log File"),
+                                        align = "left"),
+                                     
+                                     fileInput("LogFile", "Area of Interest", accept = c(".gpkg")),
+                                     
+                                     ),
+                        
+                        mainPanel(leafletOutput("mapload", height = "60vh"), width = 7,
+                      )
+             )),
              ###################################################################
              # Processing wizard                                                ----
              tabPanel("Processing Wizzard",
@@ -185,6 +196,11 @@ server <- function(input, output, session) {
   
   # Render leaflet map with a reactive function base.map()                     
   output$map <- leaflet::renderLeaflet({
+    base.mapload() 
+  })
+  
+  # Render leaflet map with a reactive function base.map()                     
+  output$mapload <- leaflet::renderLeaflet({
     base.map() 
   })
   
@@ -413,7 +429,7 @@ server <- function(input, output, session) {
   })
   
   #### Reactive Functions                                                       ----
-  # Create base map (tiles + gray path) on a reactive function                  
+  # Create base map (tiles + gray path) on a reactive function (Base Map Create)                
   base.map <- reactive({
     RenderedMap <- leaflet() %>%
       addProviderTiles(providers$Esri.WorldImagery, group = 'Cartographic',
@@ -447,6 +463,48 @@ server <- function(input, output, session) {
         #addStyleEditor()
       
     }
+    
+    
+    
+    return(RenderedMap)
+  })
+  
+  # Create base map (tiles + gray path) on a reactive function (Base Map Load)                   
+  base.mapload <- reactive({
+    RenderedMap <- leaflet() %>%
+      addProviderTiles(providers$Esri.WorldImagery, group = 'Cartographic',
+                       options = providerTileOptions(opacity = 1)) %>%
+      addProviderTiles(providers$Stamen.Toner, group = 'Cartographic',
+                       options = providerTileOptions(opacity = 0.3)) %>%
+      addScaleBar(position = "bottomleft",
+                  scaleBarOptions(maxWidth = 100, metric = TRUE, imperial = TRUE,
+                                  updateWhenIdle = TRUE)) %>%
+      fitBounds(9.96941167653942, 49.7836214950253, 9.983155389252369,49.789472652132595) %>%
+      addLayersControl(position = "topright",
+                       overlayGroups = "Imported") %>%
+      addDrawToolbar(targetGroup = "Imported",
+                     editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) 
+    
+    if(!is.null(input$AOI)){
+      Aoi_Pol <<- st_read(input$AOI$datapath, quiet = TRUE) %>% st_transform(4326)
+      
+      RenderedMap <- RenderedMap %>% addPolygons(data = Aoi_Pol,
+                                                 color = "green",
+                                                 group = "Imported") %>%
+        fitBounds(st_bbox(Aoi_Pol)[[1]],
+                  st_bbox(Aoi_Pol)[[2]],
+                  st_bbox(Aoi_Pol)[[3]],
+                  st_bbox(Aoi_Pol)[[4]]) %>%
+        addLayersControl(position = "topright",
+                         overlayGroups = "Imported") %>%
+        addDrawToolbar(
+          targetGroup = "Imported",
+          editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) #%>%
+      #addStyleEditor()
+      
+    }
+    
+    
     
     return(RenderedMap)
   })
