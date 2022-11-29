@@ -10,8 +10,8 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
                "easycsv","sf","sfheaders","shinyalert")
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
-Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
-#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 setwd(Root)
 ##### Add resource path                                                         ----- 
@@ -147,7 +147,9 @@ ui <- tagList(
                                      
                                      ),
                         
-                        mainPanel(leafletOutput("mapload", height = "60vh"), width = 7,
+                        mainPanel(#leafletOutput("mapload", height = "60vh"), 
+                          width = 7,
+                          uiOutput("World"),
                       )
              )),
              ###################################################################
@@ -183,6 +185,33 @@ server <- function(input, output, session) {
   #### Render elements                                                          ----
   # Load introduction information
   output$MDdisplay <- renderUI({includeMarkdown("./Protocols/Introduction.md")})
+  
+  output$World <- renderUI({
+    library(threejs)
+    data(ego)
+    graphjs(ego, bg="#272b30")
+    # library(maps)
+    # data(world.cities, package="maps")
+    # cities <- world.cities[order(world.cities$pop, decreasing=TRUE)[1:1000],]
+    # value  <- 100 * cities$pop / max(cities$pop)
+    # col <- colorRampPalette(c("cyan", "lightgreen"))(10)[floor(10 * value/100) + 1]
+    # globejs(lat=cities$lat, long=cities$long, value=value, color=col, atmosphere=TRUE,
+    #         )
+    # bgcolor <- "#272b30"
+    # earth <- "http://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200412.3x5400x2700.jpg"
+    # 
+    # # NOTE: Use antialiasing to smooth border boundary lines. But! Set the jpeg
+    # # background color to the globe background color to avoid a visible aliasing
+    # # effect at the the plot edges.
+    # 
+    # jpeg(earth, width=2048, height=1024, quality=1200, bg=bgcolor, antialias="default")
+    # par(mar = c(0,0,0,0), pin = c(4,2), pty = "m",  xaxs = "i",
+    #     xaxt = "n",       xpd = FALSE,  yaxs = "i", bty = "n", yaxt = "n")
+    # plot(wrld_simpl, col="#1c1e22", bg=bgcolor, border="darkgray", ann=FALSE,
+    #      setParUsrBB=TRUE)
+    # dev.off()
+    # globejs(earth,height = "500px", width = "800px", bg = bgcolor)
+  })
   
   # Get the folder options from remote folder (D)
   output$rootLoc <- renderUI({
