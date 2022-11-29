@@ -7,11 +7,12 @@
 ##### Load libraries                                                            -----
 pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
                "leaflet","leaflet.extras", "tidyverse", "rmarkdown", "shinyBS",
-               "easycsv","sf","sfheaders","shinyalert")
+               "easycsv","sf","sfheaders","shinyalert","threejs")
+
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
-Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 setwd(Root)
 ##### Add resource path                                                         ----- 
