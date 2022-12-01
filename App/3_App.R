@@ -11,9 +11,9 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
-#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
+#Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
