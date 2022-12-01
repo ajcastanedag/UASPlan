@@ -176,6 +176,9 @@ server <- function(input, output, session) {
   # Create empty SP array to store all modified AOI
   Aoi_Arr <<- NULL
   
+  # Create empty log array to store all logFiles
+  Log_Arr <<- list()
+  
   # Create empty data frame for storing flights                                               
   Data <- data.frame(Date=character(),
                      Aircraft=character(), 
@@ -191,27 +194,6 @@ server <- function(input, output, session) {
     library(threejs)
     data(ego)
     graphjs(ego, bg="#272b30")
-    # library(maps)
-    # data(world.cities, package="maps")
-    # cities <- world.cities[order(world.cities$pop, decreasing=TRUE)[1:1000],]
-    # value  <- 100 * cities$pop / max(cities$pop)
-    # col <- colorRampPalette(c("cyan", "lightgreen"))(10)[floor(10 * value/100) + 1]
-    # globejs(lat=cities$lat, long=cities$long, value=value, color=col, atmosphere=TRUE,
-    #         )
-    # bgcolor <- "#272b30"
-    # earth <- "http://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200412.3x5400x2700.jpg"
-    # 
-    # # NOTE: Use antialiasing to smooth border boundary lines. But! Set the jpeg
-    # # background color to the globe background color to avoid a visible aliasing
-    # # effect at the the plot edges.
-    # 
-    # jpeg(earth, width=2048, height=1024, quality=1200, bg=bgcolor, antialias="default")
-    # par(mar = c(0,0,0,0), pin = c(4,2), pty = "m",  xaxs = "i",
-    #     xaxt = "n",       xpd = FALSE,  yaxs = "i", bty = "n", yaxt = "n")
-    # plot(wrld_simpl, col="#1c1e22", bg=bgcolor, border="darkgray", ann=FALSE,
-    #      setParUsrBB=TRUE)
-    # dev.off()
-    # globejs(earth,height = "500px", width = "800px", bg = bgcolor)
   })
   
   # Get the folder options from remote folder (D)
@@ -234,11 +216,11 @@ server <- function(input, output, session) {
     base.map() 
   })
   
-  # Render table only  with initial options
+  # Render table only  with initial options                                     
   output$FlightsDF <- DT::renderDataTable(addData(),
                                           editable = TRUE,
                                           options = list(dom = 't'))
-  
+
   #### Reactive events                                                          ----
   # Include the filled data into the table and reset fields
   addData <- eventReactive(input$add, {
@@ -252,10 +234,10 @@ server <- function(input, output, session) {
       serial_no <- 1 + nrow(Data)
         
       tmp <- data.frame(Date=input$DoF,
-                         Aircraft=input$AirCraft,
-                         Sensor=input$Sensor,
-                         Name=input$misnam,
-                         stringsAsFactors=FALSE)
+                        Aircraft=input$AirCraft,
+                        Sensor=input$Sensor,
+                        Name=input$misnam,
+                        stringsAsFactors=FALSE)
       
       Data <<- rbind(Data, tmp)
       
@@ -387,40 +369,70 @@ server <- function(input, output, session) {
   # Function to call the creation of the folder system !!!!
   observeEvent(input$crateStruct, {
     
+    # Set Folder location to write all the structure
     Target <- paste0(TargetDrive,"\\",input$rootLoc,"\\")
-
+    
+    # Load main Project Structure
+    MainStructure <- noquote(readLines(paste0(Root,"\\FolderStructures\\0_ProjectBase.txt")))
+    
+    # Modify the line that contains foldername= and add the dynamic values
+    MainNameIndex <- grep('set foldername=', MainStructure)
+    MainStructure[MainNameIndex] <- paste0("set foldername=", Data[1,"Date"], "_", Data[1,"Name"])
+  
+    # Check if table has length greater than one 
     if(nrow(Data)>0){
-
+      # Loop through the rows to create batch of text to write in the main Structure
+      
       for(i in 1:nrow(Data)){
-        SetUp <- paste0(Data[i,"Aircraft"], Data[i,"Sensor"])
-        Mission <- paste0(Data[i,"Date"],"_",Data[i,"Name"],"_",SetUp)
         
+        #Create data name for filling Flight fields
+        SetUp <- paste0(Data[i,"Aircraft"], Data[i,"Sensor"])
+        FlightName <- paste0(i,"_",SetUp)
+        
+        # Laod single SetUpStructure
+        FlightStruct <- GetSetup(Root,SetUp)
+        
+        # Modify the line that contains Subfolders_i and add the flightname
+        Index <- grep('set Subfolders_i', FlightStruct)
+        FlightStruct[Index] <- paste0("set Subfolders_",i,"=",i,"_",SetUp)
+        
+        # Replace all "_i%" with the Flight sequence
+        FlightStruct <- str_replace(FlightStruct, "_i%", paste0("_",i,"%")) %>% noquote()
+        
+        # Locate :: to replace with flight info
+        IndexMain <- grep('::', MainStructure)
+        MainStructure[IndexMain] <- " "
+        
+        # Add the flight file to the main 
+        MainStructure <- append(x = MainStructure, after = IndexMain, values = FlightStruct)
+        
+        # Create Log string 
         LogInfo <- c(input$rootLoc,
                      input$misnam,
                      input$pilot,
                      input$copilot,
                      Data[i,"Date"],
-                     #input$AOI,
                      Data[i,"Aircraft"],
                      Data[i,"Sensor"],
                      input$LogInformation)
         
-        CreateFolder(Root, Target, Mission, SetUp, LogInfo, Aoi_Arr[[i]])
+        # Append log string to array of logs
+        Log_Arr[[i]] <- LogInfo
         
+        # Update field 
         updateSelectInput(session,
                           "Sensor",
                           selected = "")
         updateSelectInput(session,
                           "AirCraft",
                           selected = "")
-        
         updateTextAreaInput(session,
                             "LogInformation",
                             value = "")
       }
     } else(shinyalert("Error!", "No flights added to the table!.", type = "error"))
     
-    
+    CreateFolder(Root, Target, MainStructure, Aoi_Arr, Log_Arr)
     
   })
   
