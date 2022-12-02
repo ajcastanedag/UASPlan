@@ -12,7 +12,7 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
-#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
@@ -124,14 +124,13 @@ ui <- tagList(
                                                    height = "125px"),
                                      tags$hr(style="border-color: gray;"),
                                      actionButton("crateStruct",
-                                                  "Please fill fields",
-                                                  icon = NULL,
+                                                  "Please add flights",
                                                   width = "100%"),),
                         
                         mainPanel(leafletOutput("map", height = "60vh"), width = 7,
                                   br(),
                                   
-                                  DT::dataTableOutput("FlightsDF"))
+                                  DT::dataTableOutput("Flights"))
                       )),
              ###################################################################
              #Load Project Tab                                                  ----
@@ -175,19 +174,19 @@ server <- function(input, output, session) {
   # Create empty SP object to store loaded AOI
   Aoi_Pol <<- NULL
   
-  # Create empty SP array to store all modified AOI
-  Aoi_Arr <<- NULL
-  
-  # Create empty log array to store all logFiles
-  Log_Arr <<- list()
-  
-  # Create empty data frame for storing flights                                               
-  Data <- data.frame(Date=character(),
-                     Aircraft=character(), 
-                     Sensor=character(), 
-                     Name=character(),
-                     stringsAsFactors=FALSE)
-  
+  # Create Main data frame to store all information
+  FlightsDF <<- data.frame(RootLoc=character(),
+                           MisName=character(),
+                           Pilot=character(),
+                           Copilot=character(),
+                           DateF=character(),
+                           DateC=character(),
+                           AirCraft=character(),
+                           Sensor=character(),
+                           LogText=character(),
+                           geometry=character(),
+                           stringsAsFactors=FALSE)
+
   #### Render elements                                                          ----
   # Load introduction information
   output$MDdisplay <- renderUI({includeMarkdown("./Protocols/Introduction.md")})
@@ -219,9 +218,9 @@ server <- function(input, output, session) {
   })
   
   # Render table only  with initial options                                     
-  output$FlightsDF <- DT::renderDataTable(addData(),
-                                          editable = TRUE,
-                                          options = list(dom = 't'))
+  output$Flights <- DT::renderDataTable(addData(),
+                                        editable = TRUE,
+                                        options = list(dom = 't'))
 
   #### Reactive events                                                          ----
   # Include the filled data into the table and reset fields
@@ -233,31 +232,55 @@ server <- function(input, output, session) {
        input$pilot != "" &&
        input$copilot != ""){
       
-      serial_no <- 1 + nrow(Data)
-        
-      tmp <- data.frame(Date=input$DoF,
-                        Aircraft=input$AirCraft,
-                        Sensor=input$Sensor,
-                        Name=input$misnam,
-                        stringsAsFactors=FALSE)
+      # Assign NA if polygon is empty to keep tmp df seize equal to FlightsDF
+      if(is.null(Aoi_Pol$geometry)){
+        Aoi_Pol$geometry <- NA
+      }
       
-      Data <<- rbind(Data, tmp)
+      # Create temporal data frame 
+      tmp <- data.frame(RootLoc=paste0(TargetDrive,"\\",input$rootLoc,"\\"),
+                         MisName=input$misnam,
+                         Pilot=input$pilot,
+                         Copilot=input$copilot,
+                         DateF=input$DoF,
+                         DateC="Tosolve",
+                         AirCraft=input$AirCraft,
+                         Sensor=input$Sensor,
+                         LogText=input$LogInformation,
+                         geometry=Aoi_Pol$geometry,
+                         stringsAsFactors=FALSE)
       
-      Aoi_Arr <<- rbind(Aoi_Arr, Aoi_Pol$geometry)
+      # Add row from tmp data frame to FlightsDF
+      FlightsDF <<- rbind(FlightsDF, tmp)
+
+    } else if (!is.null(input$Flights_rows_selected)) {
       
-    } else if (!is.null(input$FlightsDF_rows_selected)) {
+      # Delete selected row
+      FlightsDF <<- FlightsDF[-as.numeric(input$Flights_rows_selected),]
       
-      Data <<- Data[-as.numeric(input$FlightsDF_rows_selected),]
-      Aoi_Arr <<- Aoi_Arr[-as.numeric(input$FlightsDF_rows_selected),]
     }
     
+    # Update Sensor and Aircraft fields
     updateSelectInput(session,
                       "Sensor",
                       selected = "")
     updateSelectInput(session,
                       "AirCraft",
                       selected = "")
-    Data
+    
+    if(nrow(FlightsDF) > 0){
+      updateActionButton(session, 
+                         "crateStruct",
+                         "Create folder structure")
+    } else{
+        updateActionButton(session, 
+                           "crateStruct",
+                           "Please add flights")
+    }
+    
+    # Return
+    FlightsDF[,c("Pilot","Copilot","DateF","AirCraft","Sensor")]
+    
   }, ignoreNULL = FALSE)
 
   #### Observe Events                                                           ----
@@ -379,16 +402,15 @@ server <- function(input, output, session) {
     
     # Modify the line that contains foldername= and add the dynamic values
     MainNameIndex <- grep('set foldername=', MainStructure)
-    MainStructure[MainNameIndex] <- paste0("set foldername=", Data[1,"Date"], "_", Data[1,"Name"])
+    MainStructure[MainNameIndex] <- paste0("set foldername=", FlightsDF[1,"DateF"], "_", FlightsDF[1,"MisName"])
   
     # Check if table has length greater than one 
-    if(nrow(Data)>0){
+    if(nrow(FlightsDF)>0){
       # Loop through the rows to create batch of text to write in the main Structure
-      
-      for(i in 1:nrow(Data)){
+      for(i in 1:nrow(FlightsDF)){
         
         #Create data name for filling Flight fields
-        SetUp <- paste0(Data[i,"Aircraft"], Data[i,"Sensor"])
+        SetUp <- paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"])
         FlightName <- paste0(i,"_",SetUp)
         
         # Laod single SetUpStructure
@@ -408,19 +430,6 @@ server <- function(input, output, session) {
         # Add the flight file to the main 
         MainStructure <- append(x = MainStructure, after = IndexMain, values = FlightStruct)
         
-        # Create Log string 
-        LogInfo <- c(input$rootLoc,
-                     input$misnam,
-                     input$pilot,
-                     input$copilot,
-                     Data[i,"Date"],
-                     Data[i,"Aircraft"],
-                     Data[i,"Sensor"],
-                     input$LogInformation)
-        
-        # Append log string to array of logs
-        Log_Arr[[i]] <- LogInfo
-        
         # Update field 
         updateSelectInput(session,
                           "Sensor",
@@ -432,21 +441,11 @@ server <- function(input, output, session) {
                             "LogInformation",
                             value = "")
       }
+      
+      CreateFolder(Root, Target, MainStructure, FlightsDF)
+      
     } else(shinyalert("Error!", "No flights added to the table!.", type = "error"))
     
-    CreateFolder(Root, Target, MainStructure, Aoi_Arr, Log_Arr)
-    
-  })
-  
-  # Function to change the status of the crateStruct button to "ready"
-  observeEvent(ListenFields(),{
-    TempVals <- c(input$rootLoc, input$misnam, input$pilot, input$copilot)
-    if(all(TempVals != "")){
-      updateActionButton(session, 
-                         "crateStruct",
-                         "Create project structure",
-                         icon = icon("plus"))
-    }
   })
   
   # use SelectedCel status to change +/- sybol on add button 
@@ -470,6 +469,11 @@ server <- function(input, output, session) {
   # Created Features
   observeEvent(input$map_draw_new_feature, {
     Aoi_Pol <<- ModPolToSf(input$map_draw_new_feature, T)
+  })
+  
+  # Deleted Features
+  observeEvent(input$map_draw_deleted_features, {
+    Aoi_Pol <<- NULL
   })
   
   #### Reactive Functions                                                       ----
@@ -553,16 +557,8 @@ server <- function(input, output, session) {
     return(RenderedMap)
   })
   
-  # React to the input information values                                       
-  ListenFields <- reactive({
-    list(input$rootLoc,
-         input$misnam,
-         input$pilot,
-         input$copilot)
-  })
-  
   # React to selection of cell in Table 
-  SelectedCel <- reactive({!is.null(input$FlightsDF_rows_selected)})  
+  SelectedCel <- reactive({!is.null(input$Flights_rows_selected)})  
 
 }
 ################################################################################

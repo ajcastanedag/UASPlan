@@ -6,6 +6,7 @@
 ################################################################################----
 # Read Flight TXT structure depending on configuration UAV-Sensor
 GetSetup <- function(Root, SetUp){
+  
   # Read Flight TXT structure depending on configuration UAV-Sensor                    ----  
   if(SetUp == "DJIM300Altum"){
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM300Altum.txt")))
@@ -27,13 +28,40 @@ GetSetup <- function(Root, SetUp){
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraAltum.txt")))
   } else if(SetUp == "WingtraRX1RII") {
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraRX1RII.txt")))
-  } else(print("ERROR"))
+  } else(return())
   #####
   return(Structure)
 }
 ################################################################################
 ### Create Folder structure based on root, name, setup and standard name
-CreateFolder <- function(Root, TargetLoc, MainStructure, Aoi_Arr, Log_Arr){
+FillMetadata <- function(FlightsDF){
+  for(i in 1:nrow(FlightsDF)){
+    
+    FlightPath <- paste0(FlightsDF$RootLoc[i],
+                         FlightsDF$DateF[i],
+                         "_",
+                         FlightsDF$MisName[i],
+                         "\\0_Flights\\",
+                         i,"_",
+                         FlightsDF$AirCraft[i],
+                         FlightsDF$Sensor[i],
+                         "\\3_FlightFiles\\0_Log\\"
+                         )
+    
+    
+    
+    print(FlightPath)
+
+    
+    #CreateLogFile(FlightsDF[i,], FlightPath)
+    #CreateAOIFile(FlightsDF[i,], FlightPath)
+    
+    
+  }
+}
+################################################################################
+### Create Folder structure based on root, name, setup and standard name
+CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF){
   # Change directory to Target location
   setwd(TargetLoc)
   
@@ -45,10 +73,33 @@ CreateFolder <- function(Root, TargetLoc, MainStructure, Aoi_Arr, Log_Arr){
   shell.exec("Temporal.bat")
   Sys.sleep(1)
   file.remove("Temporal.bat")
+  
+  FillMetadata(FlightsDF)
 
 }
 ################################################################################
-FillParams <- function(){
+CreateLogFile <- function(Data, Path){
+  
+  LogFile <- noquote(readLines(paste0(Root,"\\LogStructure\\FlightLog.txt")))
+  
+  LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',LogDat[1])
+  LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',LogDat[2])
+  LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',LogDat[3])
+  LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',LogDat[4])
+  LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',as.character(Sys.Date()))
+  LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',LogDat[5])
+  LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',LogDat[6])
+  LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',LogDat[7])
+  LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",LogDat[8])
+  
+  # Update Log file 
+  write.table(LogFile, file = paste0(Path,"\\FlightLog.md"), sep="",
+              row.names = FALSE, col.names = FALSE,  quote = FALSE)
+  
+  
+}
+################################################################################
+CreateAOIFile <- function(DataFrame){
   # # # Add log information to created text file "FlightLog.txt"
   # setwd(paste0(TargetLoc,"\\",MissionName,"\\3_FlightFiles\\0_Log\\"))
   # 
@@ -104,24 +155,3 @@ GeneratePol <- function(GeomSF){
 }
 ################################################################################
 #
-MakeLog <- function(Root, LogDat){
-  
-  LogFile <- noquote(readLines(paste0(Root,"\\LogStructure\\FlightLog.txt")))
-  
-  LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',LogDat[1])
-  LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',LogDat[2])
-  LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',LogDat[3])
-  LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',LogDat[4])
-  LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',as.character(Sys.Date()))
-  LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',LogDat[5])
-  LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',LogDat[6])
-  LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',LogDat[7])
-  LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",LogDat[8])
-  
-  # Update Log file 
-  write.table(LogFile, file = paste0("FlightLog.md"), sep="",
-              row.names = FALSE, col.names = FALSE,  quote = FALSE)
-  
-
-}
-################################################################################
