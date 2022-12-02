@@ -3,12 +3,10 @@
 # the folder structures for the aircraft - sensor combinations. The txt files are
 # converted in .bat files and executed in the windows shell, finally the .bat file
 # is erased.
-################################################################################
-### Create Folder structure based on root, name, setup and standard name
-CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Pol){
-  # Change directory to Target location
-  setwd(TargetLoc)
-  # Read TXT structure depending on configuration UAV-Sensor                    ----
+################################################################################----
+# Read Flight TXT structure depending on configuration UAV-Sensor
+GetSetup <- function(Root, SetUp){
+  # Read Flight TXT structure depending on configuration UAV-Sensor                    ----  
   if(SetUp == "DJIM300Altum"){
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM300Altum.txt")))
   } else if(SetUp == "DJIM300MXDual"){
@@ -31,31 +29,39 @@ CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Pol){
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraRX1RII.txt")))
   } else(print("ERROR"))
   #####
-  # Modify the line that contains foldername= and add the dynamic values
-  Structure[grep('foldername=', Structure)] <- paste0(Structure[grep('set foldername=', Structure)],MissionName)
+  return(Structure)
+}
+################################################################################
+### Create Folder structure based on root, name, setup and standard name
+CreateFolder <- function(Root, TargetLoc, MainStructure, Aoi_Arr, Log_Arr){
+  # Change directory to Target location
+  setwd(TargetLoc)
   
   # Create Bat File with modified structure
-  write.table(Structure, file = "Temporal.bat", sep="",
+  write.table(MainStructure, file = "Temporal.bat", sep="",
               row.names = FALSE, col.names = FALSE,  quote = FALSE)
   
   # Call system console, execute bat file and delete it
   shell.exec("Temporal.bat")
   Sys.sleep(1)
   file.remove("Temporal.bat")
-  
-  # # Add log information to created text file "FlightLog.txt"
-  setwd(paste0(TargetLoc,"\\",MissionName,"\\3_FlightFiles\\0_Log\\"))
 
-  # Fill basic information in Log File
-  MakeLog(Root, LogDat)
-
-  # Save GPKG file with ,modified or imported polygon
-  if(!is.null(Pol)){
-    st_write(GeneratePol(Pol),
-             paste0(TargetLoc,"\\",MissionName,"\\3_FlightFiles\\0_Log\\AOI.gpkg"),
-             delete_layer=TRUE
-             )
-  }
+}
+################################################################################
+FillParams <- function(){
+  # # # Add log information to created text file "FlightLog.txt"
+  # setwd(paste0(TargetLoc,"\\",MissionName,"\\3_FlightFiles\\0_Log\\"))
+  # 
+  # # Fill basic information in Log File
+  # MakeLog(Root, LogDat)
+  # 
+  # # Save GPKG file with ,modified or imported polygon
+  # if(!is.null(Pol)){
+  #   st_write(GeneratePol(Pol),
+  #            paste0(TargetLoc,"\\",MissionName,"\\3_FlightFiles\\0_Log\\AOI.gpkg"),
+  #            delete_layer=TRUE
+  #            )
+  # }
 }
 ################################################################################
 ### Transform leaflet mods on AOI into new polygon (SF)

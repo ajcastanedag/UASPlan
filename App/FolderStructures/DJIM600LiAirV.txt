@@ -1,26 +1,9 @@
-@pushd %~dp0
-@echo off
-for /f "skip=1" %%i in ('wmic os get localdatetime') do if not defined fulldate set fulldate=%%i
-set year=%fulldate:~2,2%
-set month=%fulldate:~4,2%
-set day=%fulldate:~6,2%
-set foldername=
-
-md %foldername%\0_BaseStation
-md %foldername%\1_LiAirVData
-md %foldername%\2_Results
-md %foldername%\2_Results\0_LIDAR360
-md %foldername%\2_Results\1_Codes
-md %foldername%\2_Results\2_Reports
-md %foldername%\2_Results\3_QGis
-md %foldername%\2_Results\4_Raster
-md %foldername%\2_Results\5_Vector
-md %foldername%\2_Results\6_PointCloud
-md %foldername%\3_FlightFiles\0_Log
-md %foldername%\3_FlightFiles\1_Plan
-md %foldername%\3_FlightFiles\2_Other
-md %foldername%\4_Media
-
-echo %foldername%
-@popd
-
+set Subfolders_i=
+md %foldername%\0_Flights\%Subfolders_i%\0_BaseStation
+md %foldername%\0_Flights\%Subfolders_i%\1_LiAirVData
+md %foldername%\0_Flights\%Subfolders_i%\2_Reports
+md %foldername%\0_Flights\%Subfolders_i%\3_FlightFiles\0_Log
+md %foldername%\0_Flights\%Subfolders_i%\3_FlightFiles\1_Plan
+md %foldername%\0_Flights\%Subfolders_i%\3_FlightFiles\2_Other
+md %foldername%\0_Flights\%Subfolders_i%\4_RawOutput
+::

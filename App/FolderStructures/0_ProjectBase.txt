@@ -1,0 +1,12 @@
+@pushd %~dp0
+@echo off
+set foldername=
+md %foldername%\0_Flights
+md %foldername%\1_Analysis
+md %foldername%\2_Results
+md %foldername%\2_Results\0_Raster
+md %foldername%\2_Results\1_PointClouds
+md %foldername%\3_Media
+::
+echo %foldername%
+@popd
