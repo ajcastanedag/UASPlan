@@ -134,6 +134,59 @@ ui <- tagList(
                       )),
              ###################################################################
              #Load Project Tab                                                  ----
+             tabPanel("Add Flight",
+                      tags$head(
+                        # Include our custom CSS
+                        includeCSS("UASstyle.css"),),
+                      icon = icon("location"),
+                      sidebarLayout(
+                        sidebarPanel(width = 5,
+                                     
+                                     h4(strong("Flight Data"),
+                                        align = "left"),
+                                     
+                                     splitLayout(cellWidths = c("50%", "50%"),
+                                                 uiOutput("rootLoc2"),
+                                                 textInput("mis","Mision Name", "")),
+                                     splitLayout(cellWidths = c("35%", "35%","30%"),
+                                                 textInput("pilot", "Pilot", ""),
+                                                 textInput("copilot", "Co-Pilot", ""),
+                                                 dateInput("DoF",
+                                                           "Date:",
+                                                           value = as.character(Sys.Date()),
+                                                           daysofweekdisabled = c(0),
+                                                           format = "yyyy_dd_mm")),
+                                     fileInput("AOI", "Area of Interest", accept = c(".gpkg")),
+                                     h4(strong("Flights"), align = "left"),
+                                     splitLayout(cellWidths = c("44%", "44%", "12%"),
+                                                 selectizeInput("AirCraft", "Aircraft",
+                                                                c("", "Phantom4", "DJIM600", "DJIM300", "Wingtra"),
+                                                                options = list(dropdownParent = 'body')),
+                                                 selectizeInput("Sensor", "Sensor",
+                                                                c("","RGB", "Altum", "MXDual", "L1", "H20T"),
+                                                                options = list(dropdownParent = 'body')),
+                                                 actionButton("add", NULL, icon = icon("plus"),
+                                                              style = 'margin-top:23px',
+                                                              size ="lg",
+                                                              width = "100%"),),
+                                     h4(strong("Log Information:"), align = "left"),
+                                     textAreaInput("LogInformation",
+                                                   NULL,
+                                                   value = "",
+                                                   placeholder = "Add mission comments here...",
+                                                   height = "125px"),
+                                     tags$hr(style="border-color: gray;"),
+                                     actionButton("crateStruct",
+                                                  "Please add flights",
+                                                  width = "100%"),),
+                        
+                        mainPanel(leafletOutput("map", height = "60vh"), width = 7,
+                                  br(),
+                                  
+                                  DT::dataTableOutput("Flights"))
+                      )),
+             ###################################################################
+             #Load Project Tab                                                  ----
              tabPanel("Load Project",
                       tags$head(
                         # Include our custom CSS
@@ -197,7 +250,7 @@ server <- function(input, output, session) {
     graphjs(ego, bg="#272b30")
   })
   
-  # Get the folder options from remote folder (D)
+  # Get the folder options from remote folder (D) to create project
   output$rootLoc <- renderUI({
     selectizeInput("rootLoc", "Project Location",
                 choices = c("", list.dirs(path = TargetDrive,
@@ -205,6 +258,16 @@ server <- function(input, output, session) {
                                           recursive = FALSE)),
                 selected = "",
                 options = list(dropdownParent = 'body'))
+  })
+  
+  # Get the folder options from remote folder (D) to add flight
+  output$rootLoc <- renderUI({
+    selectizeInput("rootLoc2", "Project Location",
+                   choices = c("", list.dirs(path = TargetDrive,
+                                             full.names = FALSE,
+                                             recursive = FALSE)),
+                   selected = "",
+                   options = list(dropdownParent = 'body'))
   })
   
   # Render leaflet map with a reactive function base.map()                     
