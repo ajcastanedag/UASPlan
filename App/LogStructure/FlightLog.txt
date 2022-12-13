@@ -1,7 +1,6 @@
 UAS-JMU Flight logger
 =====================
 
-
 Versioning
 =====================
 
@@ -18,6 +17,7 @@ FlightData
 
 PlatformLogger
 =====================
+
 
 
 ProcessingData
