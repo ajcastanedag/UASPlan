@@ -12,8 +12,8 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
-Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 setwd(Root)
@@ -80,7 +80,7 @@ ui <- tagList(
                       ),
                       ),
              ###################################################################
-             # Create Flight Project                                            ----  
+             # Create Project                                                   ----  
              tabPanel("Create Project",
                       tags$head(
                         # Include our custom CSS
@@ -133,8 +133,8 @@ ui <- tagList(
                                   DT::dataTableOutput("Flights"))
                       )),
              ###################################################################
-             #Load Project Tab                                                  ----
-             tabPanel("Add Flight",
+             # Create single flight                                             ----
+             tabPanel("Create Flight",
                       tags$head(
                         # Include our custom CSS
                         includeCSS("UASstyle.css"),),
@@ -145,9 +145,10 @@ ui <- tagList(
                                      h4(strong("Flight Data"),
                                         align = "left"),
                                      
-                                     splitLayout(cellWidths = c("50%", "50%"),
+                                     splitLayout(cellWidths = c("30%","30%", "40%"),
                                                  uiOutput("rootLoc2"),
-                                                 textInput("mis","Mision Name", "")),
+                                                 uiOutput("projLoc2"),
+                                                 textInput("misnam","Mision Name", "")),
                                      splitLayout(cellWidths = c("35%", "35%","30%"),
                                                  textInput("pilot", "Pilot", ""),
                                                  textInput("copilot", "Co-Pilot", ""),
@@ -180,10 +181,10 @@ ui <- tagList(
                                                   "Please add flights",
                                                   width = "100%"),),
                         
-                        mainPanel(leafletOutput("map", height = "60vh"), width = 7,
+                        mainPanel(leafletOutput("mapF", height = "60vh"), width = 7,
                                   br(),
                                   
-                                  DT::dataTableOutput("Flights"))
+                                  DT::dataTableOutput("Flight"))
                       )),
              ###################################################################
              #Load Project Tab                                                  ----
@@ -244,11 +245,13 @@ server <- function(input, output, session) {
   # Load introduction information
   output$MDdisplay <- renderUI({includeMarkdown("./Protocols/Introduction.md")})
   
+  # Render 3D
   output$World <- renderUI({
     library(threejs)
     data(ego)
     graphjs(ego, bg="#272b30")
   })
+  
   
   # Get the folder options from remote folder (D) to create project
   output$rootLoc <- renderUI({
@@ -261,7 +264,7 @@ server <- function(input, output, session) {
   })
   
   # Get the folder options from remote folder (D) to add flight
-  output$rootLoc <- renderUI({
+  output$rootLoc2 <- renderUI({
     selectizeInput("rootLoc2", "Project Location",
                    choices = c("", list.dirs(path = TargetDrive,
                                              full.names = FALSE,
@@ -269,9 +272,15 @@ server <- function(input, output, session) {
                    selected = "",
                    options = list(dropdownParent = 'body'))
   })
+
   
   # Render leaflet map with a reactive function base.map()                     
   output$map <- leaflet::renderLeaflet({
+    base.mapload() 
+  })
+  
+  # Render leaflet map with a reactive function base.map()                     
+  output$mapF <- leaflet::renderLeaflet({
     base.mapload() 
   })
   
@@ -282,6 +291,11 @@ server <- function(input, output, session) {
   
   # Render table only  with initial options                                     
   output$Flights <- DT::renderDataTable(addData(),
+                                        editable = TRUE,
+                                        options = list(dom = 't'))
+  
+  # Render table only  with initial options                                     
+  output$Flight <- DT::renderDataTable(addData(),
                                         editable = TRUE,
                                         options = list(dom = 't'))
 
