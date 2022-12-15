@@ -23,6 +23,11 @@ div.outer {
   padding: 0;
 }
 
+.shiny-options-group { 
+div.radio {
+  margin-top: 60px;
+}
+
 /* Customize fonts */
 body, label, input, button, select { 
   font-family: Plexes !important;

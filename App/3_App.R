@@ -13,8 +13,8 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
-#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 setwd(Root)
 ##### Add resource path                                                         ----- 
@@ -80,8 +80,8 @@ ui <- tagList(
                       ),
                       ),
              ###################################################################
-             # Create Project                                                   ----  
-             tabPanel("Create Project",
+             # Create                                                           ----  
+             tabPanel("Create",
                       tags$head(
                         # Include our custom CSS
                         includeCSS("UASstyle.css"),),
@@ -94,22 +94,22 @@ ui <- tagList(
                                      
                                      splitLayout(cellWidths = c("50%", "50%"),
                                                  uiOutput("rootLoc"),
-                                                 textInput("misnam","Mision Name", "")),
+                                                 textInput("misnam","Mission Name*", "")),
                                      splitLayout(cellWidths = c("35%", "35%","30%"),
-                                                 textInput("pilot", "Pilot", ""),
-                                                 textInput("copilot", "Co-Pilot", ""),
+                                                 textInput("pilot", "Pilot*", ""),
+                                                 textInput("copilot", "Co-Pilot*", ""),
                                                  dateInput("DoF",
-                                                           "Date:",
+                                                           "Date*",
                                                            value = as.character(Sys.Date()),
                                                            daysofweekdisabled = c(0),
                                                            format = "yyyy_dd_mm")),
                                      fileInput("AOI", "Area of Interest", accept = c(".gpkg")),
                                      h4(strong("Flights"), align = "left"),
                                      splitLayout(cellWidths = c("44%", "44%", "12%"),
-                                                 selectizeInput("AirCraft", "Aircraft",
+                                                 selectizeInput("AirCraft", "Aircraft*",
                                                              c("", "Phantom4", "DJIM600", "DJIM300", "Wingtra"),
                                                              options = list(dropdownParent = 'body')),
-                                                 selectizeInput("Sensor", "Sensor",
+                                                 selectizeInput("Sensor", "Sensor*",
                                                              c("","RGB", "Altum", "MXDual", "L1", "H20T"),
                                                              options = list(dropdownParent = 'body')),
                                                  actionButton("add", NULL, icon = icon("plus"),
@@ -121,70 +121,28 @@ ui <- tagList(
                                                    NULL,
                                                    value = "",
                                                    placeholder = "Add mission comments here...",
-                                                   height = "125px"),
+                                                   height = "90px"),
                                      tags$hr(style="border-color: gray;"),
-                                     actionButton("crateStruct",
-                                                  "Please add flights",
-                                                  width = "100%"),),
+                                     
+                                     splitLayout(cellWidths = c("30%", "30%","40%"),
+                                                 radioButtons("TypeMF",
+                                                              label = "Select type*",
+                                                              choices= list("Mission", "Flights"), 
+                                                              selected = "Mission",
+                                                              inline = TRUE),
+                                                 selectizeInput("ProjLoc", "Select mission*",
+                                                                c("","NO project available"),
+                                                                options = list(dropdownParent = 'body')),
+                                                 actionButton("crateStruct",
+                                                              "Please add flights",
+                                                              style = 'margin-top:23px',
+                                                              width = "100%")),
+                                     ),
                         
                         mainPanel(leafletOutput("map", height = "60vh"), width = 7,
                                   br(),
                                   
                                   DT::dataTableOutput("Flights"))
-                      )),
-             ###################################################################
-             # Create single flight                                             ----
-             tabPanel("Create Flight",
-                      tags$head(
-                        # Include our custom CSS
-                        includeCSS("UASstyle.css"),),
-                      icon = icon("location"),
-                      sidebarLayout(
-                        sidebarPanel(width = 5,
-                                     
-                                     h4(strong("Flight Data"),
-                                        align = "left"),
-                                     
-                                     splitLayout(cellWidths = c("30%","30%", "40%"),
-                                                 uiOutput("rootLoc2"),
-                                                 uiOutput("projLoc2"),
-                                                 textInput("misnam","Mision Name", "")),
-                                     splitLayout(cellWidths = c("35%", "35%","30%"),
-                                                 textInput("pilot", "Pilot", ""),
-                                                 textInput("copilot", "Co-Pilot", ""),
-                                                 dateInput("DoF",
-                                                           "Date:",
-                                                           value = as.character(Sys.Date()),
-                                                           daysofweekdisabled = c(0),
-                                                           format = "yyyy_dd_mm")),
-                                     fileInput("AOI", "Area of Interest", accept = c(".gpkg")),
-                                     h4(strong("Flights"), align = "left"),
-                                     splitLayout(cellWidths = c("44%", "44%", "12%"),
-                                                 selectizeInput("AirCraft", "Aircraft",
-                                                                c("", "Phantom4", "DJIM600", "DJIM300", "Wingtra"),
-                                                                options = list(dropdownParent = 'body')),
-                                                 selectizeInput("Sensor", "Sensor",
-                                                                c("","RGB", "Altum", "MXDual", "L1", "H20T"),
-                                                                options = list(dropdownParent = 'body')),
-                                                 actionButton("add", NULL, icon = icon("plus"),
-                                                              style = 'margin-top:23px',
-                                                              size ="lg",
-                                                              width = "100%"),),
-                                     h4(strong("Log Information:"), align = "left"),
-                                     textAreaInput("LogInformation",
-                                                   NULL,
-                                                   value = "",
-                                                   placeholder = "Add mission comments here...",
-                                                   height = "125px"),
-                                     tags$hr(style="border-color: gray;"),
-                                     actionButton("crateStruct",
-                                                  "Please add flights",
-                                                  width = "100%"),),
-                        
-                        mainPanel(leafletOutput("mapF", height = "60vh"), width = 7,
-                                  br(),
-                                  
-                                  DT::dataTableOutput("Flight"))
                       )),
              ###################################################################
              #Load Project Tab                                                  ----
@@ -252,35 +210,18 @@ server <- function(input, output, session) {
     graphjs(ego, bg="#272b30")
   })
   
-  
   # Get the folder options from remote folder (D) to create project
   output$rootLoc <- renderUI({
-    selectizeInput("rootLoc", "Project Location",
+    selectizeInput("rootLoc", "Project Location*",
                 choices = c("", list.dirs(path = TargetDrive,
                                           full.names = FALSE,
                                           recursive = FALSE)),
                 selected = "",
                 options = list(dropdownParent = 'body'))
   })
-  
-  # Get the folder options from remote folder (D) to add flight
-  output$rootLoc2 <- renderUI({
-    selectizeInput("rootLoc2", "Project Location",
-                   choices = c("", list.dirs(path = TargetDrive,
-                                             full.names = FALSE,
-                                             recursive = FALSE)),
-                   selected = "",
-                   options = list(dropdownParent = 'body'))
-  })
 
-  
   # Render leaflet map with a reactive function base.map()                     
   output$map <- leaflet::renderLeaflet({
-    base.mapload() 
-  })
-  
-  # Render leaflet map with a reactive function base.map()                     
-  output$mapF <- leaflet::renderLeaflet({
     base.mapload() 
   })
   
@@ -294,18 +235,12 @@ server <- function(input, output, session) {
                                         editable = TRUE,
                                         options = list(dom = 't'))
   
-  # Render table only  with initial options                                     
-  output$Flight <- DT::renderDataTable(addData(),
-                                        editable = TRUE,
-                                        options = list(dom = 't'))
-
   #### Reactive events                                                          ----
   # Include the filled data into the table and reset fields
   addData <- eventReactive(input$add, {
     if(input$add>0 &&
        input$AirCraft != "" &&
        input$Sensor != "" &&
-       input$misnam != "" &&
        input$pilot != "" &&
        input$copilot != ""){
       
@@ -384,6 +319,37 @@ server <- function(input, output, session) {
                            "Sensor",
                            choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAirV","L1", "H20T"))
   }) 
+  
+  # Get the folders from selected project and update table                      
+  observeEvent(input$rootLoc,{
+    if(input$rootLoc != ""){
+      
+      AvailableProjects <- list.dirs(path = paste0(TargetDrive,"\\",input$rootLoc),
+                                     full.names = FALSE,
+                                     recursive = FALSE)
+      
+      updateSelectInput(session,
+                        "ProjLoc",
+                        choices=c("", AvailableProjects),
+                        selected = "")
+      
+      Dir <- paste0(TargetDrive,"\\",
+                    input$rootLoc,"\\",
+                    input$ProjLoc, "\\0_Flights\\")
+    }
+  })
+  
+  # Enable or disable Mission selector based on type of creation
+  observeEvent(input$TypeMF,{
+    
+    if(input$TypeMF == "Mission"){
+      shinyjs::disable("ProjLoc")
+      shinyjs::enable("misnam")
+    } else if(input$TypeMF == "Flights"){
+      shinyjs::enable("ProjLoc")
+      shinyjs::disable("misnam")
+    }
+  })
   
   # Update SensorM options depending on selected Aircraft
   observeEvent(input$AirCraftM, {
@@ -471,18 +437,19 @@ server <- function(input, output, session) {
   # Function to call the creation of the folder system !!!!
   observeEvent(input$crateStruct, {
     
-    # Set Folder location to write all the structure
-    Target <- paste0(TargetDrive,"\\",input$rootLoc,"\\")
-    
-    # Load main Project Structure
-    MainStructure <- noquote(readLines(paste0(Root,"\\FolderStructures\\0_ProjectBase.txt")))
-    
-    # Modify the line that contains foldername= and add the dynamic values
-    MainNameIndex <- grep('set foldername=', MainStructure)
-    MainStructure[MainNameIndex] <- paste0("set foldername=", FlightsDF[1,"DateF"], "_", FlightsDF[1,"MisName"])
-  
     # Check if table has length greater than one 
-    if(nrow(FlightsDF)>0){
+    if(nrow(FlightsDF)>0 && input$TypeMF == "Mission"){
+      
+      # Set Folder location to write all the structure
+      Target <- paste0(TargetDrive,"\\",input$rootLoc,"\\")
+      
+      # Load main Project Structure
+      MainStructure <- noquote(readLines(paste0(Root,"\\FolderStructures\\0_ProjectBase.txt")))
+      
+      # Modify the line that contains foldername= and add the dynamic values
+      MainNameIndex <- grep('set foldername=', MainStructure)
+      MainStructure[MainNameIndex] <- paste0("set foldername=", FlightsDF[1,"DateF"], "_", FlightsDF[1,"MisName"])
+      
       # Loop through the rows to create batch of text to write in the main Structure
       for(i in 1:nrow(FlightsDF)){
         
@@ -521,7 +488,42 @@ server <- function(input, output, session) {
       
       CreateFolder(Root, Target, MainStructure, FlightsDF)
       
-    } else(shinyalert("Error!", "No flights added to the table!.", type = "error"))
+    } else if(nrow(FlightsDF)>0 && input$TypeMF == "Flights"){
+      
+      # Set Folder location to write all the structure
+      Target <- paste0(TargetDrive,"\\",input$rootLoc,"\\",input$ProjLoc,"\\0_Flights")
+      
+      # Modify the starting index
+      IndexStart <- length(list.dirs(Target, recursive = F))
+      
+      for(i in 1:nrow(FlightsDF)){
+        
+        #Create data name for filling Flight fields
+        SetUp <- paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"])
+        FlightName <- paste0(IndexStart+i,"_",SetUp)
+        
+        # Laod single SetUpStructure
+        FlightStruct <- GetSetup(Root,SetUp)
+        
+        # # Modify the line that contains Subfolders_i and add the flightname
+        # Index <- grep('set Subfolders_i', FlightStruct)
+        # FlightStruct[Index] <- paste0("set Subfolders_",i,"=",i,"_",SetUp)
+        # 
+        # # Replace all "_i%" with the Flight sequence
+        # FlightStruct <- str_replace(FlightStruct, "_i%", paste0("_",i,"%")) %>% noquote()
+        # 
+        # # Locate :: to replace with flight info
+        # IndexMain <- grep('::', MainStructure)
+        # MainStructure[IndexMain] <- " "
+        # 
+        # # Add the flight file to the main 
+        # MainStructure <- append(x = MainStructure, after = IndexMain, values = FlightStruct)
+        # 
+      }
+      
+      #CreateFolder(Root, Target, MainStructure, FlightsDF)
+      
+      } else (shinyalert("Error!", "No flights added to the table!.", type = "error"))
     
   })
   

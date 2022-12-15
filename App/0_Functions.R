@@ -78,7 +78,7 @@ FillMetadata <- function(Root, FlightsDF){
   }
 }
 ################################################################################
-### Create Folder structure based on root, name, setup and standard name
+### Create Mission folder structure based on root, name, setup and standard name
 CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF){
   # Change directory to Target location
   setwd(TargetLoc)
@@ -92,7 +92,7 @@ CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF){
   Sys.sleep(1)
   file.remove("Temporal.bat")
   
-  FillMetadata(Root, FlightsDF)
+  #FillMetadata(Root, FlightsDF)
 
 }
 ################################################################################
