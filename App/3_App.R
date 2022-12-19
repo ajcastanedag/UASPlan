@@ -11,7 +11,7 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
-Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
@@ -448,7 +448,7 @@ server <- function(input, output, session) {
       
       # Modify the line that contains foldername= and add the dynamic values
       MainNameIndex <- grep('set foldername=', MainStructure)
-      MainStructure[MainNameIndex] <- paste0("set foldername=", FlightsDF[1,"DateF"], "_", FlightsDF[1,"MisName"])
+      MainStructure[MainNameIndex] <- paste0("set foldername=", FlightsDF[1,"DateF"], "_", input$misnam)
       
       # Loop through the rows to create batch of text to write in the main Structure
       for(i in 1:nrow(FlightsDF)){
@@ -490,13 +490,24 @@ server <- function(input, output, session) {
       
     } else if(nrow(FlightsDF)>0 && input$TypeMF == "Flights"){
       
+      # Load main Project Structure
+      MainStructure <- noquote(readLines(paste0(Root,"\\FolderStructures\\0_FlightBase.txt")))
+      
+      # Modify the line that contains foldername= and add the dynamic values
+      MainNameIndex <- grep('set foldername=', MainStructure)
+      MainStructure[MainNameIndex] <- paste0("set foldername=", input$ProjLoc)
+      
       # Set Folder location to write all the structure
-      Target <- paste0(TargetDrive,"\\",input$rootLoc,"\\",input$ProjLoc,"\\0_Flights")
+      Target <- paste0(TargetDrive,"\\",input$rootLoc)
       
       # Modify the starting index
-      IndexStart <- length(list.dirs(Target, recursive = F))
+      IndexStart <- length(list.dirs(paste0(TargetDrive,"\\",input$rootLoc,"\\",input$ProjLoc,"\\0_Flights\\"), recursive = F))
+      
+      print(IndexStart)
       
       for(i in 1:nrow(FlightsDF)){
+        
+        newi <- i + IndexStart
         
         #Create data name for filling Flight fields
         SetUp <- paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"])
@@ -505,27 +516,42 @@ server <- function(input, output, session) {
         # Laod single SetUpStructure
         FlightStruct <- GetSetup(Root,SetUp)
         
-        # # Modify the line that contains Subfolders_i and add the flightname
-        # Index <- grep('set Subfolders_i', FlightStruct)
-        # FlightStruct[Index] <- paste0("set Subfolders_",i,"=",i,"_",SetUp)
-        # 
-        # # Replace all "_i%" with the Flight sequence
-        # FlightStruct <- str_replace(FlightStruct, "_i%", paste0("_",i,"%")) %>% noquote()
-        # 
-        # # Locate :: to replace with flight info
-        # IndexMain <- grep('::', MainStructure)
-        # MainStructure[IndexMain] <- " "
-        # 
-        # # Add the flight file to the main 
-        # MainStructure <- append(x = MainStructure, after = IndexMain, values = FlightStruct)
-        # 
+        # Modify the line that contains Subfolders_i and add the flightname
+        Index <- grep('set Subfolders_i', FlightStruct)
+        FlightStruct[Index] <- paste0("set Subfolders_",newi,"=",newi,"_",SetUp)
+         
+        # Replace all "_i%" with the Flight sequence
+        FlightStruct <- str_replace(FlightStruct, "_i%", paste0("_",newi,"%")) %>% noquote()
+         
+        # Locate :: to replace with flight info
+        IndexMain <- grep('::', MainStructure)
+        MainStructure[IndexMain] <- " "
+         
+        # Add the flight file to the main 
+        MainStructure <- append(x = MainStructure, after = IndexMain, values = FlightStruct)
+         
       }
       
-      #CreateFolder(Root, Target, MainStructure, FlightsDF)
+      CreateFolder(Root, Target, MainStructure, FlightsDF)
       
       } else (shinyalert("Error!", "No flights added to the table!.", type = "error"))
     
+    ask_confirmation("QFolderStruct", title = "Folder structure created?", text = NULL,
+                            type = NULL, danger_mode = TRUE, btn_labels = c("NO", "YES"))
+    
   })
+  
+  observeEvent(input$QFolderStruct,{
+    if(input$QFolderStruct){
+      
+      FlightsDF <- FlightsDF[0, ]
+      
+      output$Flights <- DT::renderDataTable(FlightsDF,
+                                            editable = TRUE,
+                                            options = list(dom = 't'))
+    }
+  })
+
   
   # use SelectedCel status to change +/- sybol on add button 
   observeEvent(SelectedCel(),{

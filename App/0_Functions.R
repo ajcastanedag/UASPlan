@@ -6,7 +6,6 @@
 ################################################################################----
 # Read Flight TXT structure depending on configuration UAV-Sensor
 GetSetup <- function(Root, SetUp){
-  
   # Read Flight TXT structure depending on configuration UAV-Sensor                    ----  
   if(SetUp == "DJIM300Altum"){
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM300Altum.txt")))
@@ -93,6 +92,8 @@ CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF){
   file.remove("Temporal.bat")
   
   #FillMetadata(Root, FlightsDF)
+  
+  setwd(Root)
 
 }
 ################################################################################
