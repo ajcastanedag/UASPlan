@@ -1,0 +1,6 @@
+@pushd %~dp0
+@echo off
+set foldername=
+::
+echo %foldername%
+@popd

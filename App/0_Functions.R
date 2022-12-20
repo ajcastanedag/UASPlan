@@ -3,12 +3,10 @@
 # the folder structures for the aircraft - sensor combinations. The txt files are
 # converted in .bat files and executed in the windows shell, finally the .bat file
 # is erased.
-################################################################################
-### Create Folder structure based on root, name, setup and standard name
-CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Pol){
-  # Change directory to Target location
-  setwd(TargetLoc)
-  # Read TXT structure depending on configuration UAV-Sensor                    ----
+################################################################################----
+# Read Flight TXT structure depending on configuration UAV-Sensor
+GetSetup <- function(Root, SetUp){
+  # Read Flight TXT structure depending on configuration UAV-Sensor                    ----  
   if(SetUp == "DJIM300Altum"){
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM300Altum.txt")))
   } else if(SetUp == "DJIM300MXDual"){
@@ -29,13 +27,63 @@ CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Pol){
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraAltum.txt")))
   } else if(SetUp == "WingtraRX1RII") {
     Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraRX1RII.txt")))
-  } else(print("ERROR"))
+  } else(return())
   #####
-  # Modify the line that contains foldername= and add the dynamic values
-  Structure[grep('foldername=', Structure)] <- paste0(Structure[grep('set foldername=', Structure)],MissionName)
+  return(Structure)
+}
+################################################################################
+### Create Folder structure based on root, name, setup and standard name
+FillMetadata <- function(Root, FlightsDF, MisName){
+  for(i in 1:nrow(FlightsDF)){
+    
+    FlightPath <- paste0(FlightsDF$RootLoc[i],
+                         FlightsDF$DateF[i],
+                         "_",
+                         MisName,
+                         "\\0_Flights\\",
+                         i,"_",
+                         FlightsDF$AirCraft[i],
+                         FlightsDF$Sensor[i],
+                         "\\3_FlightFiles\\0_Log\\"
+                         )
+    
+    # Read Log Structure 
+    LogFile <- noquote(readLines(paste0(Root,"\\LogStructure\\FlightLog.txt")))
+    
+    # Replace fields
+    LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',FlightsDF$RootLoc[i])
+    LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',FlightsDF$MisName[i])
+    LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',FlightsDF$Pilot[i])
+    LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',FlightsDF$Copilot[i])
+    LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',FlightsDF$DateC[i])
+    LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',FlightsDF$DateF)
+    LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',FlightsDF$AirCraft[i])
+    LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',FlightsDF$Sensor[i])
+    LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",FlightsDF$LogText[i])
+    
+    # Update Log file 
+    write.table(LogFile, file = paste0(FlightPath,"\\FlightLog.md"), sep="",
+                row.names = FALSE, col.names = FALSE,  quote = FALSE)
+    
+  
+    # Save GPKG file with ,modified or imported polygon
+    if(!is.na(FlightsDF$geometry)){
+      st_write(GeneratePol(FlightsDF$geometry),
+               paste0(FlightPath,"\\AOI.gpkg"),
+               delete_layer=TRUE
+               )
+    }
+    
+  }
+}
+################################################################################
+### Create Mission folder structure based on root, name, setup and standard name
+CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF, MisName){
+  # Change directory to Target location
+  setwd(TargetLoc)
   
   # Create Bat File with modified structure
-  write.table(Structure, file = "Temporal.bat", sep="",
+  write.table(MainStructure, file = "Temporal.bat", sep="",
               row.names = FALSE, col.names = FALSE,  quote = FALSE)
   
   # Call system console, execute bat file and delete it
@@ -43,19 +91,10 @@ CreateFolder <- function(Root, TargetLoc, MissionName, SetUp, LogDat, Pol){
   Sys.sleep(1)
   file.remove("Temporal.bat")
   
-  # # Add log information to created text file "FlightLog.txt"
-  setwd(paste0(TargetLoc,"\\",MissionName,"\\3_FlightFiles\\0_Log\\"))
+  #FillMetadata(Root, FlightsDF, MisName)
+  
+  setwd(Root)
 
-  # Fill basic information in Log File
-  MakeLog(Root, LogDat)
-
-  # Save GPKG file with ,modified or imported polygon
-  if(!is.null(Pol)){
-    st_write(GeneratePol(Pol),
-             paste0(TargetLoc,"\\",MissionName,"\\3_FlightFiles\\0_Log\\AOI.gpkg"),
-             delete_layer=TRUE
-             )
-  }
 }
 ################################################################################
 ### Transform leaflet mods on AOI into new polygon (SF)
@@ -98,24 +137,3 @@ GeneratePol <- function(GeomSF){
 }
 ################################################################################
 #
-MakeLog <- function(Root, LogDat){
-  
-  LogFile <- noquote(readLines(paste0(Root,"\\LogStructure\\FlightLog.txt")))
-  
-  LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',LogDat[1])
-  LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',LogDat[2])
-  LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',LogDat[3])
-  LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',LogDat[4])
-  LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',as.character(Sys.Date()))
-  LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',LogDat[5])
-  LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',LogDat[6])
-  LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',LogDat[7])
-  LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",LogDat[8])
-  
-  # Update Log file 
-  write.table(LogFile, file = paste0("FlightLog.md"), sep="",
-              row.names = FALSE, col.names = FALSE,  quote = FALSE)
-  
-
-}
-################################################################################
