@@ -16,6 +16,7 @@ Root<- "D:\\UASPlan\\App"                                                       
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
+Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                               # MB  
 setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
