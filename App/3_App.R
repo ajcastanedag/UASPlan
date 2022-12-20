@@ -103,7 +103,10 @@ ui <- tagList(
                                                            value = as.character(Sys.Date()),
                                                            daysofweekdisabled = c(0),
                                                            format = "yyyy_dd_mm")),
-                                     fileInput("AOI", "Area of Interest", accept = c(".gpkg")),
+                                     splitLayout(cellWidths = c("50%", "50%"),
+                                                 textInput("flightNam", "Flight Name*", ""),
+                                                 fileInput("AOI", "Area of Interest", accept = c(".gpkg")),
+                                     ),
                                      h4(strong("Flights"), align = "left"),
                                      splitLayout(cellWidths = c("44%", "44%", "12%"),
                                                  selectizeInput("AirCraft", "Aircraft*",
@@ -173,9 +176,9 @@ ui <- tagList(
                         # Include our custom CSS
                         includeCSS("UASstyle.css")
                       ),
-                      icon = icon("hat-wizard"),)
+                      icon = icon("hat-wizard"),),
              ###################################################################
-             
+
              ################################################################### 
   )
 )
@@ -187,8 +190,7 @@ server <- function(input, output, session) {
   Aoi_Pol <<- NULL
   
   # Create Main data frame to store all information
-  FlightsDF <<- data.frame(RootLoc=character(),
-                           MisName=character(),
+  FlightsDF <<- data.frame(FlightName=character(),
                            Pilot=character(),
                            Copilot=character(),
                            DateF=character(),
@@ -239,6 +241,7 @@ server <- function(input, output, session) {
   # Include the filled data into the table and reset fields
   addData <- eventReactive(input$add, {
     if(input$add>0 &&
+       input$flightNam != "" &&
        input$AirCraft != "" &&
        input$Sensor != "" &&
        input$pilot != "" &&
@@ -250,8 +253,7 @@ server <- function(input, output, session) {
       }
       
       # Create temporal data frame 
-      tmp <- data.frame(RootLoc=paste0(TargetDrive,"\\",input$rootLoc,"\\"),
-                         MisName=input$misnam,
+      tmp <- data.frame( FlightName=input$flightNam,
                          Pilot=input$pilot,
                          Copilot=input$copilot,
                          DateF=input$DoF,
@@ -270,7 +272,12 @@ server <- function(input, output, session) {
       # Delete selected row
       FlightsDF <<- FlightsDF[-as.numeric(input$Flights_rows_selected),]
       
-    }
+    } else if(input$add>0 && (
+                 input$flightNam == "" ||
+                 input$AirCraft == "" ||
+                 input$Sensor == "" ||
+                 input$pilot == "" ||
+                 input$copilot == "")){shinyalert("Error!", "Fill the fields to add a flight!", type = "error")}
     
     # Update Sensor and Aircraft fields
     updateSelectInput(session,
@@ -279,6 +286,9 @@ server <- function(input, output, session) {
     updateSelectInput(session,
                       "AirCraft",
                       selected = "")
+    updateTextInput(session,
+                    "flightNam",
+                    value = "")
     
     if(nrow(FlightsDF) > 0){
       updateActionButton(session, 
@@ -291,7 +301,7 @@ server <- function(input, output, session) {
     }
     
     # Return
-    FlightsDF[,c("Pilot","Copilot","DateF","AirCraft","Sensor")]
+    FlightsDF[,c("FlightName","Pilot","Copilot","DateF","AirCraft","Sensor")]
     
   }, ignoreNULL = FALSE)
 
@@ -486,7 +496,7 @@ server <- function(input, output, session) {
                             value = "")
       }
       
-      CreateFolder(Root, Target, MainStructure, FlightsDF)
+      CreateFolder(Root, Target, MainStructure, FlightsDF, input$misnam)
       
     } else if(nrow(FlightsDF)>0 && input$TypeMF == "Flights"){
       
@@ -532,26 +542,34 @@ server <- function(input, output, session) {
          
       }
       
-      CreateFolder(Root, Target, MainStructure, FlightsDF)
+      CreateFolder(Root, Target, MainStructure, FlightsDF, input$misnam)
       
       } else (shinyalert("Error!", "No flights added to the table!.", type = "error"))
     
-    ask_confirmation("QFolderStruct", title = "Folder structure created?", text = NULL,
-                            type = NULL, danger_mode = TRUE, btn_labels = c("NO", "YES"))
+    # ask_confirmation("QFolderStruct", title = "Folder structure created?", text = NULL,
+    #                         type = NULL, danger_mode = TRUE, btn_labels = c("NO", "YES"))
     
   })
   
   observeEvent(input$QFolderStruct,{
-    if(input$QFolderStruct){
-      
-      FlightsDF <- FlightsDF[0, ]
-      
-      output$Flights <- DT::renderDataTable(FlightsDF,
-                                            editable = TRUE,
-                                            options = list(dom = 't'))
-    }
+  #   if(input$QFolderStruct){
+  #     
+  #     FlightsDF <- FlightsDF[0, ]
+  #     
+  #     output$Flights <- DT::renderDataTable(FlightsDF,
+  #                                           editable = TRUE,
+  #                                           options = list(dom = 't'))
+  #   } 
   })
-
+  
+  # Autofill the blocked element between flight and mission
+  observe({
+    
+    Loc <- strsplit(input$ProjLoc, "_")[[1]][2]
+    
+    updateTextInput(session, "misnam",
+                    value = Loc)
+  })
   
   # use SelectedCel status to change +/- sybol on add button 
   observeEvent(SelectedCel(),{

@@ -33,13 +33,13 @@ GetSetup <- function(Root, SetUp){
 }
 ################################################################################
 ### Create Folder structure based on root, name, setup and standard name
-FillMetadata <- function(Root, FlightsDF){
+FillMetadata <- function(Root, FlightsDF, MisName){
   for(i in 1:nrow(FlightsDF)){
     
     FlightPath <- paste0(FlightsDF$RootLoc[i],
                          FlightsDF$DateF[i],
                          "_",
-                         FlightsDF$MisName[i],
+                         MisName,
                          "\\0_Flights\\",
                          i,"_",
                          FlightsDF$AirCraft[i],
@@ -78,7 +78,7 @@ FillMetadata <- function(Root, FlightsDF){
 }
 ################################################################################
 ### Create Mission folder structure based on root, name, setup and standard name
-CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF){
+CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF, MisName){
   # Change directory to Target location
   setwd(TargetLoc)
   
@@ -91,7 +91,7 @@ CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF){
   Sys.sleep(1)
   file.remove("Temporal.bat")
   
-  #FillMetadata(Root, FlightsDF)
+  #FillMetadata(Root, FlightsDF, MisName)
   
   setwd(Root)
 
