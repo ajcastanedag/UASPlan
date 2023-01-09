@@ -8,6 +8,7 @@ In case of emergency
 ============================================================================================
 
 * Keep calm!
+
 * shut down drone
 * shut down controller
 
@@ -26,19 +27,19 @@ In case of emergency
   * police notified yes/no
   * anyone injured yes/no
   * property damage yes/no
-  * name of pilot with adress and phone number
-  * name of co-pilot with adress and phone number
-  * name/adress/contact details of injured party
+  * name of pilot with address and phone number
+  * name of co-pilot with address and phone number
+  * name/address/contact details of injured party
   * UAS ID and name
   * describe damage on UAS
-  * make a picture of the damage on the UAS and sourrounding, third party, etc...
+  * make a picture of the damage on the UAS and surrounding, third party, etc...
   * write down pilots remarks
   * remarks of injured party
   * write down how the accident happened (personal view)
   * signature of pilot and co-pilot
   * signature of injured party
-  * make a picutre of the signed document and do not modify it afterwards
-  * send it to Mirjana or Martin (staff member JMU)
+  * make a picture of the signed document and do not modify it afterwards
+  * send it to Mirjana or Martin (or an other staff member JMU)
   
   
 

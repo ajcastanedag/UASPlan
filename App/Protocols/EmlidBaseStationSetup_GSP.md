@@ -40,7 +40,7 @@ Important for M300, Wingtra, M600 and if you want to increase your accuracy
       * turn on emlid
       * open app Emlid Flow
       * connect your phone to the WiFi connection of the Emlid station
-      * check app if connection is established (WiFi Network "reach 192.168.42.1"" appears on your app) - if not press update in the app until it is
+      * check app if connection is established (WiFi Network "reach 192.168.42.1" appears on your app) - if not press update in the app until it is
       * click on "reach 192.168.42.1" and a drop down menu will appear
       * click on "Status"
       
@@ -53,14 +53,20 @@ Important for M300, Wingtra, M600 and if you want to increase your accuracy
   #-------
   
   * now that you established a connection with a reasonable correction you need to wait until the message in the upper right corner of the main menu of the app is turning from single to fixed (red to green, a beep will occur). This will happen when enough GPS satellite connections are established and can take up to 15 min.
-  * if the message is "float" (yellow), the precision is almost acieved
+  * if the message is "float" (yellow), the precision is almost achieved
 
-- set up tripod with head and station 
+please note: the staion is recording as soon as it is turned on, but the precision is only reliable after reaching fixed status (after the beep) and only then the flight mission should start
 
-- connect
+(note to add to the Post flight list: stop RTK Logging via app and download - 3 files are needed)
 
-- start recording
+
   
-  
-  * SAPOS setup (only Bavaria)
+### Ground Sample Points
+
+to achieve ....
+
+ #  setup
+ 
+ the panels should be distributed evenly thorugh the area of interest that is covered by your mission
+
 
