@@ -14,6 +14,7 @@ Packing List
 * cones
 * communication system (walkie talkies)
 * flight permission
+* parking permission if needed
 * flight book
 * Nikon camera 
 * Timer
@@ -22,6 +23,23 @@ Packing List
 * landing pad
 * measuring tape
 * vest if needed 
+* extra propellars for the aircraft
+* folder with your printed documents and a pencil/pen to make notes
+* memory case
 
 
+Please note:
+=======================
+
+the emergency service must be informed before the flight mission starts:
+Leitstelle Würzburg: 0931 309060 
+
+add information for other regions (task)
+
+Ideally 30 min prior any mission in and around Würzburg
+They need to know:
+* Where are you flying?
+* At what height?
+* How long? (please add buffer time"!")
+* eventually contact number
 

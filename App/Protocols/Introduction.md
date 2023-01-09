@@ -15,4 +15,18 @@ Reminders to operate all the listed equipment:
 * Processed with the markdown package, which transforms it into HTML.
 * The output is included in the web page.
 
+take care of the
+* Dienstreiseantrag
+* book bus / bike if needed
+* flight permission
+* pilot license
+* driving permission for the national park if needed
 
+
+explain call to Leitstelle and why it is needed
+
+* Equipment Pre Flight List & PackingListGeneral = get organised and ready the day before you go into the field
+
+* if you are not taking the UAS research mobile phone with you, make sure to have the phone numbers from Mirjana, Martin, ... stored in your phone
+
+* also note down the emergency service number
