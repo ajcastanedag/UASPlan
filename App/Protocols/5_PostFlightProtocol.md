@@ -1,11 +1,5 @@
-```{=html}
-<style>
-p {
-  style="text-align: justify;
-}
-</style>
-```
 # Post flight protocol
+==============================================
 
 after you completed the flight mission successfully 
 

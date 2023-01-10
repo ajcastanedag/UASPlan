@@ -1,11 +1,5 @@
-```{=html}
-<style>
-p {
-  style="text-align: justify;
-}
-</style>
-```
 # Packing List
+==============================================
 
 -   first aid kit
 -   fire extinguisher

@@ -1,10 +1,4 @@
-<style>
-p {
-  style="text-align: justify;
-}
-</style>
-
-Equipment Pre Flight List:
+# Equipment Pre Flight List:
 ==============================================
 
 

@@ -16,8 +16,8 @@ Root<- "D:\\UASPlan\\App"                                                       
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
-#Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                               # MB 
-Root <- "C:\\Users\\Lsfe1\\Documents\\UASPlan\\App"
+#Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
+Root <- "C:\\Users\\Lsfe1\\Documents\\UASPlan\\App"                              # Laptop UAS
 setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
@@ -67,7 +67,12 @@ ui <- tagList(
                         tags$hr(style="border-color: gray;"),
                         fluidRow(
                           column(12,
-                                 uiOutput("MDdisplay"))
+                                 uiOutput("MDdisplay"),
+                                 uiOutput("EquipmentPreFlightList"),
+                                 uiOutput("PackingListGeneral"),
+                                 uiOutput("FlightExcecution"),                                 
+                                 uiOutput("PostFlightProtocol"),
+                                 uiOutput("EquipmentReturn"))
                           ),
 
                         br(),
@@ -205,8 +210,14 @@ server <- function(input, output, session) {
 
   #### Render elements                                                          ----
   # Load introduction information
-  output$MDdisplay <- renderUI({includeMarkdown("./Protocols/Introduction.md")})
-  
+  output$MDdisplay <- renderUI({includeMarkdown("./Protocols/0_Introduction.md")})
+  output$EquipmentPreFlightList <- renderUI({includeMarkdown("./Protocols/2_EquipmentPreFlightList.md")})
+  output$PackingListGeneral <- renderUI({includeMarkdown("./Protocols/3_PackingListGeneral.md")})
+  output$FlightExcecution <- renderUI({includeMarkdown("./Protocols/4_FlightExcecution.md")})
+  output$PostFlightProtocol <- renderUI({includeMarkdown("./Protocols/5_PostFlightProtocol.md")})
+  output$EquipmentReturn <- renderUI({includeMarkdown("./Protocols/6_EquipmentReturn.md")})
+
+    
   # Render 3D
   output$World <- renderUI({
     library(threejs)
@@ -390,39 +401,39 @@ server <- function(input, output, session) {
   # Render markdown depending on selected set up and suggest RTK 
   observeEvent(input$SensorM, {
     if(input$SensorM == ""){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/Introduction.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/0_Introduction.md")})
     } else if(input$AirCraftM == "Phantom4" && input$SensorM == "RGB"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/Phantom4RGB.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/Phantom4RGB.md")})
     }
     else if(input$AirCraftM == "DJIM600" && input$SensorM == "Altum"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/M600Altum.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M600Altum.md")})
     }
     else if(input$AirCraftM == "DJIM600" && input$SensorM == "MXDual"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/M600MX.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M600MX.md")})
     }
     else if(input$AirCraftM == "DJIM600" && input$SensorM == "LiAirV"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/M600LiAir.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M600LiAir.md")})
     }
     else if(input$AirCraftM == "DJIM300" && input$SensorM == "Altum"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/M300Altum.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M300Altum.md")})
     }
     else if(input$AirCraftM == "DJIM300" && input$SensorM == "MXDual"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/M300MX.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M300MX.md")})
     }
     else if(input$AirCraftM == "DJIM300" && input$SensorM == "L1"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/M300L1.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M300L1.md")})
     }
     else if(input$AirCraftM == "DJIM300" && input$SensorM == "H20T"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/M300H20T.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M300H20T.md")})
     }
     else if(input$AirCraftM == "DJIM300" && input$SensorM == "H20T"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/M300H20T.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M300H20T.md")})
     }
     else if(input$AirCraftM == "Wingtra" && input$SensorM == "RX1RII"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/WingtraSony.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/WingtraSony.md")})
     }
     else if(input$AirCraftM == "Wingtra" && input$SensorM == "Altum"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/WingtraAltum.md")})
+      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/WingtraAltum.md")})
     }
     
     if(input$SensorM %in% c("LiAirV","L1")){

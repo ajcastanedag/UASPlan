@@ -1,11 +1,5 @@
-```{=html}
-<style>
-p {
-  style="text-align: justify;
-}
-</style>
-```
 # Equipment return
+==============================================
 
 as soon as you are back at the university you should copy the data immediately to the lidar computer via the UAS app.
 
