@@ -16,6 +16,7 @@ there are some admin related things you need to take care of:
 -   book bus / bike if needed (please be reminded to fill out the "Fahrtenbuch" when you take the bus)
 -   flight permission (you should have a copy with you)
 -   driving permission (e.g. for national parks) if needed
+-   check the weather carefully! especially the windspeed is limiting the days you can actually go into the field
 
 and don't forget to have your pilot license with you.
 
@@ -61,7 +62,7 @@ Select your aircraft and sensor and go carefully through the instructions. You w
 
 If you are familiar with UAS you maybe want to print the short version only.
 
-After you decided on your system and sensors you can go to the "create" section. Filling out the form here will automatically create the folders needed to store your collected data properly.
+After you decided on your system and sensors you can go to the "create" section (menu bar on the top). Filling out the form here will automatically create the folders needed to store your collected data properly.
 
 All the flight missions of one region are stored within the same folder (= Project location), the name of the project folder is predefined (e.g. Berchtesgarden, Uniwald,...) please contact us if your region of interest is not appearing within the drop down menu (uasuniwue@gmail.com)
 
