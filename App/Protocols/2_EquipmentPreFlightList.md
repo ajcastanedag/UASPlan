@@ -5,7 +5,7 @@
 one day before you go into the field:
 
 CHARGE:
-* batteries drone 
+* batteries drone (take care of using the same batch, usually numbered or indicated by color)
 * controller
 * tablet if needed
 * UAS research mobile phone
@@ -15,6 +15,8 @@ CHARGE:
 * walkie talkies 
 * Nikon camera
 * Emlid station if needed
+
+If you are using any Altum sensor you need to take the calibration panel with you!!!
 
 
 TAKE CARE OF:
