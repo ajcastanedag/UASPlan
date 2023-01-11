@@ -6,7 +6,7 @@ Here you will find all the information needed not only to execute UAS flights bu
 
 On this side you can find some useful manuals and protocols for our equipment that is available at the department, as well as packing and checklists to keep you save in the field.
 
-In a first step you need to choose your aircraft system and sensor. Afterwards you define your project location (AOI), plan your mission, take care of the equipment, go to the field and load the data through this app into your pre-created folders and run a first analysis.
+In a first step you need to choose your aircraft system and sensor. Afterwards you define your project location (AOI), plan your mission, take care of the equipment, go to the field and load the data through this app into your (automatically) pre-created folders and run a first analysis.
 
 Some additional notes before we go into planning:
 
@@ -16,7 +16,7 @@ there are some admin related things you need to take care of:
 -   book bus / bike if needed (please be reminded to fill out the "Fahrtenbuch" when you take the bus)
 -   flight permission (you should have a copy with you)
 -   driving permission (e.g. for national parks) if needed
--   check the weather carefully! especially the windspeed is limiting the days you can actually go into the field
+-   check the weather carefully! especially the windspeed is limiting the days you can actually go into the field (some useful websites are: meteoblue.com or windy.com or the app UAV forecast)
 
 and don't forget to have your pilot license with you.
 
@@ -25,13 +25,13 @@ We encountered that it is really helpful to get in contact with the general emer
 
 ### Get ready for the field
 
-in the following we will inform you on the different steps to get ready for the field. This includes mission planning, taking care of the equipment, get everything organised, packing lists and saftey protocols.
+in the following we will inform you on the different steps to get ready for the field. This includes mission planning, taking care of the equipment, get everything organised, packing lists and saftey protocols. This introductory page is to inform you about every step. The acutally planning starts on the next page (via the button create in the menu bar on top)
 
 **Please note:** printing and cross checking the emergency protocol, equipment and packing list is mandatory
 
 
 
-## **Let's start!**
+### **Let's start!**
 
 On this side you will find all the information needed to make informed decision on what equipment you need to choose and what you need to take with you in the field. If you click on "create" in the menu bar, the actual planning starts.
 
@@ -42,19 +42,19 @@ Here is a list of our equipment and combinations of sensors you find under the A
 (-\> examples need to be filled in in the following section)
 
 -   Mavic - mainly used to create media
--   Phantom 4 - mapping drone (Photogrammetry)
--   DJI M600 - Altum - multispektral
--   DJI M600 - MXDual - multispektral
+-   Phantom 4 - that is our small mapping drone - RGB (Photogrammetry)
+-   DJI M600 - Altum - multispectral
+-   DJI M600 - MXDual - multispectral
 -   DJI M600 - LiAirV - lidar
--   DJI M300 - Altum - mulitspektral
--   DJI M300 - MxDual - multispetral
+-   DJI M300 - Altum - mulitspectral
+-   DJI M300 - MxDual - multispectral
 -   DJI M300 - L1 - lidar
 -   DJI M300 - H20T - Thermal and RGB
 -   Wingtra - RX1RII - RGB
--   Wingtra - Altum - multispektral
+-   Wingtra - Altum - multispectral
 -   Lidar Backpack
 
-RTK is mandatory if you go with a lidar sensor and can be useful for mapping - depending on your research
+RTK (tbd: explain RTK) is mandatory if you go with a lidar sensor and can be useful for mapping - depending on your research
 question. If you have questions please write us an email: [uasuniwue\@gmail.com](mailto:uasuniwue@gmail.com)
 
 
@@ -79,6 +79,9 @@ Projectfolder -> date_mission_name -> flights, analysis, results, media -> withi
 Please note: a co-pilot is mandatory when going into the field with the M300, M600, Wingtra
 
 
+After you created you flight data, you need to go through the instructions carefully to be properly prepared for you field trip.
+The documents will guide you through the mission planning, the pre flight checklist and packing list, on what to take care in the field and how to store and process your data.
 
+A member of the UAS team will cross check with you and then you are ready to go.
 
 

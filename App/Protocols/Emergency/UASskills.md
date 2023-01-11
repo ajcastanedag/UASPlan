@@ -18,5 +18,5 @@ p {
           
 * connection loss
 
-* 
+* check the security default settings (we need to define them, e.g. obstacle avoidance) - especially the height of your "return to home" mode!
 

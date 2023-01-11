@@ -22,6 +22,8 @@ Please make sure to have the base map chached ....
 
 # Pilot 2 M300
 
+# Wingtra
+
 # DJI Go for iOS (X8)
 
 
