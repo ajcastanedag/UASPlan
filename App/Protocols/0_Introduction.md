@@ -6,7 +6,7 @@ Here you will find all the information needed not only to execute UAS flights bu
 
 On this side you can find some useful manuals and protocols for our equipment that is available at the department, as well as packing and checklists to keep you save in the field.
 
-In a first step you need to choose your aircraft system and sensor. Afterwards you define your project location (AOI), plan your mission, take care of the equipment, go to the field and load the data through this app into your pre-created folders and run a first analysis.
+In a first step you need to choose your aircraft system and sensor. Afterwards you define your project location (AOI), plan your mission, take care of the equipment, go to the field and load the data through this app into your (automatically) pre-created folders and run a first analysis.
 
 Some additional notes before we go into planning:
 
@@ -16,7 +16,7 @@ there are some admin related things you need to take care of:
 -   book bus / bike if needed (please be reminded to fill out the "Fahrtenbuch" when you take the bus)
 -   flight permission (you should have a copy with you)
 -   driving permission (e.g. for national parks) if needed
--   check the weather carefully! especially the windspeed is limiting the days you can actually go into the field
+-   check the weather carefully! especially the windspeed is limiting the days you can actually go into the field (some useful websites are: meteoblue.com or windy.com or the app UAV forecast)
 
 and don't forget to have your pilot license with you.
 
@@ -25,7 +25,7 @@ We encountered that it is really helpful to get in contact with the general emer
 
 ### Get ready for the field
 
-in the following we will inform you on the different steps to get ready for the field. This includes mission planning, taking care of the equipment, get everything organised, packing lists and saftey protocols.
+in the following we will inform you on the different steps to get ready for the field. This includes mission planning, taking care of the equipment, get everything organised, packing lists and saftey protocols. This introductory page is to inform you about every step. The acutally planning starts on the next page (via the button create in the menu bar on top)
 
 **Please note:** printing and cross checking the emergency protocol, equipment and packing list is mandatory
 
@@ -54,7 +54,7 @@ Here is a list of our equipment and combinations of sensors you find under the A
 -   Wingtra - Altum - multispektral
 -   Lidar Backpack
 
-RTK is mandatory if you go with a lidar sensor and can be useful for mapping - depending on your research
+RTK (tbd: explain RTK) is mandatory if you go with a lidar sensor and can be useful for mapping - depending on your research
 question. If you have questions please write us an email: [uasuniwue\@gmail.com](mailto:uasuniwue@gmail.com)
 
 
