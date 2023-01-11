@@ -31,7 +31,7 @@ in the following we will inform you on the different steps to get ready for the 
 
 
 
-## **Let's start!**
+### **Let's start!**
 
 On this side you will find all the information needed to make informed decision on what equipment you need to choose and what you need to take with you in the field. If you click on "create" in the menu bar, the actual planning starts.
 
@@ -42,16 +42,16 @@ Here is a list of our equipment and combinations of sensors you find under the A
 (-\> examples need to be filled in in the following section)
 
 -   Mavic - mainly used to create media
--   Phantom 4 - mapping drone (Photogrammetry)
--   DJI M600 - Altum - multispektral
--   DJI M600 - MXDual - multispektral
+-   Phantom 4 - that is our small mapping drone - RGB (Photogrammetry)
+-   DJI M600 - Altum - multispectral
+-   DJI M600 - MXDual - multispectral
 -   DJI M600 - LiAirV - lidar
--   DJI M300 - Altum - mulitspektral
--   DJI M300 - MxDual - multispetral
+-   DJI M300 - Altum - mulitspectral
+-   DJI M300 - MxDual - multispectral
 -   DJI M300 - L1 - lidar
 -   DJI M300 - H20T - Thermal and RGB
 -   Wingtra - RX1RII - RGB
--   Wingtra - Altum - multispektral
+-   Wingtra - Altum - multispectral
 -   Lidar Backpack
 
 RTK (tbd: explain RTK) is mandatory if you go with a lidar sensor and can be useful for mapping - depending on your research
@@ -79,6 +79,9 @@ Projectfolder -> date_mission_name -> flights, analysis, results, media -> withi
 Please note: a co-pilot is mandatory when going into the field with the M300, M600, Wingtra
 
 
+After you created you flight data, you need to go through the instructions carefully to be properly prepared for you field trip.
+The documents will guide you through the mission planning, the pre flight checklist and packing list, on what to take care in the field and how to store and process your data.
 
+A member of the UAS team will cross check with you and then you are ready to go.
 
 
