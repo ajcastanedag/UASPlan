@@ -16,9 +16,9 @@ Root<- "D:\\UASPlan\\App"                                                       
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
-#Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
+Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
 #Root <- "C:\\Users\\Lsfe1\\Documents\\UASPlan\\App"                              # Laptop UAS
-setwd(Root)
+#setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
