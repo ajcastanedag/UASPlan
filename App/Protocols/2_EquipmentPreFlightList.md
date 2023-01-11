@@ -27,10 +27,13 @@ TAKE CARE OF:
 CHECK:
 * transfer mission to controller or tablet
 * check connection controller - drone - mission planning software
+* check setting of "return to home" (is it activated? is the height reasonable), max. allowed height to fly with the drone set properly?, is object avoidance activated?
+* check controller to be in Positioning mode 
 
 ToDo:
 * print all necessary documents for the field (flight permission, checklists, emergency protocol, flight execution, ...) and take them with you
 * note down the place where you planed your starting spot and print a map (helpful in case of emergence and to explain Leitstelle the position of your flight)
+* check on the weather conditions for tomorrow
 
 
 overview of battery and controller charging times: 
@@ -39,5 +42,6 @@ overview of battery and controller charging times:
 - M300:
 - M600:
 - Wingtra:
+- Emlid: 
 
 YOU ARE RESPONSIBLE FOR THE EQUIPMENT UNTIL IT IS RETURNED
