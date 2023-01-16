@@ -2,25 +2,277 @@
 <!DOCTYPE html>
 <html>
 <body>
-<h1>DJI-M300 & Micasense Altum</h1>
+<h1 align="center">DJI-M300 & Micasense Altum</h1>
 
+<!---   Disclamer and Introduction   --->
 <p align="justify">
-In this document you will find all the steps to operate the DJI-M300 in combination with the Micasense Altum camera. When a word is highlighted, it contains an additional explanation when hovering the
-mouse on top of it, for example terms such as <span title="Downwelling Light Sensor 2" style="color:rgb(253,163,126)">DLS 2</span>. Additionally, at the end of this document you can download
-a field version that contains all the summariced steps on the equipment operation.
+  In this document, you will find all the steps to operate the DJI-M300 in combination with the Micasense Altum camera, from the mission
+  planning to the processing of the data going through all to-dos before the flights and the tasks you must perform to ensure the success
+  of your mission. When a word is highlighted, it contains an additional explanation when hovering the
+  mouse on top of it; for example: <em title="A short explanation will pop-up" style="color:rgb(253,163,126)">term</em>. Additionally,
+  at the end of this document, you can download a field version that contains all the summarised steps, checklists and all the things
+  you must remember for the equipment operation.<br>
 </p>
-
 <div class="alert-box warning">
-	<span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-	<span> <span>&#9888;</span> warning: </span>You must read through all this document before proceeding any further with the equipment you will use, its zour responsibilitz to have clearence on how to operate the 
-	equipment and how to act in case of emergencies. 
+	<!-- <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> -->
+	<span> <span>&#9888;</span> warning: </span>You must read through all these documents before proceeding with the equipment you will
+  use. It's your responsibility to have clearance on how to operate the equipment and how to act in case of emergencies. If any
+  information provided is unclear or contradictory, please contact the UAS team in time to solve the uncertainties.
 </div>
 
+<!---   About the sensor   --->
+<h2>Micasense Altum</h2>
+<p align="justify">
+  The Micasens Altum is a multispectral camera that captures images across multiple wavelength bands, which can be used for various applications
+  such as precision agriculture, mineral exploration, and environmental monitoring. The camera typically uses multiple image sensors to capture
+  data in each band, such as the visible, near-infrared, or short-wave infrared regions. The Altum camera is designed to be mounted on a drone
+  or other platform for aerial imaging. However, it can also be used as a stationary device for ground-based imaging. The camera can generate
+  detailed information about the reflective properties of the target, enabling applications such as crop health analysis, mineral mapping, and
+  object recognition. It can also be used to measure temperature and thermal infrared imaging. The Altum camera has a high-resolution sensor and 
+  advanced optics to produce high-quality images. The camera typically outputs image data in various formats, such as TIFF or JPEG, and may also
+  include additional data, such as GPS coordinates and altitude information. Additionally, the Altum can be integrated with other sensors, such as
+  LiDAR, allowing for a more comprehensive data collection and analysis. Overall, the Micasens Altum is a powerful, versatile camera that can be
+  used for many applications. It will allow you to capture spectral information and extract valuable insights from your images.
+  <br><br>
+  The Micasense Downwelling Light Sensor 2 (<em title="Downwelling Light Sensor 2" style="color:rgb(253,163,126)">DLS 2</em>) is a sensor that
+  measures the amount of light that is downwelling or coming down from the sky in a given area. It is typically used to measure the amount of
+  light available for photosynthesis in crops, which can be used to analyze crop health and predict crop yields. The DLS 2 sensor is designed
+  to be mounted on a drone or other platform for aerial measurements, and it can also be used as a stationary device for ground-based
+  measurements. The sensor has a wide field of view, allowing it to measure the light over a large area and is equipped with advanced optics
+  to produce accurate and reliable measurements. The sensor typically outputs data in various formats, such as CSV or JSON, and may include
+  additional data, such as GPS coordinates and altitude information. The DLS 2 sensor can be used with other sensors, such as multispectral
+  cameras, to capture a more comprehensive data set and extract valuable insights. The sensor is also compatible with the Altum Camera, which
+  allows you to conduct simultaneous measurements of light and reflectance, providing more information to analyze.
+
+</p>
+
+<div class="row">
+  <div class="column">
+    <table>
+      <caption align="bottom">Micasense Altum main parameters.</caption>
+      <tr>
+        <th>Parameter</th>
+        <th>Multispectral</th>
+        <th>Thermal</th>
+      </tr>
+      <tr>
+        <td>Pixel size</td>
+        <td>3.45 μm</td>
+        <td>12 μm</td>
+      </tr>
+      <tr>
+        <td>Resolution</td>
+        <td>3.2 MP x 5 imagers</td>
+        <td>0.01 K</td>
+      </tr>
+      <tr>
+        <td>Resolution (px)</td>
+        <td>2064 x 1544</td>
+        <td>160 x 120</td>
+      </tr>
+      <tr>
+        <td>Aspect ratio</td>
+        <td>4 : 3</td>
+        <td>4 : 3</td>
+      </tr>
+      <tr>
+        <td>Sensor size (mm)</td>
+        <td>7.12 x 5.33 </td>
+        <td>1.92 x 1.44</td>
+      </tr>
+      <tr>
+        <td>Sensor diagonal (mm)</td>
+        <td>8.9</td>
+        <td>8.9</td>
+      </tr>
+      <tr>
+        <td>Focal length (mm)</td>
+        <td>8</td>
+        <td>1.77</td>
+      </tr>
+      <tr>
+        <td>Field of view (h x v)</td>
+        <td>48º x 36.8º</td>
+        <td>57º x 44.3º</td>
+      </tr>
+      <tr>
+        <td>Thermal sensitivity (mK)</td>
+        <td>NA</td>
+        <td> &lt 50</td>
+      </tr>
+      <tr>
+        <td>Thermal accuracy (K)</td>
+        <td>NA</td>
+        <td>&plusmn 5 </td>
+      </tr>
+      <tr>
+        <td>Output bit depth</td>
+        <td>12</td>
+        <td>14</td>
+      </tr>
+      <tr>
+        <td>GSD @ 60 m (cm)</td>
+        <td>2.6</td>
+        <td>41</td>
+      </tr>
+    </table>
+  </div>
+  <div class="column">
+    <table>
+      <caption align="bottom">Micasense Altum band parameters.</caption>
+      <tr>
+        <th>Name</th>
+        <th>Band Output</th>
+        <th>Center</th>
+        <th>Bandwidth</th>
+      </tr>
+      <tr>
+        <td>Blue</td>
+        <td>1</td>
+        <td>475 nm</td>
+        <td>20 nm</td>
+      </tr>
+      <tr>
+        <td>Green</td>
+        <td>2</td>
+        <td>560 nm</td>
+        <td>20 nm</td>
+      </tr>
+      <tr>
+        <td>Red</td>
+        <td>3</td>
+        <td>668 nm</td>
+        <td>10 nm</td>
+      </tr>
+      <tr>
+        <td>Red edge</td>
+        <td>5</td>
+        <td>717 nm</td>
+        <td>10 nm</td>
+      </tr>
+      <tr>
+        <td>Near infrared</td>
+        <td>4</td>
+        <td>840 nm</td>
+        <td>40 nm</td>
+      </tr>
+      <tr>
+        <td>Thermal</td>
+        <td>6</td>
+        <td>11 μm</td>
+        <td>6 μm</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!---   Mission Planning List   --->
+<h2>Mission Planning UgCS</h2>
+
+<p align="justify">
+  For this setup, the software <em title="Universal Ground Control System" style="color:rgb(253,163,126)">UgCs</em> is used. This
+  software controls and operates uncrewed aerial vehicles (UAVs) remotely. UGCS includes hardware (computer - tablet) and software
+  components, such as a control station, communication equipment, and navigation systems that allow an operator to remotely start,
+  pause, stop, resume, and restart missions. The software is also used during flight to monitor the UAV's movements, sensors, and
+  payloads. The workflow of mission planning consists of three major steps:
+  <br>
+</p>
+
+<ol type="1">
+  <li>
+    <strong>Specify the desired result:</strong> for this step, you must define the required <em title="The spatial resolution of a sensor, referred to as GSD, is represented by the distance in centimetres between the centres of adjacent pixels in the image captured on the ground. The GSD and the boundaries of the area of interest are often determined based on the specific needs and requirements of the customer, such as the desired scale and resolution of a digital map." style="color:rgb(253,163,126)">GSD</em>, <em title="Area Of Interest" style="color:rgb(253,163,126)">AOI</em> boundaries, and forward
+    and side overlap.
+  </li>
+  <li>
+    <strong>Import an accurate map and elevation data to UgCS (optional):</strong>
+  </li>
+  <li>
+    <strong>Plan the mission:</strong>
+  </li>
+</ol> 
+
+
+
+
+
+
+<!---   Equipment Pre Flight List   --->
+<h2>Equipment Pre Flight List</h2>
+
+<!---   Packing List   --->
+<h2>Packing List</h2>
+
+<!---   Field operation   --->
+<h2> Field Operation</h2>
+
+<h4> Pre Flight</h4>
+<div>
+  <input type="checkbox" id="FO1" name="scales">
+  <label for="FO1">Look for an open space and a flat surface to set up the drone,
+    use the landing pad.
+  </label>
+</div>
+
+<div>
+<input type="checkbox" id="FO2" name="scales">
+<label for="FO2">Use the flags and cones to secure your start and landing spot
+  as well as your surrounding (e.g. to warn cars/bikes when you are close to a street.)
+</label>
+</div>
+
+<div>
+<input type="checkbox" id="FO3" name="scales">
+<label for="FO3">Verify all cells in the battery are functional in the app.
+</label>  
+</div>
+
+<div>
+<input type="checkbox" id="FO4" name="scales">
+<label for="FO4">
+  Compass calibration is sometimes asked if needed.
+</label>  
+</div>
+
+<h4> Flight</h4>
+
+<h4> Post  Flight</h4>
+
+<!---   Equipment return   --->
+<h2>Equipment return</h2>
+
+<!---   Data processing   --->
+<h2>Data processing</h2>
+
+<hr width="70%" 
+        size="20" 
+        align="center">
+
+<!---   Data processing   --->
+<h2>Further reading</h2>
+<ul>
+  <li>
+    <a href="https://support.micasense.com/hc/en-us/articles/360039671254-User-Guide-for-MicaSense-Sensors">Altum user guide</a>
+  </li>
+  <li>
+    <a href="https://support.micasense.com/hc/article_attachments/360073921173/AltumDLS2IntegrationGuideRev10.pdf">Altum integration guide</a>
+  </li>
+  <li>
+    <a href="https://www.ugcs.com/page/photogrammetry-tool-for-land-surveying">UgCS planning</a>
+  </li>
+</ul> 
+<hr class="hr1" />
 </body>
 </html>
 
 <!------------------------------------------------------------>
 <style>
+
+.hr1 {
+        border: 0;
+        height: 3px;
+        background: #ffffff;
+        background-image: linear-gradient(to right, #ccc, #095484, #ccc);
+      }
 
 /* The alert message box */	
 .alert-box {
@@ -31,11 +283,13 @@ a field version that contains all the summariced steps on the equipment operatio
     margin:10px;
 }
 
+/* The alert message box */	
 .alert-box span {
     font-weight:bold;
     text-transform:uppercase;
 }
 
+/* WaThe alert message box */	
 .warning {
     background:#f4d436bc url('images/warning.png') no-repeat 10px 50%;
     border:1px solid #f2c779;
@@ -58,6 +312,45 @@ a field version that contains all the summariced steps on the equipment operatio
   color: black;
 } 
 
+/* Table style */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd18;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.row {
+  margin-left:-5px;
+  margin-right:-5px;
+}
+  
+.column {
+  float: left;
+  width: 50%;
+  padding: 5px;
+}
+
+/* Clearfix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
 </style>
 <!------------------------------------------------------------>
 
@@ -66,16 +359,6 @@ a field version that contains all the summariced steps on the equipment operatio
 
 <!--
 
-
-DJI-M300 & Micasense Altum
-=======================
----
-**Disclamer**
-
-In this document you will find all the steps to operate the DJI-M300 in combination with the Micasense Altum camera. When a word is highlighted, it contains an additional explanation when hovering the mouse on top of it, for example terms such as <div title="Downwelling Light Sensor 2"><span style="color:rgb(253,163,126)">DLS 2</span></div>. Additionally, at the end of this document you can download a field version that contains all the summariced steps on the equipment operation.
-
-**⚠ You must read through all this document before proceeding any further with the equipment you will use, its zour responsibilitz to have clearence on how to operate the 
-equipment and how to act in case of emergencies ⚠**
 
 ---
 **Aircraft set-up**
@@ -136,10 +419,7 @@ unpluy usb and safe it on the box
 unplug DLS 2 
 
 ---
-**References**
-For aditional information you can consult:
-* [Altum user guide](https://support.micasense.com/hc/en-us/articles/360039671254-User-Guide-for-MicaSense-Sensors)
-* [Altum integration guide](https://support.micasense.com/hc/article_attachments/360073921173/AltumDLS2IntegrationGuideRev10.pdf)
+
 
 
 
