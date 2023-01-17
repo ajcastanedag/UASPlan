@@ -29,7 +29,7 @@ TargetDrive <- "\\\\132.187.202.41\\d$\\1_Projects"
 #################################    UI   ###################################### ----
 ui <- tagList(
   useShinyjs(),
-  navbarPage(title = div(img(src='pics/Logo.png',
+  navbarPage(title = div(img(src='3_Graphs/Logo.png',
                              style="margin-top: -10px; padding-right:10px; padding-bottom:10px",
                              height = 50)),
              windowTitle="JMU UAS Flight book",

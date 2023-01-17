@@ -1,0 +1,124 @@
+body {
+    font-size: large;
+    font-family: Plexes !important;
+}
+/*-----------------------------------------------------------------*/
+/* Horizontal lines */	
+.hr1 {
+        border: 0;
+        height: 3px;
+        background: #ffffff;
+        background-image: linear-gradient(to right, #ccc, #095484, #282C31;);
+      }
+/*-----------------------------------------------------------------*/
+/* Centered images */	
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+/* Container of images */
+.container { 
+  height: auto;
+  position: relative;
+  border: 3px solid rgba(0, 128, 0, 0); 
+}
+/* Button to hide/show images */
+.centerBTN {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+/* Button to hide/show images */
+.Imgbutton {
+  background-color: rgb(30, 30, 30);
+  border-radius: 10px;
+  border-width: 2px;
+  border-color: rgb(150, 150, 150);
+  padding: 8px 8px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 5px 5px;
+  cursor: pointer;
+}
+/*-----------------------------------------------------------------*/
+/* The alert message box */	
+.alert-box {
+    color:#555;
+    border-radius:10px;
+    font-size:15px;
+    padding:10px 10px 10px 36px;
+    margin:10px;
+}
+.alert-box span {
+    font-weight:bold;
+    text-transform:uppercase;
+}
+/* Warning alert message box */	
+.warning {
+    background:#f4d436bc url('images/warning.png') no-repeat 10px 50%;
+    border:1px solid #f2c779;
+}
+/* The close button of the warning box*/
+.closebtn {
+  margin-left: 15px;
+  color: #555;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+/* When moving the mouse over the close button */
+.closebtn:hover {
+  color: black;
+} 
+
+/*-----------------------------------------------------------------*/
+/* Table style */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd18;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.row {
+  margin-left:-5px;
+  margin-right:-5px;
+}
+  
+.column {
+  float: left;
+  width: 50%;
+  padding: 5px;
+}
+
+/* Clear fix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+/*-----------------------------------------------------------------*/

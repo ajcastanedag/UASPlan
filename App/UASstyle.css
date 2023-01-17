@@ -1,3 +1,7 @@
+html {
+  font-family: Plexes !important;
+}
+
 input[type="number"] {
   max-width: 80%;
 }
