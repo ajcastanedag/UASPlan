@@ -45,11 +45,26 @@
   allows you to conduct simultaneous measurements of light and reflectance, providing more information to analyze.
 
 </p>
+<br>
 
+<div class="container">
+  <div class="centerBTN">
+    <button class="Imgbutton" onclick="myFunction()">Expand Image</button>
+  </div>
+</div>
+
+<div id="CameraImage">
+  <figure>
+    <img src="Altum.png" alt="Paris" class="center" style="width:80%"> 
+    <figcaption style="text-align: center;" >Micasense Altum camera and DLS 2.</figcaption>
+  </figure>
+</div> 
+
+<br>
 <div class="row">
   <div class="column">
     <table>
-      <caption align="bottom">Micasense Altum main parameters.</caption>
+      <caption align="bottom" style="text-align: center;">Micasense Altum main parameters.</caption>
       <tr>
         <th>Parameter</th>
         <th>Multispectral</th>
@@ -119,7 +134,7 @@
   </div>
   <div class="column">
     <table>
-      <caption align="bottom">Micasense Altum band parameters.</caption>
+      <caption align="bottom" style="text-align: center;">Micasense Altum band parameters.</caption>
       <tr>
         <th>Name</th>
         <th>Band Output</th>
@@ -192,10 +207,6 @@
 </ol> 
 
 
-
-
-
-
 <!---   Equipment Pre Flight List   --->
 <h2>Equipment Pre Flight List</h2>
 
@@ -266,13 +277,51 @@
 
 <!------------------------------------------------------------>
 <style>
-
+/* Horizontal lines */	
 .hr1 {
         border: 0;
         height: 3px;
         background: #ffffff;
         background-image: linear-gradient(to right, #ccc, #095484, #ccc);
       }
+
+/* Centered images */	
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.container { 
+  height: auto;
+  position: relative;
+  border: 3px solid rgba(0, 128, 0, 0); 
+}
+
+.centerBTN {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.Imgbutton {
+  background-color: rgb(30, 30, 30);
+  border-radius: 12px;
+  border: rgb(199, 21, 21);
+  color: rgb(194, 195, 196);
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 1px 1px;
+  cursor: pointer;
+}
+
 
 /* The alert message box */	
 .alert-box {
@@ -354,9 +403,18 @@ tr:nth-child(even) {
 </style>
 <!------------------------------------------------------------>
 
+<script>
+  function myFunction() {
+  var x = document.getElementById("CameraImage");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+} 
+</script>
 
-
-
+<!------------------------------------------------------------>
 <!--
 
 
