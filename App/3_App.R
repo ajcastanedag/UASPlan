@@ -12,22 +12,28 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
 #Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
-#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 #Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
 #Root <- "C:\\Users\\Lsfe1\\Documents\\UASPlan\\App"                              # Laptop UAS
-#setwd(Root)
+################################################################################
+setwd(Root)
 ##### Add resource path                                                         ----- 
-addResourcePath(prefix = 'pics', directoryPath = paste0(getwd(),"\\www"))
+addResourcePath(prefix = 'media', directoryPath = paste0(Root,"\\www"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
-source(paste0(getwd(),"\\0_Functions.R"))
+source(paste0(Root,"\\0_Functions.R"))
 ##### Possible output locations general directory (E drive)                     ----- 
 TargetDrive <- "\\\\132.187.202.41\\d$\\1_Projects"
 ################################################################################
 #################################    UI   ###################################### ----
 ui <- tagList(
+  tags$head(
+    # Include our custom CSS
+    includeCSS("UASstyle.css")
+    #tags$link(rel = "stylesheet", type = "text/css", href = "/www/2_Style/UASstyle.css")
+  ),
   useShinyjs(),
   navbarPage(title = div(img(src='3_Graphs/Logo.png',
                              style="margin-top: -10px; padding-right:10px; padding-bottom:10px",
@@ -37,9 +43,6 @@ ui <- tagList(
              ###################################################################
              # # INFO Tab                                                       ---- 
              tabPanel("Info",
-                      tags$head(
-                        # Include our custom CSS
-                        includeCSS("UASstyle.css")),
                       icon = icon("circle-info"),
                       # Start fluid Page
                       fluidPage(
