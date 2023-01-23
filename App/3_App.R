@@ -11,13 +11,13 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
-#Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
-Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
+#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 #Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
-#Root <- "C:\\Users\\Lsfe1\\Documents\\UASPlan\\App"                              # Laptop UAS
+#Root <- "C:\\Users\\Lsfe1\\Documents\\UASPlan\\App"                             # Laptop UAS
 ################################################################################
 setwd(Root)
 ##### Add resource path                                                         ----- 
@@ -26,12 +26,14 @@ addResourcePath(prefix = 'media', directoryPath = paste0(Root,"\\www"))
 source(paste0(Root,"\\0_Functions.R"))
 ##### Possible output locations general directory (E drive)                     ----- 
 TargetDrive <- "\\\\132.187.202.41\\d$\\1_Projects"
+##### Set path to general style                                                 ----- 
+Style <- paste0(Root,"\\www\\2_Style\\UAS_Style_AJCG.css")
 ################################################################################
 #################################    UI   ###################################### ----
 ui <- tagList(
   tags$head(
     # Include our custom CSS
-    includeCSS("UASstyle.css")
+    includeCSS(Style)
     #tags$link(rel = "stylesheet", type = "text/css", href = "/www/2_Style/UASstyle.css")
   ),
   useShinyjs(),
@@ -94,7 +96,7 @@ ui <- tagList(
              tabPanel("Create",
                       tags$head(
                         # Include our custom CSS
-                        includeCSS("UASstyle.css"),),
+                        includeCSS(Style),),
                       icon = icon("location"),
                       sidebarLayout(
                         sidebarPanel(width = 5,
@@ -162,7 +164,7 @@ ui <- tagList(
              tabPanel("Load Project",
                       tags$head(
                         # Include our custom CSS
-                        includeCSS("UASstyle.css")
+                        includeCSS(Style)
                       ),
                       icon = icon("table"),
                       sidebarLayout(
@@ -184,7 +186,7 @@ ui <- tagList(
              tabPanel("Processing Wizzard",
                       tags$head(
                         # Include our custom CSS
-                        includeCSS("UASstyle.css")
+                        includeCSS(Style)
                       ),
                       icon = icon("hat-wizard"),),
              ###################################################################
