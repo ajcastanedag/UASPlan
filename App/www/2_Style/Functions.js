@@ -9,14 +9,22 @@ function myFunction() {
       }
     } 
     
-    $(function () {
+$(function () {
       var includes = $('[data-include]')
       $.each(includes, function () {
-        var file = '1_ProtocolFix/' + $(this).data('include') + '.html'
+        var file = '1_Protocols/' + $(this).data('include') + '.html'
         $(this).load(file)
       })
 })
 
+
+$(function () {
+  var includes = $('[sensor-include]')
+  $.each(includes, function () {
+    var file = '1_Protocols/Sensors/' + $(this).data('include') + '.html'
+    $(this).load(file)
+  })
+})
 
 // --------------------------------------------------------------------
 
