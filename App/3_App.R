@@ -37,7 +37,7 @@ ui <- tagList(
     #tags$link(rel = "stylesheet", type = "text/css", href = "/www/2_Style/UASstyle.css")
   ),
   useShinyjs(),
-  navbarPage(title = div(img(src='3_Graphs/Logo.png',
+  navbarPage(title = div(img(src='4_Graphs/Logo.png',
                              style="margin-top: -10px; padding-right:10px; padding-bottom:10px",
                              height = 50)),
              windowTitle="JMU UAS Flight book",
