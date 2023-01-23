@@ -1,0 +1,164 @@
+<h2>Micasense Altum</h2>
+<p align="justify">
+  The Micasens Altum is a multispectral camera that captures images across multiple wavelength bands, which can be used for various applications
+  such as precision agriculture, mineral exploration, and environmental monitoring. The camera typically uses multiple image sensors to capture
+  data in each band, such as the visible, near-infrared, or short-wave infrared regions. The Altum camera is designed to be mounted on a drone
+  or other platform for aerial imaging. However, it can also be used as a stationary device for ground-based imaging. The camera can generate
+  detailed information about the reflective properties of the target, enabling applications such as crop health analysis, mineral mapping, and
+  object recognition. It can also be used to measure temperature and thermal infrared imaging. The Altum camera has a high-resolution sensor and 
+  advanced optics to produce high-quality images. The camera typically outputs image data in various formats, such as TIFF or JPEG, and may also
+  include additional data, such as GPS coordinates and altitude information. Additionally, the Altum can be integrated with other sensors, such as
+  LiDAR, allowing for a more comprehensive data collection and analysis. 
+  <br><br>
+  The Micasense Downwelling Light Sensor 2 (<em title="Downwelling Light Sensor 2" style="color:rgb(253,163,126)">DLS 2</em>) is a sensor that
+  works with the multispectral camera and must be included in the setup to measure the light condition changes during the data acquisition. This
+  sensor measures the amount of light that is downwelling or coming down from the sky in a given area. It is typically used to measure the amount of
+  light available for photosynthesis in crops, which can be used to analyze crop health and predict crop yields. The DLS 2 sensor is designed
+  to be mounted on a drone or other platform for aerial measurements, and it can also be used as a stationary device for ground-based
+  measurements. The sensor has a wide field of view, allowing it to measure the light over a large area and is equipped with advanced optics
+  to produce accurate and reliable measurements. The sensor typically outputs data in various formats, such as CSV or JSON, and may include
+  additional data, such as GPS coordinates and altitude information. The DLS 2 sensor can be used with other sensors, such as multispectral
+  cameras, to capture a more comprehensive data set and extract valuable insights. The sensor is also compatible with the Altum Camera, which
+  allows you to conduct simultaneous measurements of light and reflectance, providing more information to analyze. The following graph shows
+  a sketch of the DSL 2 sensor and the Altum multispectral camera. </p>
+<br>
+
+<div class="container">
+  <div class="centerBTN">
+    <button class="Imgbutton" onclick="myFunction()">Expand Image</button>
+  </div>
+</div>
+
+<div id="CameraImage">
+  <figure>
+    <img src="./3_Graphs/Altum.png" class="center" style="width:80%"> 
+    <figcaption style="text-align: center;" >Micasense Altum camera and DLS 2.</figcaption>
+  </figure>
+</div> 
+
+<br><br>
+
+<div class="rowProtTable">
+  <div class="columnProtTable">
+    <table class="ProtTable">
+      <caption align="bottom" style="text-align: center;">Micasense Altum main parameters.</caption>
+      <tr>
+        <th class="ProtTable">Parameter</th>
+        <th class="ProtTable">Multispectral</th>
+        <th class="ProtTable">Thermal</th>
+      </tr>
+      <tr>
+        <td class="ProtTable">Pixel size</td>
+        <td class="ProtTable">3.45 μm</td>
+        <td class="ProtTable">12 μm</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Resolution</td>
+        <td class="ProtTable">3.2 MP x 5 imagers</td>
+        <td class="ProtTable">0.01 K</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Resolution (px)</td>
+        <td class="ProtTable">2064 x 1544</td>
+        <td class="ProtTable">160 x 120</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Aspect ratio</td>
+        <td class="ProtTable">4 : 3</td>
+        <td class="ProtTable">4 : 3</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Sensor size (mm)</td>
+        <td class="ProtTable">7.12 x 5.33 </td>
+        <td class="ProtTable">1.92 x 1.44</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Sensor diagonal (mm)</td>
+        <td class="ProtTable">8.9</td>
+        <td class="ProtTable">8.9</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Focal length (mm)</td>
+        <td class="ProtTable">8</td>
+        <td class="ProtTable">1.77</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Field of view (h x v)</td>
+        <td class="ProtTable">48º x 36.8º</td>
+        <td class="ProtTable">57º x 44.3º</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Thermal sensitivity (mK)</td>
+        <td class="ProtTable">NA</td>
+        <td class="ProtTable"> &lt 50</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Thermal accuracy (K)</td>
+        <td class="ProtTable">NA</td>
+        <td class="ProtTable">&plusmn 5 </td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Output bit depth</td>
+        <td class="ProtTable">12</td>
+        <td class="ProtTable">14</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">GSD @ 60 m (cm)</td>
+        <td class="ProtTable">2.6</td>
+        <td class="ProtTable">41</td>
+      </tr>
+    </table>
+  </div>
+  <div class="columnProtTable">
+    <table class="ProtTable">
+      <caption align="bottom" style="text-align: center;">Micasense Altum band parameters.</caption>
+      <tr>
+        <th class="ProtTable">Name</th>
+        <th class="ProtTable">Band Output</th>
+        <th class="ProtTable">Center</th>
+        <th class="ProtTable">Bandwidth</th>
+      </tr>
+      <tr>
+        <td class="ProtTable">Blue</td>
+        <td class="ProtTable">1</td>
+        <td class="ProtTable">475 nm</td>
+        <td class="ProtTable">20 nm</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Green</td>
+        <td class="ProtTable">2</td>
+        <td class="ProtTable">560 nm</td>
+        <td class="ProtTable">20 nm</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Red</td>
+        <td class="ProtTable">3</td>
+        <td class="ProtTable">668 nm</td>
+        <td class="ProtTable">10 nm</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Red edge</td>
+        <td class="ProtTable">5</td>
+        <td class="ProtTable">717 nm</td>
+        <td class="ProtTable">10 nm</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Near infrared</td>
+        <td class="ProtTable">4</td>
+        <td class="ProtTable">840 nm</td>
+        <td class="ProtTable">40 nm</td>
+      </tr>
+      <tr>
+        <td class="ProtTable">Thermal</td>
+        <td class="ProtTable">6</td>
+        <td class="ProtTable">11 μm</td>
+        <td class="ProtTable">6 μm</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+
+
+
+
