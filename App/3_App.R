@@ -511,6 +511,8 @@ server <- function(input, output, session) {
       
       CreateFolder(Root, Target, MainStructure, FlightsDF, input$misnam)
       
+      return()
+      
     } else if(nrow(FlightsDF)>0 && input$TypeMF == "Flights"){
       
       # Load main Project Structure
