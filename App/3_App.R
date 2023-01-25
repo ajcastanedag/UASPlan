@@ -12,11 +12,11 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
 #Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
-Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
-#Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
+Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
 #Root <- "C:\\Users\\Lsfe1\\Documents\\UASPlan\\App"                              # Laptop UAS
 ################################################################################
 setwd(Root)
