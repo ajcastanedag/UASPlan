@@ -15,7 +15,7 @@
 -   Toolbox (Makita)
 -   landing pad
 -   measuring tape
--   vest if needed
+-   vest (if needed - you need to be visible as a researcher!)
 -   extra propellars for the aircraft
 -   folder with your printed documents and a pencil/pen to make notes
 -   memory case
