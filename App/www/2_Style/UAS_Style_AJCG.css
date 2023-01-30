@@ -11,6 +11,9 @@ body, label, input, button, select {
     font-weight: 200;
 }
 
+/* Define size of side panel Shiny */
+.well {height: 780px;}"
+
 /* Customize main box */
 div.main {
     background-color: #282C31;
