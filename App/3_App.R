@@ -11,8 +11,8 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
-Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
-#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+#Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
+Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
@@ -43,7 +43,7 @@ ui <- tagList(
              windowTitle="JMU UAS Flight book",
              theme = shinytheme("slate"),
              ###################################################################
-             # # INFO Tab                                                       ---- 
+             # INFO Tab                                                         ---- 
              tabPanel("Info",
                       icon = icon("circle-info"),
                       # Start fluid Page
@@ -94,43 +94,40 @@ ui <- tagList(
              ###################################################################
              # Create                                                           ----  
              tabPanel("Create",
-                      tags$head(
-                        # Include our custom CSS
-                        includeCSS(Style),),
+                      # Include our custom CSS
+                      tags$head(includeCSS(Style)),
                       icon = icon("location"),
                       sidebarLayout(
                         sidebarPanel(width = 5,
-                                     tags$div(title="Select which type of data zou want to create.",
-                                              h3(strong("Creator assistant"),
+                                     tags$div(title="In this tab, you will find all the necessary fields to create a new mission structure or add flights to existing missions. The target drive is set up in the lidar computer's D drive.",
+                                              h4(strong("Creator assistant"),
                                                  align = "center"),
-                                             
                                      ),
-                                     tags$hr(style="border-color: gray;"),
-                                     tags$div(title="Select which type of data zou want to create.",
-                                              radioButtons("TypeMF",
-                                                           label = "Select type*",
-                                                           choices= list("Mission", "Flights"), 
-                                                           selected = "Mission",
-                                                           inline = TRUE)
-                                              ),
-                                     splitLayout(cellWidths = c("50%", "50%"),
-                                                 tags$div(title="This folder is assigned to you in the email, do not use another project folder! If your folder does not appear, please get in touch with the UAS team immediately.",
+                                     
+                                     splitLayout(cellWidths = c("20%","40%","40%"),
+                                                 
+                                                 tags$div(title="Select which type of data you want to create. For example, you can choose between creating a whole mission or adding flights to existing missions.",
+                                                          selectizeInput("TypeMF",
+                                                                       label = "Select type*",
+                                                                       choices= list("Mission", "Flights"), 
+                                                                       selected = "Mission",
+                                                                       options = list(dropdownParent = 'body'))
+                                                 ),
+                                                 tags$div(title="This folder is assigned to you in the email, do not use another project location, as this might lead to confusion. If your folder does not appear, please get in touch with the UAS team immediately.",
                                                           uiOutput("rootLoc")
-                                                          ),
-                                                 tags$div(title="This field will be the name used to create a single folder to store all the flights you make in the following section. Use words that are familiar to you and avoid special characters and numbers.",
+                                                 ),
+                                                 tags$div(title="This field will be the name used to create a single folder to store all the flights you make in the following section. Use words familiar to you or associated with features of the flight. Avoid special characters, numbers, dates and UAV or sensor names since those will be assigned automatically.",
                                                           textAreaInput("misnam",
                                                                         "Mission Name*",
                                                                         resize = "none",
                                                                         value = "",
-                                                                        height = "37px"),
+                                                                        height = "38px"),
                                                           selectizeInput("ProjLoc", "Select mission*",
                                                                          c("","NO project available"),
                                                                          options = list(dropdownParent = 'body')),
+                                                 )
                                                  ),
-                                                 
-                                     ),
-                                     tags$hr(style="border-color: gray;"),
-                                     tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button to create a complete folder structure to store your data.",
+                                     tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button. The app will return an error if the fields are filled partially.",
                                               h5(strong("Flight Data"),
                                                  align = "left"),
                                      ),
@@ -145,8 +142,12 @@ ui <- tagList(
                                                            daysofweekdisabled = c(0),
                                                            format = "yyyy_mm_dd")),
                                      splitLayout(cellWidths = c("50%", "50%"),
-                                                 textInput("flightNam", "Flight Name*", ""),
-                                                 fileInput("AOI", "Area of Interest", accept = c(".gpkg")),
+                                                 tags$div(title="This name will be used on the folder name as guidance to understand the flight's purpose. Avoid using any names that contain numbers, dates or special characters. Also, avoid including the sensor's or UAV's name since those will be automatically included. (f.e. 1_FlightName_Phantom4RGB).",
+                                                          textInput("flightNam", "Flight Name*", "")
+                                                          ),
+                                                 tags$div(title="In this field, you can upload or draw on the map the area you intend to cover with your flight. It doesn't have to be precise but must match the area of interest.",
+                                                          fileInput("AOI", "Area of Interest", accept = c(".gpkg"))
+                                                          ),
                                      ),
                                      h5(strong("Equipment used"), align = "left"),
                                      splitLayout(cellWidths = c("50%", "50%"),
@@ -628,17 +629,6 @@ server <- function(input, output, session) {
                     "flightNam",
                     value = "")
     
-  })
-  
-  observeEvent(input$QFolderStruct,{
-  #   if(input$QFolderStruct){
-  #     
-  #     FlightsDF <- FlightsDF[0, ]
-  #     
-  #     output$Flights <- DT::renderDataTable(FlightsDF,
-  #                                           editable = TRUE,
-  #                                           options = list(dom = 't'))
-  #   } 
   })
   
   # Autofill the blocked element between flight and mission
