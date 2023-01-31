@@ -11,8 +11,8 @@ body, label, input, button, select {
     font-weight: 200;
 }
 
-/* Define size of side panel Shiny */
-.well {height: 780px;}"
+/* Define size of side panel */
+.well {height: 870px;}"
 
 /* Customize main box */
 div.main {
@@ -42,7 +42,7 @@ thead {color: white;}
 
 /* Input selector*/
 .selectize-input {
-    font-size: 13px; line-height: 23px;
+    font-size: 12px; line-height: 24px;
 } 
 
 /* Leaflet in error*/

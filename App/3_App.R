@@ -100,28 +100,47 @@ ui <- tagList(
                       icon = icon("location"),
                       sidebarLayout(
                         sidebarPanel(width = 5,
-                                     
-                                     tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button to create a complete folder structure to store your data.",
-                                              h3(strong("Create mission"),
+                                     tags$div(title="Select which type of data zou want to create.",
+                                              h3(strong("Creator assistant"),
                                                  align = "center"),
+                                             
                                      ),
-                                     
-                                     h5(strong("Flight Data"),
-                                        align = "left"),
-                                     
+                                     tags$hr(style="border-color: gray;"),
+                                     tags$div(title="Select which type of data zou want to create.",
+                                              radioButtons("TypeMF",
+                                                           label = "Select type*",
+                                                           choices= list("Mission", "Flights"), 
+                                                           selected = "Mission",
+                                                           inline = TRUE)
+                                              ),
                                      splitLayout(cellWidths = c("50%", "50%"),
                                                  tags$div(title="This folder is assigned to you in the email, do not use another project folder! If your folder does not appear, please get in touch with the UAS team immediately.",
                                                           uiOutput("rootLoc")
                                                           ),
                                                  tags$div(title="This field will be the name used to create a single folder to store all the flights you make in the following section. Use words that are familiar to you and avoid special characters and numbers.",
-                                                          textInput("misnam","Mission Name*", "")
-                                                 )
+                                                          textAreaInput("misnam",
+                                                                        "Mission Name*",
+                                                                        resize = "none",
+                                                                        value = "",
+                                                                        height = "37px"),
+                                                          selectizeInput("ProjLoc", "Select mission*",
+                                                                         c("","NO project available"),
+                                                                         options = list(dropdownParent = 'body')),
+                                                 ),
+                                                 
                                      ),
+                                     tags$hr(style="border-color: gray;"),
+                                     tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button to create a complete folder structure to store your data.",
+                                              h5(strong("Flight Data"),
+                                                 align = "left"),
+                                     ),
+                                     
                                      splitLayout(cellWidths = c("35%", "35%","30%"),
                                                  textInput("pilot", "Pilot*", ""),
                                                  textInput("copilot", "Co-Pilot*", ""),
                                                  dateInput("DoF",
                                                            "Date*",
+                                                           autoclose = T,
                                                            value = as.character(Sys.Date()),
                                                            daysofweekdisabled = c(0),
                                                            format = "yyyy_mm_dd")),
@@ -130,41 +149,27 @@ ui <- tagList(
                                                  fileInput("AOI", "Area of Interest", accept = c(".gpkg")),
                                      ),
                                      h5(strong("Equipment used"), align = "left"),
-                                     splitLayout(cellWidths = c("44%", "44%", "12%"),
+                                     splitLayout(cellWidths = c("50%", "50%"),
                                                  selectizeInput("AirCraft", "Aircraft*",
                                                              c("", "Phantom4", "DJIM600", "DJIM300", "Wingtra"),
                                                              options = list(dropdownParent = 'body')),
                                                  selectizeInput("Sensor", "Sensor*",
                                                              c("","RGB", "Altum", "MXDual", "L1", "H20T"),
-                                                             options = list(dropdownParent = 'body')),
-                                                 actionButton("add", NULL, icon = icon("plus"),
-                                                              style = 'margin-top:23px',
-                                                              size ="lg",
-                                                              width = "100%"),),
+                                                             options = list(dropdownParent = 'body'))
+                                                 ),
                                      h5(strong("Log Information"), align = "left"),
                                      textAreaInput("LogInformation",
                                                    NULL,
+                                                   resize = "none",
                                                    value = "",
                                                    placeholder = "Add mission comments here...",
-                                                   height = "90px"),
+                                                   height = "125px"),
                                      tags$hr(style="border-color: gray;"),
                                      
-                                     tags$div(title="In this section, you must select \"Flights\" and then the mission to add new flights to the structure.",
-                                              h3(strong("Add flights to mission"),
-                                                 align = "center")
-                                              ),
-                                     
-                                     
-                                     splitLayout(cellWidths = c("50%", "50%"),
-                                                 radioButtons("TypeMF",
-                                                              label = "Select type*",
-                                                              choices= list("Mission", "Flights"), 
-                                                              selected = "Mission",
-                                                              inline = TRUE),
-                                                 selectizeInput("ProjLoc", "Select mission*",
-                                                                c("","NO project available"),
-                                                                options = list(dropdownParent = 'body')),
-                                                 ),
+                                     actionButton("add", NULL, icon = icon("plus"),
+                                                  #style = 'margin-top:23px',
+                                                  size ="lg",
+                                                  width = "100%")
                                      ),
                         
                         mainPanel(leafletOutput("map", height = "60vh"), width = 7,
@@ -252,7 +257,7 @@ server <- function(input, output, session) {
   })
   
   # Get the folder options from remote folder (D) to create project
-  output$rootLoc <- renderUI({
+  output$rootLoc <- output$rootLocf <- renderUI({
     selectizeInput("rootLoc", "Project Location*",
                    choices = c("", list.dirs(path = TargetDrive,
                                              full.names = FALSE,
@@ -392,11 +397,11 @@ server <- function(input, output, session) {
   observeEvent(input$TypeMF,{
     
     if(input$TypeMF == "Mission"){
-      shinyjs::disable("ProjLoc")
-      shinyjs::enable("misnam")
+      shinyjs::hideElement("ProjLoc")
+      shinyjs::showElement("misnam")
     } else if(input$TypeMF == "Flights"){
-      shinyjs::enable("ProjLoc")
-      shinyjs::disable("misnam")
+      shinyjs::hideElement("misnam")
+      shinyjs::showElement("ProjLoc")
     }
   })
   
@@ -536,6 +541,16 @@ server <- function(input, output, session) {
       
       CreateFolder(Root, Target, MainStructure, FlightsDF, input$misnam, 1)
       
+      # Modal dialog to check if structure was created
+      showModal(modalDialog(
+        title = "Folder structure created",
+        "Please check",
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("ok", "OK")
+        )
+      ))
+      
     } else if(nrow(FlightsDF)>0 && input$TypeMF == "Flights"){
       
       # Load main Project Structure
@@ -580,10 +595,38 @@ server <- function(input, output, session) {
       
       CreateFolder(Root, Target, MainStructure, FlightsDF, input$misnam, IndexStart)
       
+      # Modal dialog to check if structure was created
+      showModal(modalDialog(
+        title = "Folder structure created",
+        "Please check",
+        footer = tagList(
+          modalButton("Cancel"),
+          actionButton("ok", "OK")
+        )
+      ))
+      
       } else (shinyalert("Error!", "No flights added to the table!.", type = "error"))
     
-    # ask_confirmation("QFolderStruct", title = "Folder structure created?", text = NULL,
-    #                         type = NULL, danger_mode = TRUE, btn_labels = c("NO", "YES"))
+    
+    
+  })
+  
+  # When OK button of modal is pressed -> clean UI elements
+  observeEvent(input$ok, {
+    # Check that data object exists and is data frame.
+    removeModal()
+    print("It Worked!")
+    
+    # Clean UI elements
+    updateSelectInput(session,
+                      "Sensor",
+                      selected = "")
+    updateSelectInput(session,
+                      "AirCraft",
+                      selected = "")
+    updateTextInput(session,
+                    "flightNam",
+                    value = "")
     
   })
   
@@ -670,9 +713,6 @@ server <- function(input, output, session) {
         #addStyleEditor()
       
     }
-    
-    
-    
     return(RenderedMap)
   })
   
@@ -689,7 +729,7 @@ server <- function(input, output, session) {
       fitBounds(9.96941167653942, 49.7836214950253, 9.983155389252369,49.789472652132595) %>%
       addLayersControl(position = "topright",
                        overlayGroups = "Imported") %>%
-      addDrawToolbar(targetGroup = "Imported",
+      addDrawToolbar(targetGroup = "Imported", position = "bottomright",
                      editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) 
     
     if(!is.null(input$AOI)){
