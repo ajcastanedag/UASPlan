@@ -12,8 +12,8 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
 #Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
-Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 #Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
@@ -53,7 +53,7 @@ ui <- tagList(
                         fluidRow(
                           column(3, align="center",
                                  selectInput("AirCraftM", "Aircraft",
-                                             c("","Phantom4", "DJIM600", "DJIM300", "Wingtra"))
+                                             c("","Phantom4", "DJIM600", "DJIM300", "Wingtra", "LiBackpack"))
                                  ),
                           column(3, align="center",
                                  selectInput("SensorM", "Sensor",
@@ -152,7 +152,7 @@ ui <- tagList(
                                      h5(strong("Equipment used"), align = "left"),
                                      splitLayout(cellWidths = c("50%", "50%"),
                                                  selectizeInput("AirCraft", "Aircraft*",
-                                                             c("", "Phantom4", "DJIM600", "DJIM300", "Wingtra"),
+                                                             c("", "Phantom4", "DJIM600", "DJIM300", "Wingtra", "Mavic", "LiBackpack"),
                                                              options = list(dropdownParent = 'body')),
                                                  selectizeInput("Sensor", "Sensor*",
                                                              c("","RGB", "Altum", "MXDual", "L1", "H20T"),
@@ -357,19 +357,33 @@ server <- function(input, output, session) {
       updateSelectInput(session,
                         "Sensor",
                         choices=c("","RGB"),
-                        selected = "RGB")}
+                        selected = "RGB")
+      shinyjs::enable("Sensor")}
     else if (input$AirCraft == "DJIM600"){
       updateSelectInput(session,
                         "Sensor",
-                        choices=c("", "Altum", "MXDual", "LiAirV"))}
+                        choices=c("", "Altum", "MXDual", "LiAirV"))
+      shinyjs::enable("Sensor")}
     else if (input$AirCraft == "DJIM300"){
       updateSelectInput(session,
                         "Sensor",
-                        choices=c("", "Altum", "MXDual","L1", "H20T"))}
+                        choices=c("", "Altum", "MXDual","L1", "H20T"))
+      shinyjs::enable("Sensor")}
     else if (input$AirCraft == "Wingtra"){
       updateSelectInput(session,
                         "Sensor",
-                        choices=c("","RX1RII", "Altum"))}
+                        choices=c("","RX1RII", "Altum"))
+      shinyjs::enable("Sensor")}
+    else if (input$AirCraft == "LiBackpack"){
+      updateSelectInput(session,
+                        "Sensor",
+                        choices=c("--"))
+      shinyjs::disable("Sensor")}
+    else if (input$AirCraft == "Mavic"){
+      updateSelectInput(session,
+                        "Sensor",
+                        choices=c("--"))
+      shinyjs::disable("Sensor")}
     else updateSelectInput(session,
                            "Sensor",
                            choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAirV","L1", "H20T"))
@@ -425,6 +439,10 @@ server <- function(input, output, session) {
       updateSelectInput(session,
                         "SensorM",
                         choices=c("","RX1RII", "Altum"))}
+    else if (input$AirCraftM == "LiBackpack"){
+      updateSelectInput(session,
+                        "SensorM",
+                        choices=c("--"))}
     else updateSelectInput(session,
                            "SensorM",
                            choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAir V","L1", "H20T"))
@@ -468,7 +486,7 @@ server <- function(input, output, session) {
       output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/WingtraAltum.md")})
     }
     
-    if(input$SensorM %in% c("LiAirV","L1")){
+    if(input$SensorM %in% c("LiAirV","L1") || input$AirCraftM %in% c("LiBackpack")){
       updateSelectInput(session,
                         "RTKstat",
                         choices = "YES",
