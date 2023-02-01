@@ -243,11 +243,11 @@ server <- function(input, output, session) {
   #### Render elements                                                          ----
   # Load introduction information
   output$MDdisplay <- renderUI({includeMarkdown("./Protocols/0_Introduction.md")})
-  output$EquipmentPreFlightList <- renderUI({includeMarkdown("./Protocols/2_EquipmentPreFlightList.md")})
-  output$PackingListGeneral <- renderUI({includeMarkdown("./Protocols/3_PackingListGeneral.md")})
-  output$FlightExcecution <- renderUI({includeMarkdown("./Protocols/4_FlightExcecution.md")})
-  output$PostFlightProtocol <- renderUI({includeMarkdown("./Protocols/5_PostFlightProtocol.md")})
-  output$EquipmentReturn <- renderUI({includeMarkdown("./Protocols/6_EquipmentReturn.md")})
+  # output$EquipmentPreFlightList <- renderUI({includeMarkdown("./Protocols/2_EquipmentPreFlightList.md")})
+  # output$PackingListGeneral <- renderUI({includeMarkdown("./Protocols/3_PackingListGeneral.md")})
+  # output$FlightExcecution <- renderUI({includeMarkdown("./Protocols/4_FlightExcecution.md")})
+  # output$PostFlightProtocol <- renderUI({includeMarkdown("./Protocols/5_PostFlightProtocol.md")})
+  # output$EquipmentReturn <- renderUI({includeMarkdown("./Protocols/6_EquipmentReturn.md")})
 
     
   # Render 3D
