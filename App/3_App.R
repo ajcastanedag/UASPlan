@@ -12,8 +12,8 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
 #Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
-#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 #Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
@@ -23,7 +23,7 @@ setwd(Root)
 ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'media', directoryPath = paste0(Root,"\\www"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
-source(paste0(Root,"\\0_Functions.R"))
+source(paste0(Root,"\\www\\3_Functions\\Base.R"))
 ##### Possible output locations general directory (E drive)                     ----- 
 TargetDrive <- "\\\\132.187.202.41\\d$\\1_Projects"
 ##### Set path to general style                                                 ----- 
@@ -48,8 +48,13 @@ ui <- tagList(
                       icon = icon("circle-info"),
                       # Start fluid Page
                       fluidPage(
-                        titlePanel("Important information"),
+                        titlePanel("UAS JMU usage Guidelines"),
                         tags$hr(style="border-color: gray;"),
+                        
+                        fluidRow(column(12,uiOutput("Intro"))),
+                        
+                        tags$hr(style="border-color: gray;"),
+                        
                         fluidRow(
                           column(3, align="center",
                                  selectInput("AirCraftM", "Aircraft",
@@ -242,7 +247,7 @@ server <- function(input, output, session) {
 
   #### Render elements                                                          ----
   # Load introduction information
-  output$MDdisplay <- renderUI({includeMarkdown("./Protocols/0_Introduction.md")})
+  # output$MDdisplay <- renderUI({includeMarkdown("./Protocols/0_Introduction.md")})
   # output$EquipmentPreFlightList <- renderUI({includeMarkdown("./Protocols/2_EquipmentPreFlightList.md")})
   # output$PackingListGeneral <- renderUI({includeMarkdown("./Protocols/3_PackingListGeneral.md")})
   # output$FlightExcecution <- renderUI({includeMarkdown("./Protocols/4_FlightExcecution.md")})
@@ -377,12 +382,12 @@ server <- function(input, output, session) {
     else if (input$AirCraft == "LiBackpack"){
       updateSelectInput(session,
                         "Sensor",
-                        choices=c("--"))
+                        choices=c(""))
       shinyjs::disable("Sensor")}
     else if (input$AirCraft == "Mavic"){
       updateSelectInput(session,
                         "Sensor",
-                        choices=c("--"))
+                        choices=c(""))
       shinyjs::disable("Sensor")}
     else updateSelectInput(session,
                            "Sensor",
@@ -410,7 +415,6 @@ server <- function(input, output, session) {
   
   # Enable or disable Mission selector based on type of creation
   observeEvent(input$TypeMF,{
-    
     if(input$TypeMF == "Mission"){
       shinyjs::hideElement("ProjLoc")
       shinyjs::showElement("misnam")
@@ -422,6 +426,8 @@ server <- function(input, output, session) {
   
   # Update SensorM options depending on selected Aircraft
   observeEvent(input$AirCraftM, {
+    shinyjs::enable("SensorM")
+    
     if(input$AirCraftM == "Phantom4"){
       updateSelectInput(session,
                         "SensorM",
@@ -439,62 +445,39 @@ server <- function(input, output, session) {
       updateSelectInput(session,
                         "SensorM",
                         choices=c("","RX1RII", "Altum"))}
-    else if (input$AirCraftM == "LiBackpack"){
+    else if (input$AirCraftM %in% c("LiBackpack","")){
       updateSelectInput(session,
                         "SensorM",
-                        choices=c("--"))}
+                        choices=c(""))
+      shinyjs::disable("RTKstat")
+      shinyjs::disable("SensorM")}
+    
     else updateSelectInput(session,
                            "SensorM",
                            choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAir V","L1", "H20T"))
   }) 
   
-  # Render markdown depending on selected set up and suggest RTK 
+  # Render HTML file depending on selected set up and suggest RTK 
   observeEvent(input$SensorM, {
+    print(input$SensorM)
     if(input$SensorM == ""){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/0_Introduction.md")})
-    } else if(input$AirCraftM == "Phantom4" && input$SensorM == "RGB"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/Phantom4RGB.md")})
+     output$MDdisplay <- renderUI({includeHTML("./www/1_Protocols/0_Basic/Empty.html")})
+    } else if(input$SensorM != ""  || input$SensorM == "LiBackpack"){
+      output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/3_Combinations/",input$AirCraftM,input$SensorM,".html"))})
     }
-    else if(input$AirCraftM == "DJIM600" && input$SensorM == "Altum"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M600Altum.md")})
-    }
-    else if(input$AirCraftM == "DJIM600" && input$SensorM == "MXDual"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M600MX.md")})
-    }
-    else if(input$AirCraftM == "DJIM600" && input$SensorM == "LiAirV"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M600LiAir.md")})
-    }
-    else if(input$AirCraftM == "DJIM300" && input$SensorM == "Altum"){
-      output$MDdisplay <- renderUI({includeHTML("./Protocols/SystemWF/M300Altum.html")})
-    }
-    else if(input$AirCraftM == "DJIM300" && input$SensorM == "MXDual"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M300MX.md")})
-    }
-    else if(input$AirCraftM == "DJIM300" && input$SensorM == "L1"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M300L1.md")})
-    }
-    else if(input$AirCraftM == "DJIM300" && input$SensorM == "H20T"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M300H20T.md")})
-    }
-    else if(input$AirCraftM == "DJIM300" && input$SensorM == "H20T"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/M300H20T.md")})
-    }
-    else if(input$AirCraftM == "Wingtra" && input$SensorM == "RX1RII"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/WingtraSony.md")})
-    }
-    else if(input$AirCraftM == "Wingtra" && input$SensorM == "Altum"){
-      output$MDdisplay <- renderUI({includeMarkdown("./Protocols/SystemWF/WingtraAltum.md")})
-    }
-    
-    if(input$SensorM %in% c("LiAirV","L1") || input$AirCraftM %in% c("LiBackpack")){
+    # Handle RTK status based on sensors that NEED to use it
+    if(input$SensorM %in% c("LiAirV","L1") || input$AirCraftM %in% c("LiBackpack", "")){
+      shinyjs::disable("RTKstat")
       updateSelectInput(session,
                         "RTKstat",
                         choices = "YES",
-                        selected = "YES")} else (
+                        selected = "YES")} else {
                           updateSelectInput(session,
                                             "RTKstat",
                                             choices = c("YES","NO"),
-                                            selected = "NO"))
+                                            selected = "NO")
+                          shinyjs::enable("RTKstat")}
+    
   })
   
   # Button to clean SetUp options
@@ -517,7 +500,7 @@ server <- function(input, output, session) {
       Target <- paste0(TargetDrive,"\\",input$rootLoc,"\\")
       
       # Load main Project Structure
-      MainStructure <- noquote(readLines(paste0(Root,"\\FolderStructures\\0_ProjectBase.txt")))
+      MainStructure <- noquote(readLines(paste0(Root,"\\www\\0_FolderStructures\\0_ProjectBase.txt")))
       
       # Modify the line that contains foldername= and add the dynamic values
       MainNameIndex <- grep('set foldername=', MainStructure)
@@ -573,7 +556,7 @@ server <- function(input, output, session) {
     } else if(nrow(FlightsDF)>0 && input$TypeMF == "Flights"){
       
       # Load main Project Structure
-      MainStructure <- noquote(readLines(paste0(Root,"\\FolderStructures\\0_FlightBase.txt")))
+      MainStructure <- noquote(readLines(paste0(Root,"\\www\\0_FolderStructures\\0_FlightBase.txt")))
       
       # Modify the line that contains foldername= and add the dynamic values
       MainNameIndex <- grep('set foldername=', MainStructure)

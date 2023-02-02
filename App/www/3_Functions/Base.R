@@ -5,30 +5,15 @@
 # is erased.
 ################################################################################----
 # Read Flight TXT structure depending on configuration UAV-Sensor
-GetSetup <- function(Root, SetUp){
-  # Read Flight TXT structure depending on configuration UAV-Sensor                    ----  
-  if(SetUp == "DJIM300Altum"){
-    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM300Altum.txt")))
-  } else if(SetUp == "DJIM300MXDual"){
-    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM300MXDual.txt")))
-  } else if(SetUp == "DJIM300H20T") {
-    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM300H20T.txt")))
-  } else if(SetUp == "DJIM300L1") {
-    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM300L1.txt")))
-  } else if(SetUp == "DJIM600Altum") {
-    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM600Altum.txt")))
-  } else if(SetUp == "DJIM600MXDual") {
-    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM600MXDual.txt")))
-  } else if(SetUp == "DJIM600LiAirV") {
-    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\DJIM600LiAirV.txt")))
-  } else if(SetUp == "Phantom4RGB") {
-    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\Phantom4RGB.txt")))
-  } else if(SetUp == "WingtraAltum") {
-    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraAltum.txt")))
-  } else if(SetUp == "WingtraRX1RII") {
-    Structure <- noquote(readLines(paste0(Root,"\\FolderStructures\\WingtraRX1RII.txt")))
-  } else(return())
-  #####
+GetSetup <- function(Root, SetUp){                                              
+  
+  # Set main path to read the folder structures 
+  BaseLoc <- paste0(Root,"\\www\\0_FolderStructures\\")
+  
+  # Read Flight TXT structure depending on configuration UAV-Sensor   
+  Structure <- noquote(readLines(paste0(BaseLoc,SetUp,".txt"),warn=FALSE))
+  
+  # Return the loaded txt file
   return(Structure)
 }
 ################################################################################
