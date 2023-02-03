@@ -32,6 +32,9 @@ div.radio {
     margin-bottom: 0px;
 }
 
+/* Draw dropdown manu always on top of elements */
+.dropdown-menu{z-index:10000 !important;}
+
 /* Tables*/
 .dataTables_length label,
 .dataTables_filter label,

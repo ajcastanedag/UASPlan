@@ -12,8 +12,8 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
 #Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
-Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 #Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
@@ -427,6 +427,9 @@ server <- function(input, output, session) {
   # Update SensorM options depending on selected Aircraft
   observeEvent(input$AirCraftM, {
     shinyjs::enable("SensorM")
+    updateSelectInput(session,
+                      "SensorM",
+                      choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAir V","L1", "H20T"))
     
     if(input$AirCraftM == "Phantom4"){
       updateSelectInput(session,
@@ -436,35 +439,34 @@ server <- function(input, output, session) {
     else if (input$AirCraftM == "DJIM600"){
       updateSelectInput(session,
                         "SensorM",
-                        choices=c("", "Altum", "MXDual", "LiAirV"))}
+                        choices=c("", "Altum", "MXDual", "LiAirV"),
+                        selected = "")}
     else if (input$AirCraftM == "DJIM300"){
       updateSelectInput(session,
                         "SensorM",
-                        choices=c("", "Altum", "MXDual","L1", "H20T"))}
+                        choices=c("", "Altum", "MXDual","L1", "H20T"),
+                        selected = "")}
     else if (input$AirCraftM == "Wingtra"){
       updateSelectInput(session,
                         "SensorM",
-                        choices=c("","RX1RII", "Altum"))}
+                        choices=c("","RX1RII", "Altum"),
+                        selected = "")}
     else if (input$AirCraftM %in% c("LiBackpack","")){
       updateSelectInput(session,
                         "SensorM",
-                        choices=c(""))
+                        choices=c(""),
+                        selected = "")
       shinyjs::disable("RTKstat")
       shinyjs::disable("SensorM")}
     
-    else updateSelectInput(session,
-                           "SensorM",
-                           choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAir V","L1", "H20T"))
   }) 
   
   # Render HTML file depending on selected set up and suggest RTK 
   observeEvent(input$SensorM, {
-    print(input$SensorM)
     if(input$SensorM == ""){
      output$MDdisplay <- renderUI({includeHTML("./www/1_Protocols/0_Basic/Empty.html")})
-    } else if(input$SensorM != ""  || input$SensorM == "LiBackpack"){
-      output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/3_Combinations/",input$AirCraftM,input$SensorM,".html"))})
-    }
+    } 
+    
     # Handle RTK status based on sensors that NEED to use it
     if(input$SensorM %in% c("LiAirV","L1") || input$AirCraftM %in% c("LiBackpack", "")){
       shinyjs::disable("RTKstat")
@@ -477,6 +479,12 @@ server <- function(input, output, session) {
                                             choices = c("YES","NO"),
                                             selected = "NO")
                           shinyjs::enable("RTKstat")}
+    
+    print(paste0("SensorM ",input$AirCraftM,"-",input$SensorM))
+    
+    if(input$SensorM != ""  || input$SensorM == "LiBackpack"){
+      output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/3_Combinations/",input$AirCraftM,input$SensorM,".html"))})
+    }
     
   })
   
