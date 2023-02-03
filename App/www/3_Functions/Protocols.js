@@ -10,6 +10,7 @@ function myFunction() {
 }
 
 // --------------------------------------------------------------------
+// Function to load HTML Documents inside others
 $(function () {
   var includes = $('[data-include]')
   $.each(includes, function () {

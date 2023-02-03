@@ -429,7 +429,8 @@ server <- function(input, output, session) {
     shinyjs::enable("SensorM")
     updateSelectInput(session,
                       "SensorM",
-                      choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAir V","L1", "H20T"))
+                      choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAir V","L1", "H20T"),
+                      selected = "")
     
     if(input$AirCraftM == "Phantom4"){
       updateSelectInput(session,
@@ -464,7 +465,7 @@ server <- function(input, output, session) {
   # Render HTML file depending on selected set up and suggest RTK 
   observeEvent(input$SensorM, {
     if(input$SensorM == ""){
-     output$MDdisplay <- renderUI({includeHTML("./www/1_Protocols/0_Basic/Empty.html")})
+     output$MDdisplay <- renderUI({includeHTML("./www/1_Protocols/0_GeneralNotes/0_Empty.html")})
     } 
     
     # Handle RTK status based on sensors that NEED to use it
@@ -479,14 +480,25 @@ server <- function(input, output, session) {
                                             choices = c("YES","NO"),
                                             selected = "NO")
                           shinyjs::enable("RTKstat")}
-    
-    print(paste0("SensorM ",input$AirCraftM,"-",input$SensorM))
-    
-    if(input$SensorM != ""  || input$SensorM == "LiBackpack"){
-      output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/3_Combinations/",input$AirCraftM,input$SensorM,".html"))})
-    }
-    
   })
+  
+  event_trigger <- reactive({
+    list(input$SensorM,input$AirCraftM)
+    combination <- 
+    print(paste0(input$SensorM,"-",input$AirCraftM))
+  })
+  
+  
+  observeEvent(ignoreInit = TRUE, event_trigger(), {
+  
+            if(input$SensorM != ""  || input$SensorM == "LiBackpack"){
+              
+              output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/1_SetUps/",input$AirCraftM,input$SensorM,".html"))})
+              
+            }
+
+    })
+  
   
   # Button to clean SetUp options
   observeEvent(input$rst,{
