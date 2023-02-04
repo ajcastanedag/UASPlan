@@ -246,7 +246,6 @@ server <- function(input, output, session) {
                            stringsAsFactors=FALSE)
   
   
-  
  
   # Fixed or "Definition" dataframe for getting options
   SetUpDF <<- data.frame(UAV = c("Phantom4","DJIM600","DJIM300","Wingtra","LiBackpack"),
@@ -372,40 +371,21 @@ server <- function(input, output, session) {
   #### Observe Events                                                           ----
   # Update Sensor options depending on selected Aircraft
   observeEvent(input$AirCraft, {
-    if(input$AirCraft == "Phantom4"){
-      updateSelectInput(session,
-                        "Sensor",
-                        choices=c("","RGB"),
-                        selected = "RGB")
-      shinyjs::enable("Sensor")}
-    else if (input$AirCraft == "DJIM600"){
-      updateSelectInput(session,
-                        "Sensor",
-                        choices=c("", "Altum", "MXDual", "LiAirV"))
-      shinyjs::enable("Sensor")}
-    else if (input$AirCraft == "DJIM300"){
-      updateSelectInput(session,
-                        "Sensor",
-                        choices=c("", "Altum", "MXDual","L1", "H20T"))
-      shinyjs::enable("Sensor")}
-    else if (input$AirCraft == "Wingtra"){
-      updateSelectInput(session,
-                        "Sensor",
-                        choices=c("","RX1RII", "Altum"))
-      shinyjs::enable("Sensor")}
-    else if (input$AirCraft == "LiBackpack"){
-      updateSelectInput(session,
-                        "Sensor",
-                        choices=c(""))
-      shinyjs::disable("Sensor")}
-    else if (input$AirCraft == "Mavic"){
-      updateSelectInput(session,
-                        "Sensor",
-                        choices=c(""))
-      shinyjs::disable("Sensor")}
-    else updateSelectInput(session,
-                           "Sensor",
-                           choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAirV","L1", "H20T"))
+    
+    NewChoices <- SetUpDF[SetUpDF$UAV == input$AirCraft,"Sensors"] %>% str_replace(pattern = ".", replacement = "") %>% str_split(pattern = "-",simplify = T)
+    
+    updateSelectInput(session,
+                      "Sensor",
+                      choices=NewChoices)
+    shinyjs::enable("Sensor")
+    
+
+    if (input$AirCraft %in% c("Mavic","LiBackpack")){
+      shinyjs::disable("Sensor")
+    }
+    # else updateSelectInput(session,
+    #                        "Sensor",
+    #                        choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAirV","L1", "H20T"))
   }) 
   
   # Get the folders from selected project and update table                      
@@ -510,7 +490,7 @@ server <- function(input, output, session) {
     if(Statement){
       output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/1_SetUps/",input$AirCraftM,input$SensorM,".html"))})
       return()
-      } else if(Statement){
+      } else if(Statement || (input$AirCraftM == "LiBackpack" & input$SensorM == "")){
         output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/1_SetUps/",input$AirCraftM,input$SensorM,".html"))})
         return()
       } else output$MDdisplay <- renderUI({includeHTML("./www/1_Protocols/0_GeneralNotes/0_Empty.html")})
