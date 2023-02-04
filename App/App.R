@@ -12,8 +12,8 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
 #Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
-#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 #Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
@@ -244,6 +244,20 @@ server <- function(input, output, session) {
                            LogText=character(),
                            geometry=character(),
                            stringsAsFactors=FALSE)
+  
+  
+  
+ 
+  # Fixed or "Definition" dataframe for getting options
+  SetUpDF <<- data.frame(UAV = c("Phantom4","DJIM600","DJIM300","Wingtra","LiBackpack"),
+                         Sensors = c(paste0(".","-RGB"),
+                                     paste0(".","-Altum","-MXDual","-LiAirV"),
+                                     paste0(".","-Altum","-MXDual","-L1","-H20T"),
+                                     paste0(".","-RX1RII","-Altum"),
+                                     paste0(".")
+                                     ),
+                         stringsAsFactors=FALSE
+                         ) 
 
   #### Render elements                                                          ----
   # Load introduction information
@@ -464,6 +478,7 @@ server <- function(input, output, session) {
   
   # Render HTML file depending on selected set up and suggest RTK 
   observeEvent(input$SensorM, {
+    
     if(input$SensorM == ""){
      output$MDdisplay <- renderUI({includeHTML("./www/1_Protocols/0_GeneralNotes/0_Empty.html")})
     } 
@@ -482,23 +497,26 @@ server <- function(input, output, session) {
                           shinyjs::enable("RTKstat")}
   })
   
+  # Reactive function to read SensorM and AirCraftM
   event_trigger <- reactive({
     list(input$SensorM,input$AirCraftM)
-    combination <- 
-    print(paste0(input$SensorM,"-",input$AirCraftM))
   })
   
-  
+  # Render set up HTML file
   observeEvent(ignoreInit = TRUE, event_trigger(), {
-  
-            if(input$SensorM != ""  || input$SensorM == "LiBackpack"){
-              
-              output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/1_SetUps/",input$AirCraftM,input$SensorM,".html"))})
-              
-            }
+    
+    Statement <- input$SensorM %in% str_split(SetUpDF[SetUpDF$UAV == input$AirCraftM,"Sensors"],pattern = "-",simplify = T)
 
-    })
-  
+    if(Statement){
+      output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/1_SetUps/",input$AirCraftM,input$SensorM,".html"))})
+      return()
+      } else if(Statement){
+        output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/1_SetUps/",input$AirCraftM,input$SensorM,".html"))})
+        return()
+      } else output$MDdisplay <- renderUI({includeHTML("./www/1_Protocols/0_GeneralNotes/0_Empty.html")})
+    
+    
+  })
   
   # Button to clean SetUp options
   observeEvent(input$rst,{
