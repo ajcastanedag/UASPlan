@@ -53,8 +53,8 @@ FillMetadata <- function(Root, TargetLoc, FlightsDF, MisName, IndexStart=1){
 
     # Save GPKG file with ,modified or imported polygon
     if(!is.na(FlightsDF$geometry)){
-      st_write(GeneratePol(FlightsDF$geometry),
-               paste0(FlightPath,"\\AOI.gpkg"),
+      st_write(GeneratePol(FlightsDF$geometry[i]),
+               paste0(FlightsDF$LogLoc[i],"\\AOI.gpkg"),
                delete_layer=TRUE
                )
   }
