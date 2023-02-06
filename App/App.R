@@ -12,8 +12,8 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
 ##### Set working directory (temporal for testing)                              ----- 
 #Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
 #Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
-Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-#Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
+#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
+Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
 #Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
 #Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
 #Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
@@ -57,12 +57,10 @@ ui <- tagList(
                         
                         fluidRow(
                           column(3, align="center",
-                                 selectInput("AirCraftM", "Aircraft",
-                                             c("","Phantom4", "DJIM600", "DJIM300", "Wingtra", "LiBackpack"))
+                                 uiOutput("AirCraftM"),
                                  ),
                           column(3, align="center",
-                                 selectInput("SensorM", "Sensor",
-                                             c("","RGB", "RX1RII", "Altum", "MXDual", "LiAirV","L1", "H20T"))
+                                 uiOutput("SensorM"),
                                  ),
                           column(3, align="center",
                                  selectInput("RTKstat", "RTK",
@@ -156,12 +154,8 @@ ui <- tagList(
                                      ),
                                      h5(strong("Equipment used"), align = "left"),
                                      splitLayout(cellWidths = c("50%", "50%"),
-                                                 selectizeInput("AirCraft", "Aircraft*",
-                                                             c("", "Phantom4", "DJIM600", "DJIM300", "Wingtra", "Mavic", "LiBackpack"),
-                                                             options = list(dropdownParent = 'body')),
-                                                 selectizeInput("Sensor", "Sensor*",
-                                                             c("","RGB", "Altum", "MXDual", "L1", "H20T"),
-                                                             options = list(dropdownParent = 'body'))
+                                                 uiOutput("AirCraft"),
+                                                 uiOutput("Sensor")
                                                  ),
                                      h5(strong("Log Information"), align = "left"),
                                      textAreaInput("LogInformation",
@@ -248,31 +242,49 @@ server <- function(input, output, session) {
   
  
   # Fixed or "Definition" dataframe for getting options
-  SetUpDF <<- data.frame(UAV = c("Phantom4","DJIM600","DJIM300","Wingtra","LiBackpack"),
+  SetUpDF <<- data.frame(UAV = c("Phantom4","DJIM600","DJIM300","Wingtra","Mavic","LiBackpack"),
                          Sensors = c(paste0(".","-RGB"),
                                      paste0(".","-Altum","-MXDual","-LiAirV"),
                                      paste0(".","-Altum","-MXDual","-L1","-H20T"),
                                      paste0(".","-RX1RII","-Altum"),
+                                     paste0("."),
                                      paste0(".")
                                      ),
                          stringsAsFactors=FALSE
                          ) 
 
   #### Render elements                                                          ----
-  # Load introduction information
-  # output$MDdisplay <- renderUI({includeMarkdown("./Protocols/0_Introduction.md")})
-  # output$EquipmentPreFlightList <- renderUI({includeMarkdown("./Protocols/2_EquipmentPreFlightList.md")})
-  # output$PackingListGeneral <- renderUI({includeMarkdown("./Protocols/3_PackingListGeneral.md")})
-  # output$FlightExcecution <- renderUI({includeMarkdown("./Protocols/4_FlightExcecution.md")})
-  # output$PostFlightProtocol <- renderUI({includeMarkdown("./Protocols/5_PostFlightProtocol.md")})
-  # output$EquipmentReturn <- renderUI({includeMarkdown("./Protocols/6_EquipmentReturn.md")})
-
-    
   # Render 3D
   output$World <- renderUI({
     library(threejs)
     data(ego)
     graphjs(ego, bg="#272b30")
+  })
+  
+  # Render AirCraft and AirCraftM using definitions from fixed dataframe
+  output$AirCraftM <- renderUI({
+    selectizeInput("AirCraftM", "Aircraft",
+                c("",SetUpDF$UAV[! SetUpDF$UAV %in% c('Mavic')]),
+                options = list(dropdownParent = 'body'))
+  })
+  output$AirCraft <- renderUI({
+    selectizeInput("AirCraft", "Aircraft",
+                   c("",SetUpDF$UAV[! SetUpDF$UAV %in% c('Mavic')]),
+                   options = list(dropdownParent = 'body'))
+  })
+  
+  # Render Sensor and SensorM using definitions from fixed dataframe
+  output$SensorM <- renderUI({
+    selectizeInput("SensorM",
+                "Sensor",
+                SetUpDF$Sensors %>% str_replace(pattern = ".", replacement = "") %>% str_split(pattern = "-",simplify = T) %>% as.vector() %>% unique(),
+                options = list(dropdownParent = 'body'))
+  })
+  output$Sensor <- renderUI({
+    selectizeInput("Sensor",
+                   "Sensor",
+                   c(SetUpDF$Sensors %>% str_replace(pattern = ".", replacement = "") %>% str_split(pattern = "-",simplify = T) %>% as.vector() %>% unique()),
+                   options = list(dropdownParent = 'body'))
   })
   
   # Get the folder options from remote folder (D) to create project
@@ -297,8 +309,11 @@ server <- function(input, output, session) {
   
   # Render table only  with initial options                                     
   output$Flights <- DT::renderDataTable(addData(),
-                                        editable = TRUE,
+                                        editable = FALSE,
                                         options = list(dom = 't'))
+  
+  # State the table as a proxy
+  DTproxy <- DT::dataTableProxy('Flights')
   
   #### Reactive events                                                          ----
   # Include the filled data into the table and reset fields
@@ -306,7 +321,7 @@ server <- function(input, output, session) {
     if(input$add>0 &&
        input$flightNam != "" &&
        input$AirCraft != "" &&
-       input$Sensor != "" &&
+       (input$Sensor != "" || input$AirCraft %in% c("LiBackpack"))&&
        input$pilot != "" &&
        input$copilot != ""){
       
@@ -372,20 +387,27 @@ server <- function(input, output, session) {
   # Update Sensor options depending on selected Aircraft
   observeEvent(input$AirCraft, {
     
-    NewChoices <- SetUpDF[SetUpDF$UAV == input$AirCraft,"Sensors"] %>% str_replace(pattern = ".", replacement = "") %>% str_split(pattern = "-",simplify = T)
-    
-    updateSelectInput(session,
-                      "Sensor",
-                      choices=NewChoices)
     shinyjs::enable("Sensor")
     
-
-    if (input$AirCraft %in% c("Mavic","LiBackpack")){
+    updateSelectizeInput(session,
+                      "Sensor",
+                      choices=SetUpDF$Sensors %>% str_replace(pattern = ".", replacement = "") %>% str_split(pattern = "-",simplify = T) %>% as.vector() %>% unique(),
+                      selected = "")
+    
+    NewChoices <- SetUpDF[SetUpDF$UAV == input$AirCraft,"Sensors"] %>% str_replace(pattern = ".", replacement = "") %>% str_split(pattern = "-",simplify = T)
+    
+    updateSelectizeInput(session,
+                      "Sensor",
+                      choices=NewChoices)
+    
+    if (input$AirCraft %in% c("LiBackpack","Mavic","")){
+      updateSelectizeInput(session,
+                        "Sensor",
+                        choices=c(""),
+                        selected = "")
       shinyjs::disable("Sensor")
     }
-    # else updateSelectInput(session,
-    #                        "Sensor",
-    #                        choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAirV","L1", "H20T"))
+    
   }) 
   
   # Get the folders from selected project and update table                      
@@ -420,40 +442,28 @@ server <- function(input, output, session) {
   
   # Update SensorM options depending on selected Aircraft
   observeEvent(input$AirCraftM, {
+    
     shinyjs::enable("SensorM")
+    
     updateSelectInput(session,
                       "SensorM",
-                      choices=c("","RGB", "RX1RII", "Altum", "MXDual", "LiAir V","L1", "H20T"),
+                      choices=SetUpDF$Sensors %>% str_replace(pattern = ".", replacement = "") %>% str_split(pattern = "-",simplify = T) %>% as.vector() %>% unique(),
                       selected = "")
     
-    if(input$AirCraftM == "Phantom4"){
-      updateSelectInput(session,
-                        "SensorM",
-                        choices=c("","RGB"),
-                        selected = "RGB")}
-    else if (input$AirCraftM == "DJIM600"){
-      updateSelectInput(session,
-                        "SensorM",
-                        choices=c("", "Altum", "MXDual", "LiAirV"),
-                        selected = "")}
-    else if (input$AirCraftM == "DJIM300"){
-      updateSelectInput(session,
-                        "SensorM",
-                        choices=c("", "Altum", "MXDual","L1", "H20T"),
-                        selected = "")}
-    else if (input$AirCraftM == "Wingtra"){
-      updateSelectInput(session,
-                        "SensorM",
-                        choices=c("","RX1RII", "Altum"),
-                        selected = "")}
-    else if (input$AirCraftM %in% c("LiBackpack","")){
-      updateSelectInput(session,
-                        "SensorM",
-                        choices=c(""),
-                        selected = "")
-      shinyjs::disable("RTKstat")
-      shinyjs::disable("SensorM")}
+    NewChoices <- SetUpDF[SetUpDF$UAV == input$AirCraftM,"Sensors"] %>% str_replace(pattern = ".", replacement = "") %>% str_split(pattern = "-",simplify = T)
     
+    updateSelectInput(session,
+                      "SensorM",
+                      choices=NewChoices)
+    
+    if (input$AirCraftM %in% c("LiBackpack","Mavic","")){
+        updateSelectInput(session,
+                          "SensorM",
+                          choices=c(""),
+                          selected = "")
+        shinyjs::disable("RTKstat")
+        shinyjs::disable("SensorM")
+        }
   }) 
   
   # Render HTML file depending on selected set up and suggest RTK 
@@ -648,8 +658,18 @@ server <- function(input, output, session) {
                     "flightNam",
                     value = "")
     
+    # Render table only  with initial options
+    DT::selectRows(DTproxy, seq(1:length(row.names(FlightsDF))), ignore.selectable = FALSE)
+    
+    # Clear data frame
+    FlightsDF <<- FlightsDF[0, ]
+    
+    # Call add button to delete the fields 
+    delay(500, click("add"))
+
+    
   })
-  
+
   # Autofill the blocked element between flight and mission
   observe({
     
@@ -659,7 +679,7 @@ server <- function(input, output, session) {
                     value = Loc)
   })
   
-  # use SelectedCel status to change +/- sybol on add button 
+  # use SelectedCel status to change +/- symbol on add button 
   observeEvent(SelectedCel(),{
     if(SelectedCel()){
       updateActionButton(session,"add",icon = icon("minus"))

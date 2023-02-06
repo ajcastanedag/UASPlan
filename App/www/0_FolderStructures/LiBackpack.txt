@@ -1,9 +1,7 @@
 set Subfolders_i=
-md %foldername%\0_Flights\%Subfolders_i%\0_Images
-md %foldername%\0_Flights\%Subfolders_i%\1_Agisoft
-md %foldername%\0_Flights\%Subfolders_i%\2_Reports
-md %foldername%\0_Flights\%Subfolders_i%\3_FlightFiles\0_Log
-md %foldername%\0_Flights\%Subfolders_i%\3_FlightFiles\1_Plan
-md %foldername%\0_Flights\%Subfolders_i%\3_FlightFiles\2_Other
+md %foldername%\0_Flights\%Subfolders_i%\0_Base
+md %foldername%\0_Flights\%Subfolders_i%\1_BagFiles
+md %foldername%\0_Flights\%Subfolders_i%\2_Video
+md %foldername%\0_Flights\%Subfolders_i%\3_Processed
 md %foldername%\0_Flights\%Subfolders_i%\4_RawOutput
 ::
