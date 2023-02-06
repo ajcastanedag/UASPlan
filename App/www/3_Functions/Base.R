@@ -49,15 +49,15 @@ FillMetadata <- function(Root, TargetLoc, FlightsDF, MisName, IndexStart=1){
     # Update Log file
     write.table(LogFile, file = paste0(FlightsDF$LogLoc[i],"FlightLog.md"), sep="",
                 row.names = FALSE, col.names = FALSE,  quote = FALSE)
-  #   
-  # 
-  #   # Save GPKG file with ,modified or imported polygon
-  #   if(!is.na(FlightsDF$geometry)){
-  #     st_write(GeneratePol(FlightsDF$geometry),
-  #              paste0(FlightPath,"\\AOI.gpkg"),
-  #              delete_layer=TRUE
-  #              )
-  # }
+
+
+    # Save GPKG file with ,modified or imported polygon
+    if(!is.na(FlightsDF$geometry)){
+      st_write(GeneratePol(FlightsDF$geometry),
+               paste0(FlightPath,"\\AOI.gpkg"),
+               delete_layer=TRUE
+               )
+  }
      
   }
 }
