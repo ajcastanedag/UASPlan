@@ -18,7 +18,7 @@ GetSetup <- function(Root, SetUp){
 }
 ################################################################################
 ### Create Folder structure based on root, name, setup and standard name
-FillMetadata <- function(TargetLoc, FlightsDF, MisName, IndexStart=1){
+FillMetadata <- function(Root, TargetLoc, FlightsDF, MisName, IndexStart=1){
   
   for(i in 1:nrow(FlightsDF)){
     
@@ -30,30 +30,25 @@ FillMetadata <- function(TargetLoc, FlightsDF, MisName, IndexStart=1){
                          FlightsDF$Sensor[i],
                          "\\3_FlightFiles\\0_Log\\")
     
-    print(FlightPath)
-  
+    #print(FlightPath)
     
+    # Read Log Structure 
+    LogFile <- noquote(readLines(paste0(Root,"\\www\\5_LogStructure\\FlightLog.txt")))
     
-                         
-      
-  #   
-  #   # Read Log Structure 
-  #   LogFile <- noquote(readLines(paste0(Root,"\\LogStructure\\FlightLog.txt")))
-  #   
-  #   # Replace fields
-  #   LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',FlightsDF$RootLoc[i])
-  #   LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',FlightsDF$MisName[i])
-  #   LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',FlightsDF$Pilot[i])
-  #   LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',FlightsDF$Copilot[i])
-  #   LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',FlightsDF$DateC[i])
-  #   LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',FlightsDF$DateF)
-  #   LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',FlightsDF$AirCraft[i])
-  #   LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',FlightsDF$Sensor[i])
-  #   LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",FlightsDF$LogText[i])
-  #   
-  #   # Update Log file 
-  #   write.table(LogFile, file = paste0(FlightPath,"\\FlightLog.md"), sep="",
-  #               row.names = FALSE, col.names = FALSE,  quote = FALSE)
+    # Replace fields
+    LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',FlightsDF$RootLoc[i])
+    LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',FlightsDF$MisName[i])
+    LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',FlightsDF$Pilot[i])
+    LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',FlightsDF$Copilot[i])
+    LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',FlightsDF$DateC[i])
+    LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',FlightsDF$DateF)
+    LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',FlightsDF$AirCraft[i])
+    LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',FlightsDF$Sensor[i])
+    LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",FlightsDF$LogText[i])
+     
+    # Update Log file
+    write.table(LogFile, file = paste0(FlightsDF$LogLoc[i],"FlightLog.md"), sep="",
+                row.names = FALSE, col.names = FALSE,  quote = FALSE)
   #   
   # 
   #   # Save GPKG file with ,modified or imported polygon
@@ -82,7 +77,7 @@ CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF, MisName, Ind
   Sys.sleep(1)
   file.remove("Temporal.bat")
   
-  FillMetadata(TargetLoc, FlightsDF, MisName, IndexStart)
+  FillMetadata(Root, TargetLoc, FlightsDF, MisName, IndexStart)
   
   setwd(Root)
 

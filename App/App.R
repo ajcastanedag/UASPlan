@@ -236,6 +236,7 @@ server <- function(input, output, session) {
                            AirCraft=character(),
                            Sensor=character(),
                            LogText=character(),
+                           LogLoc=character(),
                            geometry=character(),
                            stringsAsFactors=FALSE)
   
@@ -384,6 +385,24 @@ server <- function(input, output, session) {
   }, ignoreNULL = FALSE)
 
   #### Observe Events                                                           ----
+  # Evaluate if mission already exists
+  observeEvent(input$misnam,{
+    
+    # Create temporal mission full path
+    NewMisLoc <- paste0(TargetDrive,"\\",input$rootLoc,"\\",input$DoF,"_",input$misnam)
+    
+    # Evaluate if mission exists
+    if(dir.exists(NewMisLoc)){
+      shinyalert("Error", "Project already exists. \"Select type\" will be changed to Flights. If you want to store a mission with the same name,
+                 edit the date first and then change the \"Select type\" field back to mission.", type = "error")
+      
+      reset("misnam")
+      
+      updateSelectizeInput(session,"TypeMF", selected = "Flights")
+      
+    }
+  })
+  
   # Update Sensor options depending on selected Aircraft
   observeEvent(input$AirCraft, {
     
@@ -521,7 +540,7 @@ server <- function(input, output, session) {
   # Function to call the creation of the folder system !!!!
   observeEvent(input$crateStruct, {
     
-    # Check if table has length greater than one 
+    # Check if table has length greater than one and mission is selected
     if(nrow(FlightsDF)>0 && input$TypeMF == "Mission"){
       
       # Set Folder location to write all the structure
@@ -540,7 +559,7 @@ server <- function(input, output, session) {
         #Create data name for filling Flight fields
         SetUp <- paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"])
         
-        # Laod single SetUpStructure
+        # Load single SetUpStructure
         FlightStruct <- GetSetup(Root,SetUp)
         
         # Modify the line that contains Subfolders_i and add the flightname
@@ -554,7 +573,7 @@ server <- function(input, output, session) {
         IndexMain <- grep('::', MainStructure)
         MainStructure[IndexMain] <- " "
         
-        # Add the flight file to the main 
+        # Add the flight file to the main structure
         MainStructure <- append(x = MainStructure, after = IndexMain, values = FlightStruct)
         
         # Update field 
@@ -567,9 +586,18 @@ server <- function(input, output, session) {
         updateTextAreaInput(session,
                             "LogInformation",
                             value = "")
+        
+        # Save the location path of the log file as a field in the dataframe
+        FlightsDF$LogLoc[i] <- paste0(
+            Target,FlightsDF[i,"DateF"],"_",input$misnam,"\\0_Flights\\",i,"_",FlightsDF$FlightName[i],
+            "_",FlightsDF$AirCraft[i],FlightsDF$Sensor[i],"\\3_FlightFiles\\0_Log\\")
+        
       }
       
+      # Call the creation of the folder as a single call
       CreateFolder(Root, Target, MainStructure, FlightsDF, input$misnam, 1)
+      
+      
       
       # Modal dialog to check if structure was created
       showModal(modalDialog(
@@ -581,7 +609,10 @@ server <- function(input, output, session) {
         )
       ))
       
-    } else if(nrow(FlightsDF)>0 && input$TypeMF == "Flights"){
+    }
+    
+    # Check if table has length greater than one and Flights is selected
+    else if(nrow(FlightsDF)>0 && input$TypeMF == "Flights"){
       
       # Load main Project Structure
       MainStructure <- noquote(readLines(paste0(Root,"\\www\\0_FolderStructures\\0_FlightBase.txt")))
@@ -595,6 +626,8 @@ server <- function(input, output, session) {
       
       # Modify the starting index
       IndexStart <- length(list.dirs(paste0(TargetDrive,"\\",input$rootLoc,"\\",input$ProjLoc,"\\0_Flights\\"), recursive = F))
+      
+      print(IndexStart)
       
       for(i in 1:nrow(FlightsDF)){
         
@@ -620,6 +653,11 @@ server <- function(input, output, session) {
          
         # Add the flight file to the main 
         MainStructure <- append(x = MainStructure, after = IndexMain, values = FlightStruct)
+        
+        # Save the location path of the log file as a field in the dataframe
+        FlightsDF$LogLoc[i] <- paste0(
+          Target,"\\",input$ProjLoc,"\\0_Flights\\",newi,"_",FlightsDF$FlightName[i],
+          "_",FlightsDF$AirCraft[i],FlightsDF$Sensor[i],"\\3_FlightFiles\\0_Log\\")
          
       }
       
@@ -635,10 +673,10 @@ server <- function(input, output, session) {
         )
       ))
       
-      } else (shinyalert("Error!", "No flights added to the table!.", type = "error"))
+      }
     
-    
-    
+    # Display error
+    else (shinyalert("Error!", "No flights added to the table!.", type = "error"))
   })
   
   # When OK button of modal is pressed -> clean UI elements
@@ -668,15 +706,6 @@ server <- function(input, output, session) {
     delay(500, click("add"))
 
     
-  })
-
-  # Autofill the blocked element between flight and mission
-  observe({
-    
-    Loc <- strsplit(input$ProjLoc, "_")[[1]][2]
-    
-    updateTextInput(session, "misnam",
-                    value = Loc)
   })
   
   # use SelectedCel status to change +/- symbol on add button 
@@ -791,9 +820,6 @@ server <- function(input, output, session) {
 }
 ################################################################################
 #######################    EXECUTE THE APP   ################################### ----
-# {library(shiny)
-#   vwr = dialogViewer('modellvergleiche-irt-with-brms', width = 1600, height = 1200)
-#   runGadget(shinyAppDir(appDir = 'D:\\UASPlan\\App\\'), viewer = vwr)
-# } # Run app in presized window
+# 
 shinyApp(ui,server)          
 ################################################################################
