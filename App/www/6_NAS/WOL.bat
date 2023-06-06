@@ -13,5 +13,3 @@ timeout /t 30
 start firefox.exe %url%
 
 exit
-
-:: wake up https://sites.google.com/site/sysutil/wakeup

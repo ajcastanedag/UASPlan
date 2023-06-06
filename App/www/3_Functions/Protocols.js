@@ -19,3 +19,23 @@ $(function () {
   })
 })
 // --------------------------------------------------------------------
+window.addEventListener('DOMContentLoaded', () => {
+  const checklists = document.querySelectorAll('.checklist');
+
+  checklists.forEach(checklist => {
+    const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
+    const title = checklist.querySelector('h2');
+
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+        const allChecked = [...checkboxes].every(checkbox => checkbox.checked);
+        if (allChecked) {
+          title.classList.add('completed');
+        } else {
+          title.classList.remove('completed');
+        }
+      });
+    });
+  });
+});
+// --------------------------------------------------------------------

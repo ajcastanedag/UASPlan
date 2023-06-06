@@ -172,3 +172,28 @@ table.ProtTable {
     display: table;
   }
   /*-----------------------------------------------------------------*/
+li {
+    list-style-type: none;
+  }
+  .completed {
+      color: green;
+    }
+  /*-----------------------------------------------------------------*/
+.hover-image {
+      display: inline-block;
+      position: relative;
+    }
+    
+.hover-image img {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 200px;
+      z-index: 0; /* Set a high z-index to make it appear on top */
+    }
+    
+.hover-image:hover img {
+      display: block;
+    }
+/*-----------------------------------------------------------------*/
