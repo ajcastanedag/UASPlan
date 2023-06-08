@@ -10,24 +10,25 @@ pacman::p_load("shiny","shinyWidgets", "shinyjs", "shinythemes", "shinyFiles",
                "easycsv","sf","sfheaders","shinyalert","threejs")
 
 ##### Set working directory (temporal for testing)                              ----- 
-#Root <- "\\\\132.187.202.41\\c$\\UASPlan\\App"                                  # From remote location 
-#Root<- "D:\\UASPlan\\App"                                                        # From office Aj 
-#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-Root<- "D:\\UASPlan\\App"                                                       # From office Aj 
-#Root <- "D:\\PhD_Main\\UASPlan\\App"                                            # From home Aj 
-#Root <- "C:\\UASPlan\\App"                                                      # From LidarPc
-#Root <- "D:\\02_UAS\\UAS_MB\\App\\UASPlan\\App"                                 # MB 
-#Root <- "C:\\Users\\Lsfe1\\Documents\\UASPlan\\App"                              # Laptop UAS
+#Root <- "//132.187.202.41/c$/UASPlan/App"                                  # From remote location 
+#Root<- "D:/UASPlan/App"                                                        # From office Aj 
+#Root <- "D:/PhD_Main/UASPlan/App"                                            # From home Aj 
+#Root<- "D:/UASPlan/App"                                                       # From office Aj 
+Root <- "/home/cowboybebop/Documents/PhD/Codes/UASPlan/App"                         # From home Aj 
+#Root <- "C:/UASPlan/App"                                                      # From LidarPc
+#Root <- "D:/02_UAS/UAS_MB/App/UASPlan/App"                                 # MB 
+#Root <- "C:/Users/Lsfe1/Documents/UASPlan/App"                              # Laptop UAS
 ################################################################################
 setwd(Root)
 ##### Add resource path                                                         ----- 
-addResourcePath(prefix = 'media', directoryPath = paste0(Root,"\\www"))
+addResourcePath(prefix = 'media', directoryPath = paste0(Root,"/www"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
-source(paste0(Root,"\\www\\3_Functions\\Base.R"))
+source(paste0(Root,"/www/3_Functions/Base.R"))
 ##### Possible output locations general directory (E drive)                     ----- 
-TargetDrive <- "\\\\132.187.202.41\\d$\\1_Projects"
+TargetDrive <- "//132.187.202.41/d$/1_Projects"
 ##### Set path to general style                                                 ----- 
-Style <- paste0(Root,"\\www\\2_Style\\UAS_Style_AJCG.css")
+Style <- paste0(Root,"/www/2_Style/UAS_Style_AJCG.css")
+Funct <- paste0(Root,"/www/3_Functions/Protocols.js")
 ################################################################################
 #################################    UI   ###################################### ----
 ui <- tagList(
@@ -36,6 +37,7 @@ ui <- tagList(
     includeCSS(Style)
     #tags$link(rel = "stylesheet", type = "text/css", href = "/www/2_Style/UASstyle.css")
   ),
+  tags$script(src = Funct),
   useShinyjs(),
   navbarPage(title = div(img(src='4_Graphs/Logo.png',
                              style="margin-top: -10px; padding-right:10px; padding-bottom:10px",
@@ -389,7 +391,7 @@ server <- function(input, output, session) {
   observeEvent(input$misnam,{
     
     # Create temporal mission full path
-    NewMisLoc <- paste0(TargetDrive,"\\",input$rootLoc,"\\",input$DoF,"_",input$misnam)
+    NewMisLoc <- paste0(TargetDrive,"/",input$rootLoc,"/",input$DoF,"_",input$misnam)
     
     # Evaluate if mission exists
     if(dir.exists(NewMisLoc)){
@@ -433,7 +435,7 @@ server <- function(input, output, session) {
   observeEvent(input$rootLoc,{
     if(input$rootLoc != ""){
       
-      AvailableProjects <- list.dirs(path = paste0(TargetDrive,"\\",input$rootLoc),
+      AvailableProjects <- list.dirs(path = paste0(TargetDrive,"/",input$rootLoc),
                                      full.names = FALSE,
                                      recursive = FALSE)
       
@@ -442,9 +444,9 @@ server <- function(input, output, session) {
                         choices=c("", AvailableProjects),
                         selected = "")
       
-      Dir <- paste0(TargetDrive,"\\",
-                    input$rootLoc,"\\",
-                    input$ProjLoc, "\\0_Flights\\")
+      Dir <- paste0(TargetDrive,"/",
+                    input$rootLoc,"/",
+                    input$ProjLoc, "/0_Flights/")
     }
   })
   
@@ -544,10 +546,10 @@ server <- function(input, output, session) {
     if(nrow(FlightsDF)>0 && input$TypeMF == "Mission"){
       
       # Set Folder location to write all the structure
-      Target <- paste0(TargetDrive,"\\",input$rootLoc,"\\")
+      Target <- paste0(TargetDrive,"/",input$rootLoc,"/")
       
       # Load main Project Structure
-      MainStructure <- noquote(readLines(paste0(Root,"\\www\\0_FolderStructures\\0_ProjectBase.txt")))
+      MainStructure <- noquote(readLines(paste0(Root,"/www/0_FolderStructures/0_ProjectBase.txt")))
       
       # Modify the line that contains foldername= and add the dynamic values
       MainNameIndex <- grep('set foldername=', MainStructure)
@@ -589,8 +591,8 @@ server <- function(input, output, session) {
         
         # Save the location path of the log file as a field in the dataframe
         FlightsDF$LogLoc[i] <- paste0(
-            Target,FlightsDF[i,"DateF"],"_",input$misnam,"\\0_Flights\\",i,"_",FlightsDF$FlightName[i],
-            "_",FlightsDF$AirCraft[i],FlightsDF$Sensor[i],"\\3_FlightFiles\\0_Log\\")
+            Target,FlightsDF[i,"DateF"],"_",input$misnam,"/0_Flights/",i,"_",FlightsDF$FlightName[i],
+            "_",FlightsDF$AirCraft[i],FlightsDF$Sensor[i],"/3_FlightFiles/0_Log/")
         
       }
       
@@ -615,17 +617,17 @@ server <- function(input, output, session) {
     else if(nrow(FlightsDF)>0 && input$TypeMF == "Flights"){
       
       # Load main Project Structure
-      MainStructure <- noquote(readLines(paste0(Root,"\\www\\0_FolderStructures\\0_FlightBase.txt")))
+      MainStructure <- noquote(readLines(paste0(Root,"/www/0_FolderStructures/0_FlightBase.txt")))
       
       # Modify the line that contains foldername= and add the dynamic values
       MainNameIndex <- grep('set foldername=', MainStructure)
       MainStructure[MainNameIndex] <- paste0("set foldername=", input$ProjLoc)
       
       # Set Folder location to write all the structure
-      Target <- paste0(TargetDrive,"\\",input$rootLoc)
+      Target <- paste0(TargetDrive,"/",input$rootLoc)
       
       # Modify the starting index
-      IndexStart <- length(list.dirs(paste0(TargetDrive,"\\",input$rootLoc,"\\",input$ProjLoc,"\\0_Flights\\"), recursive = F))
+      IndexStart <- length(list.dirs(paste0(TargetDrive,"/",input$rootLoc,"/",input$ProjLoc,"/0_Flights/"), recursive = F))
       
       print(IndexStart)
       
@@ -656,8 +658,8 @@ server <- function(input, output, session) {
         
         # Save the location path of the log file as a field in the dataframe
         FlightsDF$LogLoc[i] <- paste0(
-          Target,"\\",input$ProjLoc,"\\0_Flights\\",newi,"_",FlightsDF$FlightName[i],
-          "_",FlightsDF$AirCraft[i],FlightsDF$Sensor[i],"\\3_FlightFiles\\0_Log\\")
+          Target,"/",input$ProjLoc,"/0_Flights/",newi,"_",FlightsDF$FlightName[i],
+          "_",FlightsDF$AirCraft[i],FlightsDF$Sensor[i],"/3_FlightFiles/0_Log/")
          
       }
       

@@ -171,7 +171,9 @@ table.ProtTable {
     clear: both;
     display: table;
   }
+
   /*-----------------------------------------------------------------*/
+
 li {
     list-style-type: none;
   }
