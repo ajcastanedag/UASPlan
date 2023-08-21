@@ -1,10 +1,10 @@
 @echo off
 
-set url="http://132.187.202.171:5000/"
+set url=
 
 echo Waking up NAS!
 
-start "" wakeup.exe 90:09:D0:19:67:03
+start "" wakeup.exe 
 
 echo Firefox will start after timeout!
 
