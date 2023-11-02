@@ -39,58 +39,6 @@ ui <- tagList(
              windowTitle="JMU UAS Flight book",
              theme = shinytheme("slate"),
              ###################################################################
-             # INFO Tab                                                         ---- 
-             tabPanel("Info",
-                      icon = icon("circle-info"),
-                      # Start fluid Page
-                      fluidPage(
-                        titlePanel("UAS JMU usage Guidelines"),
-                        tags$hr(style="border-color: gray;"),
-                        
-                        fluidRow(column(12,uiOutput("Intro"))),
-                        
-                        tags$hr(style="border-color: gray;"),
-                        
-                        fluidRow(
-                          column(3, align="center",
-                                 uiOutput("AirCraftM"),
-                                 ),
-                          column(3, align="center",
-                                 uiOutput("SensorM"),
-                                 ),
-                          column(3, align="center",
-                                 selectInput("RTKstat", "RTK",
-                                             c("NO", "YES"))
-                          ),
-                          column(3, align="center",
-                                 actionButton("rst", "Reset", style = 'margin-top:25px', width = "100%")
-                          )
-                        ),
-                        
-                        br(),
-                        tags$hr(style="border-color: gray;"),
-                        fluidRow(
-                          column(12,
-                                 uiOutput("MDdisplay"),
-                                 uiOutput("EquipmentPreFlightList"),
-                                 uiOutput("PackingListGeneral"),
-                                 uiOutput("FlightExcecution"),                                 
-                                 uiOutput("PostFlightProtocol"),
-                                 uiOutput("EquipmentReturn"))
-                          ),
-
-                        br(),
-                        tags$hr(style="border-color: gray;"),
-
-                         fluidRow(
-                           column(3, div(style = "height:50px"),
-                                  actionButton("getPro", "Protocol", icon = icon("arrow-down")),
-                                  actionButton("getCheck", "Check List", icon = icon("arrow-down")),
-                                  offset = 9)
-                         ),
-                      ),
-                      ),
-             ###################################################################
              # Create                                                           ----  
              tabPanel("Create",
                       # Include our custom CSS
@@ -168,9 +116,7 @@ ui <- tagList(
                                                   width = "100%")
                                      ),
                         
-                        mainPanel(leafletOutput("map", height = "60vh"), width = 7,
-                                  br(),
-                                  tags$div(title="Main Data table: All values stored here will be used to generate folder structure. Please check and modify if needed by double click on the fields.",
+                        mainPanel(tags$div(title="Main Data table: All values stored here will be used to generate folder structure. Please check and modify if needed by double click on the fields.",
                                   DT::dataTableOutput("Flights")
                                   ),
                                   
