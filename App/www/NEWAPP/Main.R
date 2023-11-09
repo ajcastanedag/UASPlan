@@ -1,6 +1,6 @@
 library(shiny)
 
-source("/home/antonio/Desktop/AppNew/Structures.R")
+source("/home/antonio/Documents/PhD/UASPlan/App/www/NEWAPP/Structures.R")
 
 # Define the available systems
 systems <- c("DCG50", "Phantom4RGB",
@@ -15,6 +15,7 @@ ui <- fluidPage(
     sidebarPanel(
       textInput("dir_path", "Enter Directory Path:"),
       selectInput("system", "Select System:", choices = systems),
+      textInput("flight_name", "Enter the FLight Name:"),
       actionButton("create_structure", "Create Folder Structure")
     ),
     mainPanel(
@@ -30,8 +31,9 @@ server <- function(input, output, session) {
     # Get the entered directory path and selected system
     dir_path <- input$dir_path
     selected_system <- input$system
+    FlightName <- input$flight_name
     
-    if (createFolderStructure(dir_path, selected_system, paste0(selected_system,"_","Name") )) {
+    if (createFolderStructure(dir_path, selected_system, paste0(FlightName,"_",selected_system) )) {
       output$status <- renderText({
         paste("Folder structure for", selected_system, "created in:", dir_path)
       })
