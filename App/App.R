@@ -8,21 +8,16 @@
 pacman::p_load("shiny","shinyWidgets", "stringr","shinyjs", "shinythemes", "shinyFiles",
                "leaflet","leaflet.extras", "tidyverse", "rmarkdown", "shinyBS",
                "easycsv","sf","sfheaders","shinyalert","threejs")
-
-##### Set working directory (temporal for testing)                              ----- 
-Root <- "/home/antonio/Documents/PhD/UASPlan/App/"                     
-
 ################################################################################
-setwd(Root)
+Root <- paste0(getwd(),"/App/")
 ##### Add resource path                                                         ----- 
-addResourcePath(prefix = 'media', directoryPath = paste0(Root,"/www"))
+addResourcePath(prefix = 'media', directoryPath = paste0(Root,"/www/"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
 source(paste0(Root,"/www/3_Functions/Base.R"))
 ##### Possible output locations general directory (E drive)                     ----- 
-TargetDrive <- "/home/antonio/Downloads/"
+TargetDrive <- paste0("/home/antonio/Desktop/Test/")
 ##### Set path to general style                                                 ----- 
 Style <- paste0(Root,"/www/2_Style/UAS_Style_AJCG.css")
-Funct <- paste0(Root,"/www/3_Functions/Protocols.js")
 ################################################################################
 #################################    UI   ###################################### ----
 ui <- tagList(
@@ -31,9 +26,8 @@ ui <- tagList(
     includeCSS(Style)
     #tags$link(rel = "stylesheet", type = "text/css", href = "/www/2_Style/UASstyle.css")
   ),
-  tags$script(src = Funct),
   useShinyjs(),
-  navbarPage(title = div(img(src='4_Graphs/Logo.png',
+  navbarPage(title = div(img(src='media/4_Graphs/Logo.png',
                              style="margin-top: -10px; padding-right:10px; padding-bottom:10px",
                              height = 50)),
              windowTitle="JMU UAS Flight book",
@@ -45,8 +39,8 @@ ui <- tagList(
                       tags$head(includeCSS(Style)),
                       icon = icon("location"),
                       sidebarLayout(
-                        sidebarPanel(width = 5,
-                                     tags$div(title="In this tab, you will find all the necessary fields to create a new mission structure or add flights to existing missions. The target drive is set up in the lidar computer's D drive.",
+                        sidebarPanel(width = 4,
+                                     tags$div(title="In this tab, you will find all the necessary fields to create a new mission structure or add flights to existing missions. The  target drive is set up in the lidar computer's D drive.",
                                               h4(strong("Creator assistant"),
                                                  align = "center"),
                                      ),
@@ -136,18 +130,8 @@ ui <- tagList(
                       ),
                       icon = icon("table"),
                       sidebarLayout(
-                        sidebarPanel(width = 5,
-                                     h4(strong("Import Project Log File"),
-                                        align = "left"),
-                                     
-                                     fileInput("LogFile", "Area of Interest", accept = c(".gpkg")),
-                                     
-                                     ),
-                        
-                        mainPanel(#leafletOutput("mapload", height = "60vh"), 
-                          width = 7,
-                          uiOutput("World"),
-                      )
+                        sidebarPanel(width = 5),
+                        mainPanel(width = 7)
              )),
              ###################################################################
              # Processing wizard                                                ----
@@ -156,7 +140,7 @@ ui <- tagList(
                         # Include our custom CSS
                         includeCSS(Style)
                       ),
-                      icon = icon("hat-wizard"),),
+                      icon = icon("hat-wizard")),
              ###################################################################
 
              ################################################################### 
@@ -485,66 +469,21 @@ server <- function(input, output, session) {
     # Check if table has length greater than one and mission is selected
     if(nrow(FlightsDF)>0 && input$TypeMF == "Mission"){
       
-      # Set Folder location to write all the structure
-      Target <- paste0(TargetDrive,"/",input$rootLoc,"/")
+      # Create Mission Structure 
       
-      # Load main Project Structure
-      MainStructure <- noquote(readLines(paste0(Root,"/www/0_FolderStructures/0_ProjectBase.txt")))
+
       
-      # Modify the line that contains foldername= and add the dynamic values
-      MainNameIndex <- grep('set foldername=', MainStructure)
-      MainStructure[MainNameIndex] <- paste0("set foldername=", FlightsDF[1,"DateF"], "_", input$misnam)
-      
-      # Loop through the rows to create batch of text to write in the main Structure
+      # Loop through the rows to create each folder structure
       for(i in 1:nrow(FlightsDF)){
         
-        #Create data name for filling Flight fields
-        SetUp <- paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"])
-        
-        # Load single SetUpStructure
-        FlightStruct <- GetSetup(Root,SetUp)
-        
-        # Modify the line that contains Subfolders_i and add the flightname
-        Index <- grep('set Subfolders_i', FlightStruct)
-        FlightStruct[Index] <- paste0("set Subfolders_",i,"=",i,"_",FlightsDF[i,"FlightName"],"_",SetUp)
-        
-        # Replace all "_i%" with the Flight sequence
-        FlightStruct <- str_replace(FlightStruct, "_i%", paste0("_",i,"%")) %>% noquote()
-        
-        # Locate :: to replace with flight info
-        IndexMain <- grep('::', MainStructure)
-        MainStructure[IndexMain] <- " "
-        
-        # Add the flight file to the main structure
-        MainStructure <- append(x = MainStructure, after = IndexMain, values = FlightStruct)
-        
-        # Update field 
-        updateSelectInput(session,
-                          "Sensor",
-                          selected = "")
-        updateSelectInput(session,
-                          "AirCraft",
-                          selected = "")
-        updateTextAreaInput(session,
-                            "LogInformation",
-                            value = "")
-        
-        # Save the location path of the log file as a field in the dataframe
-        FlightsDF$LogLoc[i] <- paste0(
-            Target,FlightsDF[i,"DateF"],"_",input$misnam,"/0_Flights/",i,"_",FlightsDF$FlightName[i],
-            "_",FlightsDF$AirCraft[i],FlightsDF$Sensor[i],"/3_FlightFiles/0_Log/")
+        CreateFolder(TargetDrive,  paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FlightsDF$FlightName[i])
         
       }
-      
-      # Call the creation of the folder as a single call
-      CreateFolder(Root, Target, MainStructure, FlightsDF, input$misnam, 1)
-      
-      
       
       # Modal dialog to check if structure was created
       showModal(modalDialog(
         title = "Folder structure created",
-        "Please check",
+        "Please check if the folder structure was successfully created!",
         footer = tagList(
           modalButton("Cancel"),
           actionButton("ok", "OK")
@@ -647,7 +586,6 @@ server <- function(input, output, session) {
     # Call add button to delete the fields 
     delay(500, click("add"))
 
-    
   })
   
   # use SelectedCel status to change +/- symbol on add button 
@@ -713,44 +651,6 @@ server <- function(input, output, session) {
         #addStyleEditor()
       
     }
-    return(RenderedMap)
-  })
-  
-  # Create base map (tiles + gray path) on a reactive function (Base Map Load)                   
-  base.mapload <- reactive({
-    RenderedMap <- leaflet() %>%
-      addProviderTiles(providers$Esri.WorldImagery, group = 'Cartographic',
-                       options = providerTileOptions(opacity = 1)) %>%
-      addProviderTiles(providers$Stamen.Toner, group = 'Cartographic',
-                       options = providerTileOptions(opacity = 0.3)) %>%
-      addScaleBar(position = "bottomleft",
-                  scaleBarOptions(maxWidth = 100, metric = TRUE, imperial = TRUE,
-                                  updateWhenIdle = TRUE)) %>%
-      fitBounds(9.96941167653942, 49.7836214950253, 9.983155389252369,49.789472652132595) %>%
-      addLayersControl(position = "topright",
-                       overlayGroups = "Imported") %>%
-      addDrawToolbar(targetGroup = "Imported", position = "bottomright",
-                     editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) 
-    
-    if(!is.null(input$AOI)){
-      Aoi_Pol <<- st_read(input$AOI$datapath, quiet = TRUE) %>% st_transform(4326)
-      
-      RenderedMap <- RenderedMap %>% addPolygons(data = Aoi_Pol,
-                                                 color = "green",
-                                                 group = "Imported") %>%
-        fitBounds(st_bbox(Aoi_Pol)[[1]],
-                  st_bbox(Aoi_Pol)[[2]],
-                  st_bbox(Aoi_Pol)[[3]],
-                  st_bbox(Aoi_Pol)[[4]]) %>%
-        addLayersControl(position = "topright",
-                         overlayGroups = "Imported") %>%
-        addDrawToolbar(
-          targetGroup = "Imported",
-          editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) #%>%
-      #addStyleEditor()
-      
-    }
-    
     return(RenderedMap)
   })
   
