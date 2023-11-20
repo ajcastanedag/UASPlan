@@ -258,7 +258,7 @@ server <- function(input, output, session) {
       }
       
       # Create temporal data frame 
-      tmp <- data.frame( Path = paste0(TargetDrive,"/", input$rootLoc) ,
+      tmp <- data.frame( Path = paste0(TargetDrive, input$rootLoc) ,
                          FlightName=input$flightNam,
                          Pilot=input$pilot,
                          Copilot=input$copilot,
@@ -412,7 +412,7 @@ server <- function(input, output, session) {
       # Loop through the rows to create each folder structure
       for(i in 1:nrow(FlightsDF)){
         
-        print(FlightsDF[i,"Path"])
+        print(FlightsDF[i,"Path"])                                #------------------------------------------------------------------------------------------
         
         FLightFinalName <- paste0(gsub("-","",FlightsDF[i,"DateF"]),"_",FlightsDF$FlightName[i],"_",FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]) 
         CreateFolder(FlightsDF[i,"Path"], paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FLightFinalName)

@@ -4,18 +4,30 @@
 # converted in .bat files and executed in the windows shell, finally the .bat file
 # is erased.
 ################################################################################----
-# Read Flight TXT structure depending on configuration UAV-Sensor
-GetSetup <- function(Root, SetUp){                                              
+CreateMission <- function(dir_path, Name) {
+
+  # Create the main directory
+  project_dir <- file.path(dir_path, Name)
+  if (!dir.exists(project_dir)) {
+    dir.create(project_dir)
+    
+    # Create subdirectories 
+    for (i in 0:3) {
+      sub_dir <- file.path(project_dir, paste0(i, "_", c("Flights", "Analysis", "Results", "Media")[i + 1]))
+      dir.create(sub_dir)
+      
+      if (i == 2) {
+        # Create subdirectories 1_Raw and 2_Stitched inside 2_Video
+        file.create(paste0(Name,".qgs"))
+        dir.create(file.path(sub_dir, "0_Raster"))
+        dir.create(file.path(sub_dir, "1_Pointclouds"))
+        dir.create(file.path(sub_dir, "2_Vectors"))
+      }
+    }
+  }
   
-  # Set main path to read the folder structures 
-  BaseLoc <- paste0(Root,"\\www\\0_FolderStructures\\")
-  
-  # Read Flight TXT structure depending on configuration UAV-Sensor   
-  Structure <- noquote(readLines(paste0(BaseLoc,SetUp,".txt"),warn=FALSE))
-  
-  # Return the loaded txt file
-  return(Structure)
 }
+
 ################################################################################
 ### Create Folder structure based on root, name, setup and standard name
 FillMetadata <- function(Root, TargetLoc, FlightsDF, MisName, IndexStart=1){
@@ -63,8 +75,12 @@ FillMetadata <- function(Root, TargetLoc, FlightsDF, MisName, IndexStart=1){
 }
 #################################################################################################################################################################### 
 CreateFolder <- function(dir_path, selected_system, Name) {
-  ############################################################################## DCG50
+  
+  print(paste0(dir_path," - ",selected_system," - ",Name))
+  
+  ############################################################################## LiBackpack
   if (selected_system == "LiBackpack") {
+    
     # Create the main directory
     project_dir <- file.path(dir_path, Name)
     if (!dir.exists(project_dir)) {
