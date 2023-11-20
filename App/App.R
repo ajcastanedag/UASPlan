@@ -15,7 +15,7 @@ addResourcePath(prefix = 'media', directoryPath = paste0(Root,"/www/"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
 source(paste0(Root,"/www/3_Functions/Base.R"))
 ##### Possible output locations general directory (E drive)                     ----- 
-TargetDrive <- paste0("/home/antonio/Documents/Samples/")
+TargetDrive <- paste0("/home/antonio/Documents/")
 ##### Set path to general style                                                 ----- 
 Style <- paste0(Root,"/www/2_Style/UAS_Style_AJCG.css")
 ################################################################################
@@ -181,32 +181,12 @@ server <- function(input, output, session) {
                          ) 
 
   #### Render elements                                                          ----
-  # Render 3D
-  output$World <- renderUI({
-    library(threejs)
-    data(ego)
-    graphjs(ego, bg="#272b30")
-  })
-  
-  # Render AirCraft and AirCraftM using definitions from fixed dataframe
-  output$AirCraftM <- renderUI({
-    selectizeInput("AirCraftM", "Aircraft",
-                c("",SetUpDF$UAV),
-                options = list(dropdownParent = 'body'))
-  })
   output$AirCraft <- renderUI({
     selectizeInput("AirCraft", "Aircraft",
                    c("",SetUpDF$UAV),
                    options = list(dropdownParent = 'body'))
   })
   
-  # Render Sensor and SensorM using definitions from fixed dataframe
-  output$SensorM <- renderUI({
-    selectizeInput("SensorM",
-                "Sensor",
-                SetUpDF$Sensors %>% str_replace(pattern = ".", replacement = "") %>% str_split(pattern = "-",simplify = T) %>% as.vector() %>% unique(),
-                options = list(dropdownParent = 'body'))
-  })
   output$Sensor <- renderUI({
     selectizeInput("Sensor",
                    "Sensor",
@@ -224,16 +204,6 @@ server <- function(input, output, session) {
                    options = list(dropdownParent = 'body'))
   })
 
-  # Render leaflet map with a reactive function base.map()                     
-  output$map <- leaflet::renderLeaflet({
-    base.mapload() 
-  })
-  
-  # Render leaflet map with a reactive function base.map()                     
-  output$mapload <- leaflet::renderLeaflet({
-    base.map() 
-  })
-  
   # Render table only  with initial options                                     
   output$Flights <- DT::renderDataTable(addData(),
                                         editable = FALSE,
@@ -315,10 +285,10 @@ server <- function(input, output, session) {
   observeEvent(input$misnam,{
     
     # Create temporal mission full path
-    NewMisLoc <- paste0(TargetDrive,"/",input$rootLoc,"/",input$DoF,"_",input$misnam)
+    NewMisLoc <- file.path(paste0(TargetDrive,input$rootLoc), input$misnam)
     
     # Evaluate if mission exists
-    if(dir.exists(NewMisLoc)){
+    if(dir.exists(NewMisLoc) && input$misnam != ""){
       shinyalert("Error", "Project already exists. \"Select type\" will be changed to Flights. If you want to store a mission with the same name,
                  edit the date first and then change the \"Select type\" field back to mission.", type = "error")
       
@@ -379,43 +349,38 @@ server <- function(input, output, session) {
     if(input$TypeMF == "Mission"){
       shinyjs::hideElement("ProjLoc")
       shinyjs::showElement("misnam")
+      updateSelectInput(session,
+                        "rootLoc",
+                        selected = "")
     } else if(input$TypeMF == "Flights"){
       shinyjs::hideElement("misnam")
       shinyjs::showElement("ProjLoc")
+      updateSelectInput(session,
+                        "rootLoc",
+                        selected = "")
     }
-  })
-  
-
-
-  
-  
-  # Button to clean SetUp options
-  observeEvent(input$rst,{
-    updateSelectInput(session,
-                      "SensorM",
-                      selected = "")
-    updateSelectInput(session,
-                      "AirCraftM",
-                      selected = "")
   })
   
   # Function to call the creation of the folder system !!!!
   observeEvent(input$crateStruct, {
     
-    # Check if table has length greater than one and mission is selected
+    # Check if table has length greater than one and mission is selected        #------------------------------------------------------------------------------------------
     if(nrow(FlightsDF)>0 && input$TypeMF == "Mission"){
       
       # Create Mission Structure 
-      
-
+      CreateMission(paste0(TargetDrive,input$rootLoc), input$misnam)
       
       # Loop through the rows to create each folder structure
       for(i in 1:nrow(FlightsDF)){
         
-        print(FlightsDF[i,"Path"])                                #------------------------------------------------------------------------------------------
-        
+        # Create Final name for each flight
         FLightFinalName <- paste0(gsub("-","",FlightsDF[i,"DateF"]),"_",FlightsDF$FlightName[i],"_",FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]) 
-        CreateFolder(FlightsDF[i,"Path"], paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FLightFinalName)
+        
+        # Modify final Path
+        FLightFinalPath <- paste0(FlightsDF[i,"Path"],"/",input$misnam,"/0_Flights")
+        
+        # Call function to create structure
+        CreateFolder(FLightFinalPath, paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FLightFinalName)
         
       }
       
@@ -431,67 +396,33 @@ server <- function(input, output, session) {
       
     }
     
-    # Check if table has length greater than one and Flights is selected
+    # Check if table has length greater than one and Flights is selected        #------------------------------------------------------------------------------------------
     else if(nrow(FlightsDF)>0 && input$TypeMF == "Flights"){
       
-      # Load main Project Structure
-      MainStructure <- noquote(readLines(paste0(Root,"/www/0_FolderStructures/0_FlightBase.txt")))
-      
-      # Modify the line that contains foldername= and add the dynamic values
-      MainNameIndex <- grep('set foldername=', MainStructure)
-      MainStructure[MainNameIndex] <- paste0("set foldername=", input$ProjLoc)
-      
-      # Set Folder location to write all the structure
-      Target <- paste0(TargetDrive,"/",input$rootLoc)
-      
-      # Modify the starting index
-      IndexStart <- length(list.dirs(paste0(TargetDrive,"/",input$rootLoc,"/",input$ProjLoc,"/0_Flights/"), recursive = F))
-      
-      print(IndexStart)
-      
+      # Loop through the rows to create each folder structure
       for(i in 1:nrow(FlightsDF)){
         
-        newi <- i + IndexStart
+        # Create Final name for each flight
+        FLightFinalName <- paste0(gsub("-","",FlightsDF[i,"DateF"]),"_",FlightsDF$FlightName[i],"_",FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]) 
         
-        #Create data name for filling Flight fields
-        SetUp <- paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"])
-        FlightName <- paste0(IndexStart+i,"_",SetUp)
+        # Modify final Path
+        FLightFinalPath <- paste0(FlightsDF[i,"Path"],"/",input$ProjLoc,"/0_Flights")
+
+        # Call function to create structure
+        CreateFolder(FLightFinalPath, paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FLightFinalName)
         
-        # Laod single SetUpStructure
-        FlightStruct <- GetSetup(Root,SetUp)
-        
-        # Modify the line that contains Subfolders_i and add the flightname
-        Index <- grep('set Subfolders_i', FlightStruct)
-        FlightStruct[Index] <- paste0("set Subfolders_",newi,"=",newi,"_",FlightsDF[i,"FlightName"],"_",SetUp)
-        
-        # Replace all "_i%" with the Flight sequence
-        FlightStruct <- str_replace(FlightStruct, "_i%", paste0("_",newi,"%")) %>% noquote()
-         
-        # Locate :: to replace with flight info
-        IndexMain <- grep('::', MainStructure)
-        MainStructure[IndexMain] <- " "
-         
-        # Add the flight file to the main 
-        MainStructure <- append(x = MainStructure, after = IndexMain, values = FlightStruct)
-        
-        # Save the location path of the log file as a field in the dataframe
-        FlightsDF$LogLoc[i] <- paste0(
-          Target,"/",input$ProjLoc,"/0_Flights/",newi,"_",FlightsDF$FlightName[i],
-          "_",FlightsDF$AirCraft[i],FlightsDF$Sensor[i],"/3_FlightFiles/0_Log/")
-         
       }
-      
-      CreateFolder(Root, Target, MainStructure, FlightsDF, input$misnam, IndexStart)
       
       # Modal dialog to check if structure was created
       showModal(modalDialog(
         title = "Folder structure created",
-        "Please check",
+        "Please check if the folder structure was successfully created!",
         footer = tagList(
           modalButton("Cancel"),
           actionButton("ok", "OK")
         )
       ))
+      
       
       }
     
@@ -540,58 +471,58 @@ server <- function(input, output, session) {
       shinyjs::enable("Sensor")}
   })
   
-  # Edited Features
-  observeEvent(input$map_draw_edited_features, {
-    Aoi_Pol <<- ModPolToSf(input$map_draw_edited_features)
-  })
+  # # Edited Features
+  # observeEvent(input$map_draw_edited_features, {
+  #   Aoi_Pol <<- ModPolToSf(input$map_draw_edited_features)
+  # })
   
-  # Created Features
-  observeEvent(input$map_draw_new_feature, {
-    Aoi_Pol <<- ModPolToSf(input$map_draw_new_feature, T)
-  })
-  
-  # Deleted Features
-  observeEvent(input$map_draw_deleted_features, {
-    Aoi_Pol <<- NULL
-  })
+  # # Created Features
+  # observeEvent(input$map_draw_new_feature, {
+  #   Aoi_Pol <<- ModPolToSf(input$map_draw_new_feature, T)
+  # })
+  # 
+  # # Deleted Features
+  # observeEvent(input$map_draw_deleted_features, {
+  #   Aoi_Pol <<- NULL
+  # })
   
   #### Reactive Functions                                                       ----
-  # Create base map (tiles + gray path) on a reactive function (Base Map Create)                
-  base.map <- reactive({
-    RenderedMap <- leaflet() %>%
-      addProviderTiles(providers$Esri.WorldImagery, group = 'Cartographic',
-                       options = providerTileOptions(opacity = 1)) %>%
-      addProviderTiles(providers$Stamen.Toner, group = 'Cartographic',
-                       options = providerTileOptions(opacity = 0.3)) %>%
-      addScaleBar(position = "bottomleft",
-                  scaleBarOptions(maxWidth = 100, metric = TRUE, imperial = TRUE,
-                                  updateWhenIdle = TRUE)) %>%
-      fitBounds(9.96941167653942, 49.7836214950253, 9.983155389252369,49.789472652132595) %>%
-      addLayersControl(position = "topright",
-                       overlayGroups = "Imported") %>%
-      addDrawToolbar(targetGroup = "Imported",
-                     editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) 
-    
-    if(!is.null(input$AOI)){
-      Aoi_Pol <<- st_read(input$AOI$datapath, quiet = TRUE) %>% st_transform(4326)
-
-      RenderedMap <- RenderedMap %>% addPolygons(data = Aoi_Pol,
-                                                 color = "green",
-                                                 group = "Imported") %>%
-        fitBounds(st_bbox(Aoi_Pol)[[1]],
-                  st_bbox(Aoi_Pol)[[2]],
-                  st_bbox(Aoi_Pol)[[3]],
-                  st_bbox(Aoi_Pol)[[4]]) %>%
-        addLayersControl(position = "topright",
-                         overlayGroups = "Imported") %>%
-        addDrawToolbar(
-          targetGroup = "Imported",
-          editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) #%>%
-        #addStyleEditor()
-      
-    }
-    return(RenderedMap)
-  })
+  # # Create base map (tiles + gray path) on a reactive function (Base Map Create)                
+  # base.map <- reactive({
+  #   RenderedMap <- leaflet() %>%
+  #     addProviderTiles(providers$Esri.WorldImagery, group = 'Cartographic',
+  #                      options = providerTileOptions(opacity = 1)) %>%
+  #     addProviderTiles(providers$Stamen.Toner, group = 'Cartographic',
+  #                      options = providerTileOptions(opacity = 0.3)) %>%
+  #     addScaleBar(position = "bottomleft",
+  #                 scaleBarOptions(maxWidth = 100, metric = TRUE, imperial = TRUE,
+  #                                 updateWhenIdle = TRUE)) %>%
+  #     fitBounds(9.96941167653942, 49.7836214950253, 9.983155389252369,49.789472652132595) %>%
+  #     addLayersControl(position = "topright",
+  #                      overlayGroups = "Imported") %>%
+  #     addDrawToolbar(targetGroup = "Imported",
+  #                    editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) 
+  #   
+  #   if(!is.null(input$AOI)){
+  #     Aoi_Pol <<- st_read(input$AOI$datapath, quiet = TRUE) %>% st_transform(4326)
+  # 
+  #     RenderedMap <- RenderedMap %>% addPolygons(data = Aoi_Pol,
+  #                                                color = "green",
+  #                                                group = "Imported") %>%
+  #       fitBounds(st_bbox(Aoi_Pol)[[1]],
+  #                 st_bbox(Aoi_Pol)[[2]],
+  #                 st_bbox(Aoi_Pol)[[3]],
+  #                 st_bbox(Aoi_Pol)[[4]]) %>%
+  #       addLayersControl(position = "topright",
+  #                        overlayGroups = "Imported") %>%
+  #       addDrawToolbar(
+  #         targetGroup = "Imported",
+  #         editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions())) #%>%
+  #       #addStyleEditor()
+  #     
+  #   }
+  #   return(RenderedMap)
+  # })
   
   # React to selection of cell in Table 
   SelectedCel <- reactive({!is.null(input$Flights_rows_selected)})  
@@ -602,3 +533,9 @@ server <- function(input, output, session) {
 # 
 shinyApp(ui,server)          
 ################################################################################ñ
+
+
+
+
+
+
