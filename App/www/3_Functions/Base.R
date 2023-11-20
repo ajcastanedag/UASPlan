@@ -64,7 +64,7 @@ FillMetadata <- function(Root, TargetLoc, FlightsDF, MisName, IndexStart=1){
 #################################################################################################################################################################### 
 CreateFolder <- function(dir_path, selected_system, Name) {
   ############################################################################## DCG50
-  if (selected_system == "DCG50") {
+  if (selected_system == "LiBackpack") {
     # Create the main directory
     project_dir <- file.path(dir_path, Name)
     if (!dir.exists(project_dir)) {
@@ -92,7 +92,7 @@ CreateFolder <- function(dir_path, selected_system, Name) {
     }
   }
   ############################################################################## All ALTUM or MX-Dual
-  if (grepl("Altum",selected_system) || grepl("MXDual",selected_system)) {
+  if (grepl("Altum",selected_system) || grepl("MXDual",selected_system) || grepl("3TAgisoft",selected_system) || grepl("3MAgisoft",selected_system)) {
     # Create the main directory
     project_dir <- file.path(dir_path, Name)
     if (!dir.exists(project_dir)) {
@@ -226,7 +226,7 @@ CreateFolder <- function(dir_path, selected_system, Name) {
     }
   }
   #############################################################################  H20T M3T
-  if (grepl("H20T",selected_system)|| grepl("M3T",selected_system)) {
+  if (grepl("H20T",selected_system) || grepl("3TTerra",selected_system) || grepl("3MTerra",selected_system)) {
     
     # Create the main directory
     project_dir <- file.path(dir_path, Name)

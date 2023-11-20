@@ -15,7 +15,7 @@ addResourcePath(prefix = 'media', directoryPath = paste0(Root,"/www/"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
 source(paste0(Root,"/www/3_Functions/Base.R"))
 ##### Possible output locations general directory (E drive)                     ----- 
-TargetDrive <- paste0("/home/antonio/Desktop/Test/")
+TargetDrive <- paste0("/home/antonio/Documents/Samples/")
 ##### Set path to general style                                                 ----- 
 Style <- paste0(Root,"/www/2_Style/UAS_Style_AJCG.css")
 ################################################################################
@@ -154,11 +154,11 @@ server <- function(input, output, session) {
   Aoi_Pol <<- NULL
   
   # Create Main data frame to store all information
-  FlightsDF <<- data.frame(FlightName=character(),
+  FlightsDF <<- data.frame(Path=character(),
+                           FlightName=character(),
                            Pilot=character(),
                            Copilot=character(),
                            DateF=character(),
-                           DateC=character(),
                            AirCraft=character(),
                            Sensor=character(),
                            LogText=character(),
@@ -174,7 +174,7 @@ server <- function(input, output, session) {
                                      paste0(".","-Altum","-MXDual","-LiAirV"),
                                      paste0(".","-Altum","-MXDual","-L1","-H20T"),
                                      paste0(".","-RX1RII","-Altum"),
-                                     paste0("."),
+                                     paste0(".","-3TAgisoft","-3TTerra","-3MAgisoft","-3MTerra"),
                                      paste0(".")
                                      ),
                          stringsAsFactors=FALSE
@@ -191,12 +191,12 @@ server <- function(input, output, session) {
   # Render AirCraft and AirCraftM using definitions from fixed dataframe
   output$AirCraftM <- renderUI({
     selectizeInput("AirCraftM", "Aircraft",
-                c("",SetUpDF$UAV[! SetUpDF$UAV %in% c('Mavic')]),
+                c("",SetUpDF$UAV),
                 options = list(dropdownParent = 'body'))
   })
   output$AirCraft <- renderUI({
     selectizeInput("AirCraft", "Aircraft",
-                   c("",SetUpDF$UAV[! SetUpDF$UAV %in% c('Mavic')]),
+                   c("",SetUpDF$UAV),
                    options = list(dropdownParent = 'body'))
   })
   
@@ -214,8 +214,8 @@ server <- function(input, output, session) {
                    options = list(dropdownParent = 'body'))
   })
   
-  # Get the folder options from remote folder (D) to create project
-  output$rootLoc <- output$rootLocf <- renderUI({
+  # Get the folder options from TargetDrive
+  output$rootLoc <- renderUI({
     selectizeInput("rootLoc", "Project Location*",
                    choices = c("", list.dirs(path = TargetDrive,
                                              full.names = FALSE,
@@ -258,11 +258,11 @@ server <- function(input, output, session) {
       }
       
       # Create temporal data frame 
-      tmp <- data.frame( FlightName=input$flightNam,
+      tmp <- data.frame( Path = paste0(TargetDrive,"/", input$rootLoc) ,
+                         FlightName=input$flightNam,
                          Pilot=input$pilot,
                          Copilot=input$copilot,
                          DateF=input$DoF,
-                         DateC="Tosolve",
                          AirCraft=input$AirCraft,
                          Sensor=input$Sensor,
                          LogText=input$LogInformation,
@@ -345,7 +345,7 @@ server <- function(input, output, session) {
                       "Sensor",
                       choices=NewChoices)
     
-    if (input$AirCraft %in% c("LiBackpack","Mavic","")){
+    if (input$AirCraft %in% c("LiBackpack","")){
       updateSelectizeInput(session,
                         "Sensor",
                         choices=c(""),
@@ -374,7 +374,7 @@ server <- function(input, output, session) {
     }
   })
   
-  # Enable or disable Mission selector based on type of creation
+  # Enable or disable Mission selector based on type of creation             .......................
   observeEvent(input$TypeMF,{
     if(input$TypeMF == "Mission"){
       shinyjs::hideElement("ProjLoc")
@@ -385,73 +385,9 @@ server <- function(input, output, session) {
     }
   })
   
-  # Update SensorM options depending on selected Aircraft
-  observeEvent(input$AirCraftM, {
-    
-    shinyjs::enable("SensorM")
-    
-    updateSelectInput(session,
-                      "SensorM",
-                      choices=SetUpDF$Sensors %>% str_replace(pattern = ".", replacement = "") %>% str_split(pattern = "-",simplify = T) %>% as.vector() %>% unique(),
-                      selected = "")
-    
-    NewChoices <- SetUpDF[SetUpDF$UAV == input$AirCraftM,"Sensors"] %>% str_replace(pattern = ".", replacement = "") %>% str_split(pattern = "-",simplify = T)
-    
-    updateSelectInput(session,
-                      "SensorM",
-                      choices=NewChoices)
-    
-    if (input$AirCraftM %in% c("LiBackpack","Mavic","")){
-        updateSelectInput(session,
-                          "SensorM",
-                          choices=c(""),
-                          selected = "")
-        shinyjs::disable("RTKstat")
-        shinyjs::disable("SensorM")
-        }
-  }) 
-  
-  # Render HTML file depending on selected set up and suggest RTK 
-  observeEvent(input$SensorM, {
-    
-    if(input$SensorM == ""){
-     output$MDdisplay <- renderUI({includeHTML("./www/1_Protocols/0_GeneralNotes/0_Empty.html")})
-    } 
-    
-    # Handle RTK status based on sensors that NEED to use it
-    if(input$SensorM %in% c("LiAirV","L1") || input$AirCraftM %in% c("LiBackpack", "")){
-      shinyjs::disable("RTKstat")
-      updateSelectInput(session,
-                        "RTKstat",
-                        choices = "YES",
-                        selected = "YES")} else {
-                          updateSelectInput(session,
-                                            "RTKstat",
-                                            choices = c("YES","NO"),
-                                            selected = "NO")
-                          shinyjs::enable("RTKstat")}
-  })
-  
-  # Reactive function to read SensorM and AirCraftM
-  event_trigger <- reactive({
-    list(input$SensorM,input$AirCraftM)
-  })
-  
-  # Render set up HTML file
-  observeEvent(ignoreInit = TRUE, event_trigger(), {
-    
-    Statement <- input$SensorM %in% str_split(SetUpDF[SetUpDF$UAV == input$AirCraftM,"Sensors"],pattern = "-",simplify = T)
 
-    if(Statement){
-      output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/1_SetUps/",input$AirCraftM,input$SensorM,".html"))})
-      return()
-      } else if(Statement || (input$AirCraftM == "LiBackpack" & input$SensorM == "")){
-        output$MDdisplay <- renderUI({includeHTML(paste0("./www/1_Protocols/1_SetUps/",input$AirCraftM,input$SensorM,".html"))})
-        return()
-      } else output$MDdisplay <- renderUI({includeHTML("./www/1_Protocols/0_GeneralNotes/0_Empty.html")})
-    
-    
-  })
+
+  
   
   # Button to clean SetUp options
   observeEvent(input$rst,{
@@ -476,7 +412,10 @@ server <- function(input, output, session) {
       # Loop through the rows to create each folder structure
       for(i in 1:nrow(FlightsDF)){
         
-        CreateFolder(TargetDrive,  paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FlightsDF$FlightName[i])
+        print(FlightsDF[i,"Path"])
+        
+        FLightFinalName <- paste0(gsub("-","",FlightsDF[i,"DateF"]),"_",FlightsDF$FlightName[i],"_",FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]) 
+        CreateFolder(FlightsDF[i,"Path"], paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FLightFinalName)
         
       }
       
