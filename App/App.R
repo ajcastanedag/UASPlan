@@ -33,6 +33,17 @@ ui <- tagList(
              windowTitle="JMU UAS Flight book",
              theme = shinytheme("slate"),
              ###################################################################
+             # Processing wizard                                                ----
+             tabPanel("Info",
+                      tags$head(
+                        # Include our custom CSS
+                        includeCSS(Style)
+                      ),
+                      icon = icon("circle-info"),
+                      mainPanel(
+                        htmlOutput("inc")
+                      )),
+             ###################################################################
              # Create                                                           ----  
              tabPanel("Create",
                       # Include our custom CSS
@@ -73,21 +84,20 @@ ui <- tagList(
                                                  align = "left"),
                                      ),
                                      
-                                     splitLayout(cellWidths = c("35%", "35%","30%"),
+                                     splitLayout(cellWidths = c("50%", "50%"),
                                                  textInput("pilot", "Pilot*", ""),
-                                                 textInput("copilot", "Co-Pilot*", ""),
-                                                 dateInput("DoF",
-                                                           "Date*",
-                                                           autoclose = T,
-                                                           value = as.character(Sys.Date()),
-                                                           daysofweekdisabled = c(0),
-                                                           format = "yyyy_mm_dd")),
+                                                 textInput("copilot", "Co-Pilot*", "")),
                                      splitLayout(cellWidths = c("50%", "50%"),
                                                  tags$div(title="This name will be used on the folder name as guidance to understand the flight's purpose. Avoid using any names that contain numbers, dates or special characters. Also, avoid including the sensor's or UAV's name since those will be automatically included. (f.e. 1_FlightName_Phantom4RGB).",
                                                           textInput("flightNam", "Flight Name*", "")
                                                           ),
-                                                 tags$div(title="In this field, you can upload or draw on the map the area you intend to cover with your flight. It doesn't have to be precise but must match the area of interest.",
-                                                          fileInput("AOI", "Area of Interest", accept = c(".gpkg"))
+                                                 tags$div(title="In this field, you can select the date of each flight.",
+                                                          dateInput("DoF",
+                                                                    "Date*",
+                                                                    autoclose = T,
+                                                                    value = as.character(Sys.Date()),
+                                                                    daysofweekdisabled = c(0),
+                                                                    format = "yyyy_mm_dd")
                                                           ),
                                      ),
                                      h5(strong("Equipment used"), align = "left"),
@@ -122,7 +132,7 @@ ui <- tagList(
                                   ))
                       )),
              ###################################################################
-             #Load Project Tab                                                  ----
+             # Load Project Tab                                                 ----
              tabPanel("Load Project",
                       tags$head(
                         # Include our custom CSS
@@ -134,6 +144,18 @@ ui <- tagList(
                         mainPanel(width = 7)
              )),
              ###################################################################
+             # Mission Planner                                                 ----
+             tabPanel("Mission Planner",
+                      tags$head(
+                        # Include our custom CSS
+                        includeCSS(Style)
+                      ),
+                      icon = icon("ruler-combined"),
+                      sidebarLayout(
+                        sidebarPanel(width = 5),
+                        mainPanel(width = 7)
+                      )),
+             ###################################################################
              # Processing wizard                                                ----
              tabPanel("Processing Wizzard",
                       tags$head(
@@ -142,13 +164,27 @@ ui <- tagList(
                       ),
                       icon = icon("hat-wizard")),
              ###################################################################
-
+             # Processing wizard                                                ----
+             tabPanel("ThermCal",
+                      tags$head(
+                        # Include our custom CSS
+                        includeCSS(Style)
+                      ),
+                      icon = icon("temperature-full"))
              ################################################################### 
   )
 )
 ################################################################################
 ##############################    SERVER   ##################################### ----
 server <- function(input, output, session) {
+  ###################################################################           ---
+  # Create Tab  
+  getPage<-function() {
+    return(includeHTML("www/instructions.html"))
+  }
+  output$inc<-renderUI({getPage()})
+  ###################################################################           ---
+  # Create Tab                                                                  
   #### Create objects                                                           ----
   # Create empty SP object to store loaded AOI
   Aoi_Pol <<- NULL
@@ -279,7 +315,6 @@ server <- function(input, output, session) {
     FlightsDF[,c("FlightName","Pilot","Copilot","DateF","AirCraft","Sensor")]
     
   }, ignoreNULL = FALSE)
-
   #### Observe Events                                                           ----
   # Evaluate if mission already exists
   observeEvent(input$misnam,{
@@ -364,7 +399,7 @@ server <- function(input, output, session) {
   # Function to call the creation of the folder system !!!!
   observeEvent(input$crateStruct, {
     
-    # Check if table has length greater than one and mission is selected        #------------------------------------------------------------------------------------------
+    # Check if table has length greater than one and mission is selected        
     if(nrow(FlightsDF)>0 && input$TypeMF == "Mission"){
       
       # Create Mission Structure 
@@ -396,7 +431,7 @@ server <- function(input, output, session) {
       
     }
     
-    # Check if table has length greater than one and Flights is selected        #------------------------------------------------------------------------------------------
+    # Check if table has length greater than one and Flights is selected       --
     else if(nrow(FlightsDF)>0 && input$TypeMF == "Flights"){
       
       # Loop through the rows to create each folder structure
@@ -526,6 +561,15 @@ server <- function(input, output, session) {
   
   # React to selection of cell in Table 
   SelectedCel <- reactive({!is.null(input$Flights_rows_selected)})  
+  
+  ###################################################################           ---
+  # Load Project Tab 
+  ###################################################################           ---
+  # Load Project Tab 
+  ###################################################################           ---
+  # Mission Planner
+  ###################################################################           ---
+  # Processing wizard
 
 }
 ################################################################################

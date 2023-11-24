@@ -1,9 +1,0 @@
-set Subfolders_i=
-md %foldername%\0_Flights\%Subfolders_i%\0_Base
-md %foldername%\0_Flights\%Subfolders_i%\1_BagFiles
-md %foldername%\0_Flights\%Subfolders_i%\2_Video
-md %foldername%\0_Flights\%Subfolders_i%\3_FlightFiles\0_Log
-md %foldername%\0_Flights\%Subfolders_i%\3_FlightFiles\1_Other
-md %foldername%\0_Flights\%Subfolders_i%\4_Processed
-md %foldername%\0_Flights\%Subfolders_i%\5_RawOutput
-::
