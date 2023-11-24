@@ -180,7 +180,7 @@ server <- function(input, output, session) {
   ###################################################################           ---
   # Create Tab  
   getPage<-function() {
-    return(includeHTML("www/instructions.html"))
+    return(includeHTML(paste0(Root,'www/0_IntroPage/instructions.html')))
   }
   output$inc<-renderUI({getPage()})
   ###################################################################           ---
