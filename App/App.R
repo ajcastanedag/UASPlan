@@ -15,7 +15,7 @@ addResourcePath(prefix = 'media', directoryPath = paste0(Root,"/www/"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
 source(paste0(Root,"/www/3_Functions/Base.R"))
 ##### Possible output locations general directory (E drive)                     ----- 
-TargetDrive <- paste0("/home/antonio/Documents/")
+#TargetDrive() <- paste0("/home/antonio/Desktop/")
 ##### Set path to general style                                                 ----- 
 Style <- paste0(Root,"/www/2_Style/UAS_Style_AJCG.css")
 ################################################################################
@@ -33,7 +33,7 @@ ui <- tagList(
              windowTitle="JMU UAS Flight book",
              theme = shinytheme("slate"),
              ###################################################################
-             # Processing wizard                                                ----
+             # InfoTab                                                          ----
              tabPanel("Info",
                       tags$head(
                         # Include our custom CSS
@@ -41,7 +41,7 @@ ui <- tagList(
                       ),
                       icon = icon("circle-info"),
                       mainPanel(
-                        htmlOutput("inc")
+                        #htmlOutput("inc")
                       )),
              ###################################################################
              # Create                                                           ----  
@@ -54,6 +54,26 @@ ui <- tagList(
                                      tags$div(title="In this tab, you will find all the necessary fields to create a new mission structure or add flights to existing missions. The  target drive is set up in the lidar computer's D drive.",
                                               h4(strong("Creator assistant"),
                                                  align = "center"),
+                                     ),
+                                     
+                                     tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button. The app will return an error if the fields are filled partially.",
+                                              h5(strong("Target drive"),
+                                                 align = "left"),
+                                     ),
+                                     
+                                     splitLayout(cellWidths = c("40%","60%"),
+                                                 
+                                                 selectizeInput("TargLocFix",
+                                                                label = "Select Working Station*",
+                                                                choices= list("","WSI", "WSII","AJCG","Other"), 
+                                                                selected = ".",
+                                                                options = list(dropdownParent = 'body')),
+                                                 textAreaInput("misnTargLocTxt",
+                                                               "",
+                                                               resize = "none",
+                                                               value = "",
+                                                               height = "38px")
+                                                 
                                      ),
                                      
                                      splitLayout(cellWidths = c("20%","40%","40%"),
@@ -144,7 +164,7 @@ ui <- tagList(
                         mainPanel(width = 7)
              )),
              ###################################################################
-             # Mission Planner                                                 ----
+             # Mission Planner                                                  ----
              tabPanel("Mission Planner",
                       tags$head(
                         # Include our custom CSS
@@ -178,12 +198,13 @@ ui <- tagList(
 ##############################    SERVER   ##################################### ----
 server <- function(input, output, session) {
   ###################################################################           ---
-  # Create Tab  
-  getPage<-function() {
+  # Info Tab 
+  #### Create objects                                                           ----
+  getPage <- function() {
     return(includeHTML(paste0(Root,'www/0_IntroPage/instructions.html')))
   }
   output$inc<-renderUI({getPage()})
-  ###################################################################           ---
+  ###################################################################           
   # Create Tab                                                                  
   #### Create objects                                                           ----
   # Create empty SP object to store loaded AOI
@@ -233,7 +254,7 @@ server <- function(input, output, session) {
   # Get the folder options from TargetDrive
   output$rootLoc <- renderUI({
     selectizeInput("rootLoc", "Project Location*",
-                   choices = c("", list.dirs(path = TargetDrive,
+                   choices = c("", list.dirs(path = TargetDrive(),
                                              full.names = FALSE,
                                              recursive = FALSE)),
                    selected = "",
@@ -264,7 +285,7 @@ server <- function(input, output, session) {
       }
       
       # Create temporal data frame 
-      tmp <- data.frame( Path = paste0(TargetDrive, input$rootLoc) ,
+      tmp <- data.frame( Path = paste0(TargetDrive(), input$rootLoc) ,
                          FlightName=input$flightNam,
                          Pilot=input$pilot,
                          Copilot=input$copilot,
@@ -315,12 +336,43 @@ server <- function(input, output, session) {
     FlightsDF[,c("FlightName","Pilot","Copilot","DateF","AirCraft","Sensor")]
     
   }, ignoreNULL = FALSE)
+  
+  TargetDrive <- reactive({input$misnTargLocTxt})
+  
   #### Observe Events                                                           ----
+  # Update Drive Location depending on selected working station
+  observeEvent(input$TargLocFix, {                                                 
+  
+    if(input$TargLocFix == ""){
+      shinyjs::disable("misnTargLocTxt")
+      updateTextAreaInput(session, "misnTargLocTxt",
+                          value = "No drive selected")
+    } else if(input$TargLocFix == "WSI"){
+      shinyjs::disable("misnTargLocTxt")
+      updateTextAreaInput(session, "misnTargLocTxt",
+                          value = "D:/1_Projects/")
+    } else if(input$TargLocFix == "AJCG"){
+      shinyjs::disable("misnTargLocTxt")
+      updateTextAreaInput(session, "misnTargLocTxt",
+                          value = "/home/antonio/Desktop/")
+    } else if(input$TargLocFix == "WSII"){
+      shinyjs::disable("misnTargLocTxt")
+      updateTextAreaInput(session, "misnTargLocTxt",
+                          value = "B:/1_Projects/")
+      
+    } else{
+      shinyjs::enable("misnTargLocTxt")
+      updateTextAreaInput(session, "misnTargLocTxt",
+                          value = "")
+    }
+    
+  }) 
+  
   # Evaluate if mission already exists
   observeEvent(input$misnam,{
     
     # Create temporal mission full path
-    NewMisLoc <- file.path(paste0(TargetDrive,input$rootLoc), input$misnam)
+    NewMisLoc <- file.path(paste0(TargetDrive(),input$rootLoc), input$misnam)
     
     # Evaluate if mission exists
     if(dir.exists(NewMisLoc) && input$misnam != ""){
@@ -364,7 +416,7 @@ server <- function(input, output, session) {
   observeEvent(input$rootLoc,{
     if(input$rootLoc != ""){
       
-      AvailableProjects <- list.dirs(path = paste0(TargetDrive,"/",input$rootLoc),
+      AvailableProjects <- list.dirs(path = paste0(TargetDrive(),"/",input$rootLoc),
                                      full.names = FALSE,
                                      recursive = FALSE)
       
@@ -373,7 +425,7 @@ server <- function(input, output, session) {
                         choices=c("", AvailableProjects),
                         selected = "")
       
-      Dir <- paste0(TargetDrive,"/",
+      Dir <- paste0(TargetDrive(),"/",
                     input$rootLoc,"/",
                     input$ProjLoc, "/0_Flights/")
     }
@@ -403,7 +455,7 @@ server <- function(input, output, session) {
     if(nrow(FlightsDF)>0 && input$TypeMF == "Mission"){
       
       # Create Mission Structure 
-      CreateMission(paste0(TargetDrive,input$rootLoc), input$misnam)
+      CreateMission(paste0(TargetDrive(),input$rootLoc), input$misnam)
       
       # Loop through the rows to create each folder structure
       for(i in 1:nrow(FlightsDF)){
@@ -570,6 +622,7 @@ server <- function(input, output, session) {
   # Mission Planner
   ###################################################################           ---
   # Processing wizard
+
 
 }
 ################################################################################

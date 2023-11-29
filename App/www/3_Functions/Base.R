@@ -18,7 +18,7 @@ CreateMission <- function(dir_path, Name) {
       
       if (i == 2) {
         # Create subdirectories 1_Raw and 2_Stitched inside 2_Video
-        file.create(paste0(Name,".qgs"))
+        create_qgis_project(paste0(sub_dir,"/"), Name)
         dir.create(file.path(sub_dir, "0_Raster"))
         dir.create(file.path(sub_dir, "1_Pointclouds"))
         dir.create(file.path(sub_dir, "2_Vectors"))
@@ -311,6 +311,23 @@ CreateFolder <- function(dir_path, selected_system, Name) {
 #   setwd(Root)
 # 
 # }
+################################################################################
+create_qgis_project <- function(path, name) {
+  # Create a basic QGIS project XML structure
+  qgis_project <- '<?xml version="1.0" encoding="UTF-8"?>\n
+  <Project projection="" version="3.10.0-Madeira">\n
+    <!-- Add your layers, styles, and project settings here -->\n
+  </Project>'
+  
+  # Construct the full file path for .qgs and .qgz files
+  qgs_file <- paste0(path, "/", name, ".qgs")
+
+  # Write the QGIS project XML to a .qgs file
+  writeLines(qgis_project, qgs_file)
+  
+  # Return the path to the created .qgz file
+  #return(qgs_file)
+}
 ################################################################################
 ### Transform leaflet mods on AOI into new polygon (SF)
 ModPolToSf <- function(Pol, New=F){

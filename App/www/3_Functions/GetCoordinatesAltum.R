@@ -25,7 +25,8 @@ kml_combined_sf <- kml_combined_sf[kml_combined_sf$Region == "UniversityForest",
 
 #####################################################################################################################
 #####################################################################################################################
-Path <- "/home/antonio/UASNAS/UniversityForest_AJCGPHD/2023_10_25_UniWaldM/"
+Mission <- "2023_05_09_UniWaldML"
+Path <- paste0("/home/antonio/UASNAS/UniversityForest_AJCGPHD/",Mission,"/")
 PathIMG <- paste0(Path, "0_Flights/")
 Batch <- Path2DF(PathIMG, "_1.tif")
 AvailableDates <- format(as.POSIXct(Batch$DateTime, format = "%Y:%m:%d %H:%M:%S"), "%Y-%m-%d")
@@ -71,7 +72,7 @@ Map <- leaflet() %>%
     data = Batch,#[Batch$Group == "Group1",],
     lng = ~Lon, lat = ~Lat,
     color = ~colors(Group),  # Use the color palette for marker color
-    radius = 0.5
+    radius = 0.8
   ) %>%
   addCircleMarkers(
     data = intersections,
@@ -80,9 +81,8 @@ Map <- leaflet() %>%
   ) 
   
 Map
-
 ################################################################################
-saveWidget(Map, file = paste0(Path,"/3_Media/Map.html"),selfcontained = T)
+saveWidget(Map, file = paste0(Path,"/3_Media/",Mission,"_Map.html"), selfcontained = T)
 
 write.csv(intersections, file = paste0(Path,"/3_Media/Coverage/Images.csv"), row.names = FALSE)
 
