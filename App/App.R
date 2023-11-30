@@ -346,6 +346,7 @@ server <- function(input, output, session) {
     
   }, ignoreNULL = FALSE)
   
+  # Reactive target drive value
   TargetDrive <- reactive({input$misnTargLocTxt})
   
   #### Observe Events                                                           ----
@@ -445,15 +446,15 @@ server <- function(input, output, session) {
     if(input$TypeMF == "Mission"){
       shinyjs::hideElement("ProjLoc")
       shinyjs::showElement("misnam")
-      updateSelectInput(session,
-                        "rootLoc",
-                        selected = "")
+      #updateSelectInput(session,
+      #                  "rootLoc",
+      #                  selected = "")
     } else if(input$TypeMF == "Flights"){
       shinyjs::hideElement("misnam")
       shinyjs::showElement("ProjLoc")
-      updateSelectInput(session,
-                        "rootLoc",
-                        selected = "")
+      #updateSelectInput(session,
+      #                  "rootLoc",
+      #                  selected = "")
     }
   })
   
@@ -468,16 +469,12 @@ server <- function(input, output, session) {
       
       # Loop through the rows to create each folder structure
       for(i in 1:nrow(FlightsDF)){
-        
-        # Create Final name for each flight
-        #FLightFinalName <- paste0(gsub("-","",FlightsDF[i,"DateF"]),"_",FlightsDF$FlightName[i],"_",FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]) 
-        
+      
         # Modify final Path
-        FLightFinalPath <- paste0(FlightsDF[i,"Path"],"/",input$misnam,"/0_Flights")
+        FlightFinalPath <- paste0(FlightsDF[i,"Path"],"/",input$misnam,"/0_Flights")
         
         # Call function to create structure
-        CreateFolder(FLightFinalPath, paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FlightsDF[i,"FlightName"])
-        
+        CreateFolder(FlightFinalPath, FlightsDF[i,])
       }
       
       # Modal dialog to check if structure was created
@@ -502,10 +499,10 @@ server <- function(input, output, session) {
         FLightFinalName <- paste0(gsub("-","",FlightsDF[i,"DateF"]),"_",FlightsDF$FlightName[i],"_",FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]) 
         
         # Modify final Path
-        FLightFinalPath <- paste0(FlightsDF[i,"Path"],"/",input$ProjLoc,"/0_Flights")
-
+        FlightFinalPath <- paste0(FlightsDF[i,"Path"],"/",input$ProjLoc,"/0_Flights")
+        
         # Call function to create structure
-        CreateFolder(FLightFinalPath, paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FlightsDF[i,"FlightName"])
+        CreateFolder(FlightFinalPath, FlightsDF[i,])
         
       }
       
@@ -518,7 +515,6 @@ server <- function(input, output, session) {
           actionButton("ok", "OK")
         )
       ))
-      
       
       }
     

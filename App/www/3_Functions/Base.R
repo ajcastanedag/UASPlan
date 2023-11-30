@@ -6,8 +6,6 @@
 ################################################################################----
 CreateMission <- function(dir_path, Name) {
   
-  print(dir_path)
-
   # Create the main directory
   project_dir <- file.path(dir_path, Name)
   if (!dir.exists(project_dir)) {
@@ -29,56 +27,12 @@ CreateMission <- function(dir_path, Name) {
   }
   
 }
-
-################################################################################
-### Create Folder structure based on root, name, setup and standard name
-FillMetadata <- function(Root, TargetLoc, FlightsDF, MisName, IndexStart=1){
-  
-  for(i in 1:nrow(FlightsDF)){
-    
-    FlightPath <- paste0(TargetLoc,
-                         "\\",
-                         IndexStart+i,
-                         "_",
-                         FlightsDF$AirCraft[i],
-                         FlightsDF$Sensor[i],
-                         "\\3_FlightFiles\\0_Log\\")
-    
-    #print(FlightPath)
-    
-    # Read Log Structure 
-    LogFile <- noquote(readLines(paste0(Root,"\\www\\5_LogStructure\\FlightLog.txt")))
-    
-    # Replace fields
-    LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',FlightsDF$RootLoc[i])
-    LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',FlightsDF$MisName[i])
-    LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',FlightsDF$Pilot[i])
-    LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',FlightsDF$Copilot[i])
-    LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',FlightsDF$DateC[i])
-    LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',FlightsDF$DateF)
-    LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',FlightsDF$AirCraft[i])
-    LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',FlightsDF$Sensor[i])
-    LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",FlightsDF$LogText[i])
-     
-    # Update Log file
-    write.table(LogFile, file = paste0(FlightsDF$LogLoc[i],"FlightLog.md"), sep="",
-                row.names = FALSE, col.names = FALSE,  quote = FALSE)
-
-
-    # Save GPKG file with ,modified or imported polygon
-    if(!is.na(FlightsDF$geometry)){
-      st_write(GeneratePol(FlightsDF$geometry[i]),
-               paste0(FlightsDF$LogLoc[i],"\\AOI.gpkg"),
-               delete_layer=TRUE
-               )
-  }
-     
-  }
-}
 #################################################################################################################################################################### 
-CreateFolder <- function(dir_path, selected_system, Name) {
+CreateFolder <- function(dir_path, DataFrame) {
   
-  print(paste0(dir_path," - ",selected_system," - ",Name))
+  #print(paste0(dir_path," - ",selected_system," - ",Name))
+  selected_system <- paste0(DataFrame$AirCraft, DataFrame$Sensor)
+  Name <- DataFrame$FlightName
   
   ############################################################################## LiBackpack
   if (selected_system == "LiBackpack") {
@@ -101,8 +55,11 @@ CreateFolder <- function(dir_path, selected_system, Name) {
       }
       
       # Create a text file inside 4_Export
-      text_file <- file.path(project_dir, "4_Export", "example.txt")
+      text_file <- file.path(project_dir, "4_Export", "metadata.md")
       file.create(text_file)
+      
+      # Fill metadata on metadata.md
+      FillMetadata(text_file, DataFrame)
       
       return(TRUE)  # Success
     } else {
@@ -130,6 +87,14 @@ CreateFolder <- function(dir_path, selected_system, Name) {
         
         # Create subdirectories inside 3_FlightFiles
         if (sub_dir_name == "3_FlightFiles") {
+          
+          # Create a text file inside 4_Export
+          text_file <- file.path(sub_dir, "metadata.md")
+          file.create(text_file)
+          
+          # Fill metadata on metadata.md
+          FillMetadata(text_file, DataFrame)
+          
           for (flight_subdir_name in flight_files_subdirs) {
             flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
             dir.create(flight_sub_dir)
@@ -163,6 +128,14 @@ CreateFolder <- function(dir_path, selected_system, Name) {
         
         # Create subdirectories inside 3_FlightFiles
         if (sub_dir_name == "3_FlightFiles") {
+          
+          # Create a text file inside 4_Export
+          text_file <- file.path(sub_dir, "metadata.md")
+          file.create(text_file)
+          
+          # Fill metadata on metadata.md
+          FillMetadata(text_file, DataFrame)
+          
           for (flight_subdir_name in flight_files_subdirs) {
             flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
             dir.create(flight_sub_dir)
@@ -197,6 +170,14 @@ CreateFolder <- function(dir_path, selected_system, Name) {
         
         # Create subdirectories inside 3_FlightFiles
         if (sub_dir_name == "3_FlightFiles") {
+          
+          # Create a text file inside 4_Export
+          text_file <- file.path(sub_dir, "metadata.md")
+          file.create(text_file)
+          
+          # Fill metadata on metadata.md
+          FillMetadata(text_file, DataFrame)
+          
           for (flight_subdir_name in flight_files_subdirs) {
             flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
             dir.create(flight_sub_dir)
@@ -231,6 +212,14 @@ CreateFolder <- function(dir_path, selected_system, Name) {
         
         # Create subdirectories inside 3_FlightFiles
         if (sub_dir_name == "3_FlightFiles") {
+          
+          # Create a text file inside 4_Export
+          text_file <- file.path(sub_dir, "metadata.md")
+          file.create(text_file)
+          
+          # Fill metadata on metadata.md
+          FillMetadata(text_file, DataFrame)
+          
           for (flight_subdir_name in flight_files_subdirs) {
             flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
             dir.create(flight_sub_dir)
@@ -270,6 +259,14 @@ CreateFolder <- function(dir_path, selected_system, Name) {
         
         # Create subdirectories inside FlightFiles
         if (sub_dir_name == "4_FlightFiles") {
+          
+          # Create a text file inside 4_Export
+          text_file <- file.path(sub_dir, "metadata.md")
+          file.create(text_file)
+          
+          # Fill metadata on metadata.md
+          FillMetadata(text_file, DataFrame)
+          
           for (flight_subdir_name in flight_files_subdirs) {
             flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
             dir.create(flight_sub_dir)
@@ -291,6 +288,76 @@ CreateFolder <- function(dir_path, selected_system, Name) {
     }
   }
   
+}
+################################################################################
+### Create Folder structure based on root, name, setup and standard name
+# FillMetadata <- function(Root, TargetLoc, FlightsDF, MisName, IndexStart=1){
+#   
+#   for(i in 1:nrow(FlightsDF)){
+#     
+#     FlightPath <- paste0(TargetLoc,
+#                          "\\",
+#                          IndexStart+i,
+#                          "_",
+#                          FlightsDF$AirCraft[i],
+#                          FlightsDF$Sensor[i],
+#                          "\\3_FlightFiles\\0_Log\\")
+#     
+#     #print(FlightPath)
+#     
+#     # Read Log Structure 
+#     LogFile <- noquote(readLines(paste0(Root,"\\www\\5_LogStructure\\FlightLog.txt")))
+#     
+#     # Replace fields
+#     LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',FlightsDF$RootLoc[i])
+#     LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',FlightsDF$MisName[i])
+#     LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',FlightsDF$Pilot[i])
+#     LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',FlightsDF$Copilot[i])
+#     LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',FlightsDF$DateC[i])
+#     LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',FlightsDF$DateF)
+#     LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',FlightsDF$AirCraft[i])
+#     LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',FlightsDF$Sensor[i])
+#     LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",FlightsDF$LogText[i])
+#      
+#     # Update Log file
+#     write.table(LogFile, file = paste0(FlightsDF$LogLoc[i],"FlightLog.md"), sep="",
+#                 row.names = FALSE, col.names = FALSE,  quote = FALSE)
+# 
+# 
+#     # Save GPKG file with ,modified or imported polygon
+#     if(!is.na(FlightsDF$geometry)){
+#       st_write(GeneratePol(FlightsDF$geometry[i]),
+#                paste0(FlightsDF$LogLoc[i],"\\AOI.gpkg"),
+#                delete_layer=TRUE
+#                )
+#   }
+#      
+#   }
+# }
+FillMetadata <- function(text_file_location, FlightsDF) {
+  # Extracting required fields from the FlightsDF dataframe
+  project_location <- as.character("Fix")
+  mission_name <- as.character(FlightsDF$FlightName[1])
+  pilot <- as.character(FlightsDF$Pilot[1])
+  copilot <- as.character(FlightsDF$Copilot[1])
+  date_of_flight <- as.character(FlightsDF$DateF[1])
+  aircraft <- as.character(FlightsDF$AirCraft[1])
+  sensor <- as.character(FlightsDF$Sensor[1])
+  platform_logger <- as.character(FlightsDF$LogText[1])
+  
+  # Creating the Markdown content
+  markdown_content <- paste0("# Metadata\n",
+                             "- **Project Location:** ", project_location, "\n",
+                             "- **Mission Name:** ", mission_name, "\n",
+                             "- **Pilot:** ", pilot, "\n",
+                             "- **Copilot:** ", copilot, "\n",
+                             "- **Date of Flight:** ", date_of_flight, "\n",
+                             "- **Aircraft:** ", aircraft, "\n",
+                             "- **Sensor:** ", sensor, "\n",
+                             "- **Platform Logger:** ", platform_logger, "\n")
+
+  # Writing the Markdown content to the text file
+  writeLines(markdown_content, con = text_file_location)
 }
 #################################################################################################################################################################### 
 # ### Create Mission folder structure based on root, name, setup and standard name
