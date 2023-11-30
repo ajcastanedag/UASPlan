@@ -11,7 +11,7 @@ pacman::p_load("shiny","shinyWidgets", "stringr","shinyjs", "shinythemes", "shin
 ################################################################################
 Root <- paste0(getwd(),"/App/")
 ##### Add resource path                                                         ----- 
-addResourcePath(prefix = 'media', directoryPath = paste0(Root,"/www/"))
+addResourcePath(prefix = 'media', directoryPath = paste0(Root,"/www"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
 source(paste0(Root,"/www/3_Functions/Base.R"))
 ##### Possible output locations general directory (E drive)                     ----- 
@@ -33,7 +33,7 @@ ui <- tagList(
              windowTitle="JMU UAS Flight book",
              theme = shinytheme("slate"),
              ###################################################################
-             # InfoTab                                                          ----
+             # Info Tab                                                         ----
              tabPanel("Info",
                       tags$head(
                         # Include our custom CSS
@@ -61,22 +61,34 @@ ui <- tagList(
                                                  align = "left"),
                                      ),
                                      
-                                     splitLayout(cellWidths = c("40%","60%"),
-                                                 
-                                                 selectizeInput("TargLocFix",
-                                                                label = "Select Working Station*",
-                                                                choices= list("","WSI", "WSII","AJCG","Other"), 
-                                                                selected = ".",
-                                                                options = list(dropdownParent = 'body')),
-                                                 textAreaInput("misnTargLocTxt",
-                                                               "",
-                                                               resize = "none",
-                                                               value = "",
-                                                               height = "38px")
-                                                 
+                                     splitLayout(
+                                       cellWidths = c("40%", "60%"),
+                                       div(
+                                         selectizeInput(
+                                           "TargLocFix",
+                                           label = "Select Working Station*",
+                                           choices = list("", "WSI", "WSII", "AJCG", "Other"),
+                                           selected = ".",
+                                           options = list(dropdownParent = 'body')
+                                         )
+                                       ),
+                                       div(
+                                         style = "margin-top: 5px;", # Adjust margin as needed
+                                         textAreaInput(
+                                           "misnTargLocTxt",
+                                           "",
+                                           resize = "none",
+                                           value = "",
+                                           height = "38px"
+                                         )
+                                       )
                                      ),
                                      
-                                     splitLayout(cellWidths = c("20%","40%","40%"),
+                                     tags$div(title="This folder is assigned to you in the email, do not use another project location, as this might lead to confusion. If your folder does not appear, please get in touch with the UAS team immediately.",
+                                              uiOutput("rootLoc")
+                                     ),
+                                     
+                                     splitLayout(cellWidths = c("50%","50%"),
                                                  
                                                  tags$div(title="Select which type of data you want to create. For example, you can choose between creating a whole mission or adding flights to existing missions.",
                                                           selectizeInput("TypeMF",
@@ -84,9 +96,6 @@ ui <- tagList(
                                                                        choices= list("Mission", "Flights"), 
                                                                        selected = "Mission",
                                                                        options = list(dropdownParent = 'body'))
-                                                 ),
-                                                 tags$div(title="This folder is assigned to you in the email, do not use another project location, as this might lead to confusion. If your folder does not appear, please get in touch with the UAS team immediately.",
-                                                          uiOutput("rootLoc")
                                                  ),
                                                  tags$div(title="This field will be the name used to create a single folder to store all the flights you make in the following section. Use words familiar to you or associated with features of the flight. Avoid special characters, numbers, dates and UAV or sensor names since those will be assigned automatically.",
                                                           textAreaInput("misnam",
@@ -109,7 +118,7 @@ ui <- tagList(
                                                  textInput("copilot", "Co-Pilot*", "")),
                                      splitLayout(cellWidths = c("50%", "50%"),
                                                  tags$div(title="This name will be used on the folder name as guidance to understand the flight's purpose. Avoid using any names that contain numbers, dates or special characters. Also, avoid including the sensor's or UAV's name since those will be automatically included. (f.e. 1_FlightName_Phantom4RGB).",
-                                                          textInput("flightNam", "Flight Name*", "")
+                                                          textInput("flightNam", "Flight label*", "")
                                                           ),
                                                  tags$div(title="In this field, you can select the date of each flight.",
                                                           dateInput("DoF",
@@ -286,7 +295,7 @@ server <- function(input, output, session) {
       
       # Create temporal data frame 
       tmp <- data.frame( Path = paste0(TargetDrive(), input$rootLoc) ,
-                         FlightName=input$flightNam,
+                         FlightName=paste0(gsub("-","",input$DoF),"_",input$flightNam,"_",input$AirCraft, input$Sensor),  #input$flightNam,  #      #------------ change to paste0(ALl name)
                          Pilot=input$pilot,
                          Copilot=input$copilot,
                          DateF=input$DoF,
@@ -431,7 +440,7 @@ server <- function(input, output, session) {
     }
   })
   
-  # Enable or disable Mission selector based on type of creation             .......................
+  # Enable or disable Mission selector based on type of creation             
   observeEvent(input$TypeMF,{
     if(input$TypeMF == "Mission"){
       shinyjs::hideElement("ProjLoc")
@@ -461,13 +470,13 @@ server <- function(input, output, session) {
       for(i in 1:nrow(FlightsDF)){
         
         # Create Final name for each flight
-        FLightFinalName <- paste0(gsub("-","",FlightsDF[i,"DateF"]),"_",FlightsDF$FlightName[i],"_",FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]) 
+        #FLightFinalName <- paste0(gsub("-","",FlightsDF[i,"DateF"]),"_",FlightsDF$FlightName[i],"_",FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]) 
         
         # Modify final Path
         FLightFinalPath <- paste0(FlightsDF[i,"Path"],"/",input$misnam,"/0_Flights")
         
         # Call function to create structure
-        CreateFolder(FLightFinalPath, paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FLightFinalName)
+        CreateFolder(FLightFinalPath, paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FlightsDF[i,"FlightName"])
         
       }
       
@@ -496,7 +505,7 @@ server <- function(input, output, session) {
         FLightFinalPath <- paste0(FlightsDF[i,"Path"],"/",input$ProjLoc,"/0_Flights")
 
         # Call function to create structure
-        CreateFolder(FLightFinalPath, paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FLightFinalName)
+        CreateFolder(FLightFinalPath, paste0(FlightsDF[i,"AirCraft"], FlightsDF[i,"Sensor"]), FlightsDF[i,"FlightName"])
         
       }
       

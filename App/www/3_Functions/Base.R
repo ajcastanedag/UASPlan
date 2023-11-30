@@ -5,6 +5,8 @@
 # is erased.
 ################################################################################----
 CreateMission <- function(dir_path, Name) {
+  
+  print(dir_path)
 
   # Create the main directory
   project_dir <- file.path(dir_path, Name)
