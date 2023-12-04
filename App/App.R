@@ -18,6 +18,7 @@ source(paste0(Root,"/www/3_Functions/Base.R"))
 #TargetDrive() <- paste0("/home/antonio/Desktop/")
 ##### Set path to general style                                                 ----- 
 Style <- paste0(Root,"/www/2_Style/UAS_Style_AJCG.css")
+options(shiny.port = 5555)
 ################################################################################
 #################################    UI   ###################################### ----
 ui <- tagList(
