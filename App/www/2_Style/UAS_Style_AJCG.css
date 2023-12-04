@@ -12,7 +12,7 @@ body, label, input, button, select {
 }
 
 /* Define size of side panel */
-.well {height: 720px;}"
+.well {height: 85%;}"
 
 /* Customize main box */
 div.main {
