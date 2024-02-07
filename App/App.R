@@ -35,16 +35,16 @@ ui <- tagList(
              windowTitle="JMU UAS Flight book",
              theme = shinytheme("slate"),
              ###################################################################
-             # Info Tab                                                         ----
-             tabPanel("Info",
-                      tags$head(
-                        # Include our custom CSS
-                        includeCSS(Style)
-                      ),
-                      icon = icon("circle-info"),
-                      mainPanel(
-                        #htmlOutput("inc")
-                      )),
+             # # Info Tab                                                         ----
+             # tabPanel("Info",
+             #          tags$head(
+             #            # Include our custom CSS
+             #            includeCSS(Style)
+             #          ),
+             #          icon = icon("circle-info"),
+             #          mainPanel(
+             #            #htmlOutput("inc")
+             #          )),
              ###################################################################
              # Create                                                           ----  
              tabPanel("Create",
@@ -163,45 +163,45 @@ ui <- tagList(
                                   ))
                       )),
              ###################################################################
-             # Load Project Tab                                                 ----
-             tabPanel("Load Project",
-                      tags$head(
-                        # Include our custom CSS
-                        includeCSS(Style)
-                      ),
-                      icon = icon("table"),
-                      sidebarLayout(
-                        sidebarPanel(width = 5),
-                        mainPanel(width = 7)
-             )),
+             # # Load Project Tab                                                 ----
+             # tabPanel("Load Project",
+             #          tags$head(
+             #            # Include our custom CSS
+             #            includeCSS(Style)
+             #          ),
+             #          icon = icon("table"),
+             #          sidebarLayout(
+             #            sidebarPanel(width = 5),
+             #            mainPanel(width = 7)
+             # )),
              ###################################################################
-             # Mission Planner                                                  ----
-             tabPanel("Mission Planner",
-                      tags$head(
-                        # Include our custom CSS
-                        includeCSS(Style)
-                      ),
-                      icon = icon("ruler-combined"),
-                      sidebarLayout(
-                        sidebarPanel(width = 5),
-                        mainPanel(width = 7)
-                      )),
+             # # Mission Planner                                                  ----
+             # tabPanel("Mission Planner",
+             #          tags$head(
+             #            # Include our custom CSS
+             #            includeCSS(Style)
+             #          ),
+             #          icon = icon("ruler-combined"),
+             #          sidebarLayout(
+             #            sidebarPanel(width = 5),
+             #            mainPanel(width = 7)
+             #          )),
              ###################################################################
-             # Processing wizard                                                ----
-             tabPanel("Processing Wizzard",
-                      tags$head(
-                        # Include our custom CSS
-                        includeCSS(Style)
-                      ),
-                      icon = icon("hat-wizard")),
+             # # Processing wizard                                                ----
+             # tabPanel("Processing Wizzard",
+             #          tags$head(
+             #            # Include our custom CSS
+             #            includeCSS(Style)
+             #          ),
+             #          icon = icon("hat-wizard")),
              ###################################################################
-             # Processing wizard                                                ----
-             tabPanel("ThermCal",
-                      tags$head(
-                        # Include our custom CSS
-                        includeCSS(Style)
-                      ),
-                      icon = icon("temperature-full"))
+             # # Processing wizard                                                ----
+             # tabPanel("ThermCal",
+             #          tags$head(
+             #            # Include our custom CSS
+             #            includeCSS(Style)
+             #          ),
+             #          icon = icon("temperature-full"))
              ################################################################### 
   )
 )
