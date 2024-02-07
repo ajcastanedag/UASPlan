@@ -108,7 +108,7 @@ CreateFolder <- function(dir_path, DataFrame) {
     }
   }
   ############################################################################# All RGB
-  if (grepl("RGB",selected_system)) {
+  if (grepl("RGB",selected_system)  || grepl("RXIRII",selected_system) ) {
     # Create the main directory
     project_dir <- file.path(dir_path, Name)
     if (!dir.exists(project_dir)) {

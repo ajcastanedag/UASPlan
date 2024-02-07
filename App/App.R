@@ -18,6 +18,7 @@ source(paste0(Root,"/www/3_Functions/Base.R"))
 #TargetDrive() <- paste0("/home/antonio/Desktop/")
 ##### Set path to general style                                                 ----- 
 Style <- paste0(Root,"/www/2_Style/UAS_Style_AJCG.css")
+################################################################################
 options(shiny.port = 5555)
 ################################################################################
 #################################    UI   ###################################### ----
@@ -208,13 +209,15 @@ ui <- tagList(
 ##############################    SERVER   ##################################### ----
 server <- function(input, output, session) {
   ###################################################################           ---
+
+  ###################################################################           ---
   # Info Tab 
   #### Create objects                                                           ----
   getPage <- function() {
     return(includeHTML(paste0(Root,'www/0_IntroPage/instructions.html')))
   }
   output$inc<-renderUI({getPage()})
-  ###################################################################           
+  ###################################################################   
   # Create Tab                                                                  
   #### Create objects                                                           ----
   # Create empty SP object to store loaded AOI
