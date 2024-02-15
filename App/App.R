@@ -10,7 +10,7 @@ pacman::p_load("shiny","shinyWidgets", "stringr","shinyjs", "shinythemes", "shin
                "easycsv","sf","sfheaders","shinyalert","threejs")
 ################################################################################
 Root <- paste0(getwd(),"/App/")
-##### Add resource path                                                         ----- 
+ ##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'media', directoryPath = paste0(Root,"/www"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
 source(paste0(Root,"/www/3_Functions/Base.R"))
