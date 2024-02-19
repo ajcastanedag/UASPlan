@@ -73,8 +73,16 @@ CreateFolder <- function(dir_path, DataFrame) {
     if (!dir.exists(project_dir)) {
       dir.create(project_dir)
       
-      # Create subdirectories 0_Images, 1_Agisoft, 2_Reports, 3_FlightFiles, 4_RawOutput
+      # Create sub directories 0_Images, 1_Agisoft, 2_Reports, 3_FlightFiles, 4_RawOutput
       subdirectories <- c("0_Images", "1_Agisoft", "2_Reports", "3_FlightFiles", "4_RawOutput")
+      
+      # Create Conditional for thermal images vs RGB 
+      if ("0_Images" %in% subdirectories && grepl("3TAgisoft",selected_system)) {
+        flight_files_subdirs <- c("0_RGB", "1_Thermal", "3_ThermalCal")
+      }
+      
+      
+      
       
       # Create subdirectories inside 3_FlightFiles
       if ("3_FlightFiles" %in% subdirectories) {
