@@ -1,5 +1,26 @@
-library(shiny)
-library(openxlsx)
+#########################    UAS JMU PLATFORM    ############################### ----
+# Do not close when setwd() fails.
+# Add reset all fields button.
+# Fill markdown files with information (from drive)
+# 
+################################################################################
+##### Load libraries                                                            -----
+pacman::p_load("shiny","shinyWidgets", "stringr","shinyjs", "shinythemes", "shinyFiles",
+               "leaflet","leaflet.extras", "tidyverse", "rmarkdown", "shinyBS",
+               "easycsv","sf","sfheaders","shinyalert","threejs")
+################################################################################
+Root <- paste0(getwd(),"/App/")
+##### Add resource path                                                         ----- 
+addResourcePath(prefix = 'media', directoryPath = paste0(Root,"/www"))
+##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
+source(paste0(Root,"/www/3_Functions/Base.R"))
+##### Possible output locations general directory (E drive)                     ----- 
+#TargetDrive() <- paste0("/home/antonio/Desktop/")
+##### Set path to general style                                                 ----- 
+Style <- paste0(Root,"/www/2_Style/UAS_Style_AJCG.css")
+################################################################################
+
+
 
 ui <- tagList(
   tags$head(
@@ -15,7 +36,7 @@ ui <- tagList(
              theme = shinytheme("slate"),
              ###################################################################
              # Create                                                           ----  
-             tabPanel("Inventory",
+             tabPanel("Equipment",
                       # Include our custom CSS
                       tags$head(includeCSS(Style)),
                       icon = icon("qrcode"),

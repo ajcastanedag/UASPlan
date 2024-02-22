@@ -100,7 +100,7 @@ ui <- tagList(
                                      ),
                                      
                                      tags$div(title="HelpText.............",
-                                              h5(strong("Reconstruction quality"),
+                                              h5(strong("Reconstruction parameters:"),
                                                  align = "left"),
                                      ),
                                      
@@ -127,7 +127,8 @@ ui <- tagList(
                                          )
                                        ),
                                        div(
-                                         textInput("crs2", label="Coordinate System", value = "4326", width = NULL, placeholder = NULL)
+                                         style = "margin-top: 2px;",
+                                         textInput("crs2", label="EPSG:", value = "4326", width = NULL, placeholder = NULL)
                                        )
                                      ),
                                      
