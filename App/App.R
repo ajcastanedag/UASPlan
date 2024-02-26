@@ -276,7 +276,7 @@ server <- function(input, output, session) {
 
   # Render table only  with initial options                                     
   output$Flights <- DT::renderDataTable(addData(),
-                                        editable = FALSE,
+                                        editable = TRUE,
                                         options = list(dom = 't'))
   
   # State the table as a proxy

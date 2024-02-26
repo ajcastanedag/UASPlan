@@ -21,9 +21,6 @@ Style <- paste0(Root,"/www/2_Style/UAS_Style_AJCG.css")
 ################################################################################
 # https://github.com/statnmap/RshinyApps/tree/master/On-Off_SwitchButton
 ################################################################################
-
-
-
 ui <- tagList(
   tags$head(
     # Include our custom CSS
@@ -43,7 +40,7 @@ ui <- tagList(
                       tags$head(includeCSS(Style)),
                       icon = icon("hat-wizard"),
                       sidebarLayout(
-                        sidebarPanel(width = 4,
+                        sidebarPanel(width = 3,
                                      tags$div(title="HelpText.............",
                                               h4(strong("Select parameters"),
                                                  align = "center"),
@@ -54,35 +51,28 @@ ui <- tagList(
                                                  align = "left"),
                                      ),
                                      
-                                     splitLayout(
-                                       cellWidths = c("50%", "50%"),
-                                       div(
-                                         actionButton("WsI", "WSI", 
-                                                      #style = 'margin-top:23px',
-                                                      size ="lg",
-                                                      width = "100%")
-                                       ),
-                                       div(
-                                         actionButton("WsII", "WSII", 
-                                                      #style = 'margin-top:23px',
-                                                      size ="lg",
-                                                      width = "100%")
+                                     div(
+                                       style = "margin-top: 2px;",
+                                       selectizeInput(
+                                         "ws",
+                                         label = "Working station:",
+                                         choices = list("", "WSI", "WSII"),
+                                         selected = ".",
+                                         options = list(dropdownParent = 'body')
                                        )
                                      ),
                                      
-                                     br(),
-                                     
-                                     textInput("calibrate_dir", "Calibration pannel",
-                                               value = ""),
+                                     textInput("calibrate_dir", "Calibration panel",
+                                               value = "RP104.csv"),
 
                                      splitLayout(
                                        cellWidths = c("50%", "50%"),
                                        div(
                                          style = "margin-top: 2px;",
                                          selectizeInput(
-                                           "name",
+                                           "mis_name",
                                            label = "Mission",
-                                           choices = list(""),
+                                           choices = list("","Tester1"),
                                            selected = ".",
                                            options = list(dropdownParent = 'body')
                                          )
@@ -90,9 +80,9 @@ ui <- tagList(
                                        div(
                                          style = "margin-top: 2px;",
                                          selectizeInput(
-                                           "name",
+                                           "fl_name",
                                            label = "Flight",
-                                           choices = list(""),
+                                           choices = list("","AltumMicasense"),
                                            selected = ".",
                                            options = list(dropdownParent = 'body')
                                          )
@@ -136,20 +126,20 @@ ui <- tagList(
                                        cellWidths = c("50%", "50%"),
                                        div(
                                          switchButton(inputId = "reflectance_pan",
-                                                      label = "Use calibration panel",
+                                                      label = "Calibration panel",
                                                       col = "GB",
                                                       value = TRUE)
                                          ),
                                        div(
                                          switchButton(inputId = "reflectance_dls",
-                                                      label = "Use DLS",
+                                                      label = "DLS",
                                                       col = "GB",
                                                       value = FALSE)
                                        )
                                      ),
                                      
                                      tags$div(title="HelpText.............",
-                                              h5(strong("Aligh Photos"),
+                                              h5(strong("Align Photos"),
                                                  align = "left"),
                                      ),
                                      
@@ -217,65 +207,53 @@ ui <- tagList(
                         ),
                         
                         mainPanel(tags$div(title="Main Data table: All values stored here will be used to generate folder structure. Please check and modify if needed by double click on the fields.",
-                                           DT::dataTableOutput("Items")
+                                           DT::dataTableOutput("process")
                         ),
                         
                         tags$div(title="Click here when you have added all flights to the table.",
                                  actionButton("exportitems",
                                               "Please add items",
                                               style = 'margin-top:23px',
-                                              width = "100%"),
+                                              width = "110%"),
                         ))
                       )),
              ###################################################################
              
   )
 )
-
-
-# 
-# 
-# 
-# 
-# # Define UI
-# ui <- fluidPage(
-#   titlePanel("Equipment Usage Registration"),
-#   sidebarLayout(
-#     sidebarPanel(
-#       
-#       splitLayout(
-#         cellWidths = c("40%", "40%"),
-#         div(
-#           textInput("name", "Name:"),
-#           textInput("email", "Email:")
-#           )
-#         ),
-#       
-#       
-#       dateInput("date", "Date:", value = Sys.Date()),
-#       textInput("id", "Object ID:"),
-#       actionButton("addBtn", "Add")
-#     ),
-#     mainPanel(
-#       dataTableOutput("table"),
-#       actionButton("exportBtn", "Export to Excel")
-#     )
-#   )
-# )
-
+################################################################################
 # Define server logic
 server <- function(input, output) {
+  
   # Initialize empty data frame to store registration info
-  data <- reactiveVal(data.frame(Code = character(),
-                                 Name = character(),
-                                 Date = as.Date(character()),
-                                 Object = character()))
+  data <- reactiveVal(data.frame(WS = character(),
+                                 CPL = character(),
+                                 MSS = character(),
+                                 FL = character(),
+                                 Qty = character(),
+                                 Fl = character(),
+                                 EPSG = character(),
+                                 CP = logical(),
+                                 DLS = logical(),
+                                 KPL = integer(),
+                                 TPL = integer(),
+                                 GM = logical(),
+                                 AF =  logical(),
+                                 GF =  logical(),
+                                 RS =  logical()))
   
   # Add registration info to the data frame
   observeEvent(input$addBtn, {
-    newRow <- isolate(c(input$id, input$name, input$date, input$email))
+    newRow <- isolate(c(input$ws,input$calibrate_dir,input$mis_name,input$fl_name,
+                        input$acc,input$filter_mode,input$crs2,input$reflectance_pan,
+                        input$reflectance_dls,input$keypoint_limit,input$tiepoint_limit,
+                        input$guided_matching,input$adaptive_fitting,input$ghosting_filter,
+                        input$refine_seamlines))
+
     if (nchar(trimws(newRow[1])) > 0) {
-      data(rbind(data(), as.data.frame(t(newRow))))
+      NewDataframe <-  as.data.frame(t(newRow))
+      names(NewDataframe) <- names(data())
+      data(rbind(data(), NewDataframe))
     } else {
       showModal(modalDialog(
         title = "Error",
@@ -285,29 +263,30 @@ server <- function(input, output) {
     }
   })
   
-  # Render the table
-  output$table <- renderDataTable({
-    data()
-  })
-  
-  # Export data to Excel
-  observeEvent(input$exportBtn, {
-    if (nrow(data()) > 0) {
-      exportFile <- tempfile(fileext = ".xlsx")
-      write.xlsx(data(), exportFile)
-      showModal(modalDialog(
-        title = "Export Complete",
-        paste("The data has been exported to", exportFile),
-        easyClose = TRUE
-      ))
-    } else {
-      showModal(modalDialog(
-        title = "Error",
-        "No data available to export.",
-        easyClose = TRUE
-      ))
-    }
-  })
+
+  # Render table only  with initial options                                     
+  output$process <- DT::renderDataTable(data(),
+                                        editable = TRUE,
+                                        options = list(dom = 't'))
+
+  # # Export data to Excel
+  # observeEvent(input$exportBtn, {
+  #   if (nrow(data()) > 0) {
+  #     exportFile <- tempfile(fileext = ".xlsx")
+  #     write.xlsx(data(), exportFile)
+  #     showModal(modalDialog(
+  #       title = "Export Complete",
+  #       paste("The data has been exported to", exportFile),
+  #       easyClose = TRUE
+  #     ))
+  #   } else {
+  #     showModal(modalDialog(
+  #       title = "Error",
+  #       "No data available to export.",
+  #       easyClose = TRUE
+  #     ))
+  #   }
+  # })
 }
 
 # Run the application
