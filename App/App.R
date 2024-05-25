@@ -239,12 +239,13 @@ server <- function(input, output, session) {
   
  
   # Fixed or "Definition" dataframe for getting options
-  SetUpDF <<- data.frame(UAV = c("Phantom4","DJIM600","DJIM300","Wingtra","Mavic","LiBackpack"),
+  SetUpDF <<- data.frame(UAV = c("Phantom4","DJIM600","DJIM300","Wingtra","Mavic","TrinityF90pro","LiBackpack"),
                          Sensors = c(paste0(".","-RGB"),
-                                     paste0(".","-Altum","-MXDual","-LiAirV"),
+                                     paste0(".","-Altum","-MXDual","-LiAirV","-NanoHP"),
                                      paste0(".","-Altum","-MXDual","-L1","-H20T"),
                                      paste0(".","-RX1RII","-Altum"),
                                      paste0(".","-3TAgisoft","-3TTerra","-3MAgisoft","-3MTerra"),
+                                     paste0(".","-AltumPT","-D2M","-Qube240"),
                                      paste0(".")
                                      ),
                          stringsAsFactors=FALSE

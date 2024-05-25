@@ -66,8 +66,8 @@ CreateFolder <- function(dir_path, DataFrame) {
       return(FALSE)  # Folder structure already exists
     }
   }
-  ############################################################################## All ALTUM or MX-Dual
-  if (grepl("Altum",selected_system) || grepl("MXDual",selected_system) || grepl("3TAgisoft",selected_system) || grepl("3MAgisoft",selected_system)) {
+  ############################################################################## All ALTUM or MX-Dual with Agisoft
+  if (grepl("Altum",selected_system) || grepl("AltumPT",selected_system) || grepl("MXDual",selected_system) || grepl("3TAgisoft",selected_system) || grepl("3MAgisoft",selected_system)) {
     # Create the main directory
     project_dir <- file.path(dir_path, Name)
     if (!dir.exists(project_dir)) {
@@ -100,12 +100,24 @@ CreateFolder <- function(dir_path, DataFrame) {
           }
         }
 
-        # Create subdirectories inside 3_FlightFiles
+        # Create subdirectories inside 0_Images for Thermal
         if (sub_dir_name == "0_Images" && grepl("3TAgisoft",selected_system)) {
           
           Thermal_subdirs <- c("0_RGB", "1_Thermal", "3_ThermalCal")
           
           for (flight_subdir_name in Thermal_subdirs) {
+            flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
+            dir.create(flight_sub_dir)
+          }
+          
+        }
+        
+        # Create subdirectories inside 0_Images for Thermal
+        if (sub_dir_name == "0_Images" && grepl("3MAgisoft",selected_system)) {
+          
+          M3M_subdirs <- c("0_RGB", "1_MS")
+          
+          for (flight_subdir_name in M3M_subdirs) {
             flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
             dir.create(flight_sub_dir)
           }
@@ -122,7 +134,7 @@ CreateFolder <- function(dir_path, DataFrame) {
     }
   }
   ############################################################################# All RGB
-  if (grepl("RGB",selected_system)  || grepl("RX1RII",selected_system) ) {
+  if (grepl("RGB",selected_system)  || grepl("RX1RII",selected_system)  || grepl("D2M",selected_system) ) {
     # Create the main directory
     project_dir <- file.path(dir_path, Name)
     if (!dir.exists(project_dir)) {
@@ -155,6 +167,19 @@ CreateFolder <- function(dir_path, DataFrame) {
             dir.create(flight_sub_dir)
           }
         }
+        
+        # Create subdirectories inside 0_Images for D2M
+        if (sub_dir_name == "0_Images" && grepl("D2M",selected_system)) {
+          
+          D2M_subdirs <- c("W", "A", "S","D","X")
+          
+          for (flight_subdir_name in D2M_subdirs) {
+            flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
+            dir.create(flight_sub_dir)
+          }
+          
+        }
+        
       }
       
       return(TRUE)  # Success
@@ -204,6 +229,128 @@ CreateFolder <- function(dir_path, DataFrame) {
       return(FALSE)  # Folder structure already exists
     }
   }
+  #############################################################################  Qube240
+  if (grepl("Qube240",selected_system)) {
+    
+    # Create the main directory
+    project_dir <- file.path(dir_path, Name)
+    if (!dir.exists(project_dir)) {
+      dir.create(project_dir)
+      
+      # Create subdirectories 0_Images, 1_Agisoft, 2_Reports, 3_FlightFiles, 4_RawOutput
+      subdirectories <- c("0_YSData", "1_Base", "2_Reports", "3_FlightFiles", "4_RawOutput")
+      
+      # Create subdirectories inside 3_FlightFiles
+      if ("3_FlightFiles" %in% subdirectories) {
+        flight_files_subdirs <- c("0_TrinityLog", "1_Plan", "2_Other")
+      }
+      
+      for (sub_dir_name in subdirectories) {
+        sub_dir <- file.path(project_dir, sub_dir_name)
+        dir.create(sub_dir)
+        
+        # Create subdirectories inside 3_FlightFiles
+        if (sub_dir_name == "3_FlightFiles") {
+          
+          # Create a text file inside 4_Export
+          text_file <- file.path(sub_dir, "metadata.md")
+          file.create(text_file)
+          
+          # Fill metadata on metadata.md
+          FillMetadata(text_file, DataFrame)
+          
+          for (flight_subdir_name in flight_files_subdirs) {
+            flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
+            dir.create(flight_sub_dir)
+          }
+        }
+        
+        # Create subdirectories inside 2_Bases for YS
+        if (sub_dir_name == "1_Base") {
+          
+          YSBase_subdirs <- c("0_Raw", "1_Proccessed")
+          
+          for (flight_subdir_name in YSBase_subdirs) {
+            flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
+            dir.create(flight_sub_dir)
+            ############
+            if (flight_subdir_name == "0_Raw") {
+              
+              YSBase_subsubdirs <- c("EMLID", "QBASE")
+
+              for (flight_subsubdir_name in YSBase_subsubdirs) {
+                flight_subsub_dir <- file.path(flight_sub_dir, flight_subsubdir_name)
+                dir.create(flight_subsub_dir)
+              }
+
+            }
+            ##########
+            }
+          
+        }
+        
+        # Create subdirectories inside 4_RawOutput for YS
+        if (sub_dir_name == "4_RawOutput") {
+          
+          YSBase_subdirs <- c("0_PointCloud", "2_Raster")
+          
+          for (flight_subdir_name in YSBase_subdirs) {
+            flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
+            dir.create(flight_sub_dir)
+          }
+          
+        }
+        
+        
+      }
+      
+      return(TRUE)  # Success
+    } else {
+      return(FALSE)  # Folder structure already exists
+    }
+  }
+  #############################################################################  NanoHP
+  if (grepl("NanoHP",selected_system)) {
+    
+    # # Create the main directory
+    # project_dir <- file.path(dir_path, Name)
+    # if (!dir.exists(project_dir)) {
+    #   dir.create(project_dir)
+    # 
+    #   # Create subdirectories 0_Images, 1_Agisoft, 2_Reports, 3_FlightFiles, 4_RawOutput
+    #   subdirectories <- c("0_BaseStation", "1_LiAirVData", "2_Reports", "3_FlightFiles", "4_RawOutput")
+    # 
+    #   # Create subdirectories inside 3_FlightFiles
+    #   if ("3_FlightFiles" %in% subdirectories) {
+    #     flight_files_subdirs <- c("0_Log", "1_Plan", "2_Other")
+    #   }
+    # 
+    #   for (sub_dir_name in subdirectories) {
+    #     sub_dir <- file.path(project_dir, sub_dir_name)
+    #     dir.create(sub_dir)
+    # 
+    #     # Create subdirectories inside 3_FlightFiles
+    #     if (sub_dir_name == "3_FlightFiles") {
+    # 
+    #       # Create a text file inside 4_Export
+    #       text_file <- file.path(sub_dir, "metadata.md")
+    #       file.create(text_file)
+    # 
+    #       # Fill metadata on metadata.md
+    #       FillMetadata(text_file, DataFrame)
+    # 
+    #       for (flight_subdir_name in flight_files_subdirs) {
+    #         flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
+    #         dir.create(flight_sub_dir)
+    #       }
+    #     }
+    #   }
+    # 
+    #   return(TRUE)  # Success
+    # } else {
+    #   return(FALSE)  # Folder structure already exists
+    # }
+  }
   #############################################################################  L1
   if (grepl("L1",selected_system)) {
     
@@ -246,7 +393,7 @@ CreateFolder <- function(dir_path, DataFrame) {
       return(FALSE)  # Folder structure already exists
     }
   }
-  #############################################################################  H20T M3T
+  #############################################################################  H20T M3T with TERRA
   if (grepl("H20T",selected_system) || grepl("3TTerra",selected_system) || grepl("3MTerra",selected_system)) {
     
     # Create the main directory
@@ -257,7 +404,7 @@ CreateFolder <- function(dir_path, DataFrame) {
       # Create subdirectories 0_Images, 1_Agisoft, 2_Reports, 3_FlightFiles, 4_RawOutput
       subdirectories <- c("0_TerraFiles", "1_Images", "2_Agisoft", "3_Reports", "4_FlightFiles", "5_RawOutput")
       
-      # Create subdirectories inside 3_FlightFiles
+      # Create subdirectories inside 4_FlightFiles
       if ("4_FlightFiles" %in% subdirectories) {
         flight_files_subdirs <- c("0_Log", "1_Plan", "2_Other")
       }
@@ -304,50 +451,6 @@ CreateFolder <- function(dir_path, DataFrame) {
   
 }
 ################################################################################
-### Create Folder structure based on root, name, setup and standard name
-# FillMetadata <- function(Root, TargetLoc, FlightsDF, MisName, IndexStart=1){
-#   
-#   for(i in 1:nrow(FlightsDF)){
-#     
-#     FlightPath <- paste0(TargetLoc,
-#                          "\\",
-#                          IndexStart+i,
-#                          "_",
-#                          FlightsDF$AirCraft[i],
-#                          FlightsDF$Sensor[i],
-#                          "\\3_FlightFiles\\0_Log\\")
-#     
-#     #print(FlightPath)
-#     
-#     # Read Log Structure 
-#     LogFile <- noquote(readLines(paste0(Root,"\\www\\5_LogStructure\\FlightLog.txt")))
-#     
-#     # Replace fields
-#     LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',FlightsDF$RootLoc[i])
-#     LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',FlightsDF$MisName[i])
-#     LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',FlightsDF$Pilot[i])
-#     LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',FlightsDF$Copilot[i])
-#     LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',FlightsDF$DateC[i])
-#     LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',FlightsDF$DateF)
-#     LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',FlightsDF$AirCraft[i])
-#     LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',FlightsDF$Sensor[i])
-#     LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",FlightsDF$LogText[i])
-#      
-#     # Update Log file
-#     write.table(LogFile, file = paste0(FlightsDF$LogLoc[i],"FlightLog.md"), sep="",
-#                 row.names = FALSE, col.names = FALSE,  quote = FALSE)
-# 
-# 
-#     # Save GPKG file with ,modified or imported polygon
-#     if(!is.na(FlightsDF$geometry)){
-#       st_write(GeneratePol(FlightsDF$geometry[i]),
-#                paste0(FlightsDF$LogLoc[i],"\\AOI.gpkg"),
-#                delete_layer=TRUE
-#                )
-#   }
-#      
-#   }
-# }
 FillMetadata <- function(text_file_location, FlightsDF) {
   # Extracting required fields from the FlightsDF dataframe
   project_location <- as.character("Fix")
@@ -373,27 +476,6 @@ FillMetadata <- function(text_file_location, FlightsDF) {
   # Writing the Markdown content to the text file
   writeLines(markdown_content, con = text_file_location)
 }
-#################################################################################################################################################################### 
-# ### Create Mission folder structure based on root, name, setup and standard name
-# CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF, MisName, IndexStart){
-#   
-#   # Change directory to Target location
-#   setwd(TargetLoc)
-#   
-#   # Create Bat File with modified structure
-#   write.table(MainStructure, file = "Temporal.bat", sep="",
-#               row.names = FALSE, col.names = FALSE,  quote = FALSE)
-#   
-#   # Call system console, execute bat file and delete it
-#   shell.exec("Temporal.bat")
-#   Sys.sleep(1)
-#   file.remove("Temporal.bat")
-#   
-#   FillMetadata(Root, TargetLoc, FlightsDF, MisName, IndexStart)
-#   
-#   setwd(Root)
-# 
-# }
 ################################################################################
 create_qgis_project <- function(path, name) {
   # Create a basic QGIS project XML structure
@@ -451,82 +533,152 @@ GeneratePol <- function(GeomSF){
   return(SfObj)
 }
 ################################################################################
-# Customised TRUE-FALSE switch button for Rshiny
-# Only sing CSS3 code (No javascript)
-#
-# Sébastien Rochette
-# http://statnmap.com/en/
-# April 2016
-#
-# CSS3 code was found on https://proto.io/freebies/onoff/
-# For CSS3 customisation, refer to this website.
-
-#' A function to change the Original checkbox of rshiny
-#' into a nice true/false or on/off switch button
-#' No javascript involved. Only CSS code.
+################################################################################
+################################################################################---
+################################################################################
+### Create Folder structure based on root, name, setup and standard name
+# FillMetadata <- function(Root, TargetLoc, FlightsDF, MisName, IndexStart=1){
+#   
+#   for(i in 1:nrow(FlightsDF)){
+#     
+#     FlightPath <- paste0(TargetLoc,
+#                          "\\",
+#                          IndexStart+i,
+#                          "_",
+#                          FlightsDF$AirCraft[i],
+#                          FlightsDF$Sensor[i],
+#                          "\\3_FlightFiles\\0_Log\\")
+#     
+#     #print(FlightPath)
+#     
+#     # Read Log Structure 
+#     LogFile <- noquote(readLines(paste0(Root,"\\www\\5_LogStructure\\FlightLog.txt")))
+#     
+#     # Replace fields
+#     LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',FlightsDF$RootLoc[i])
+#     LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',FlightsDF$MisName[i])
+#     LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',FlightsDF$Pilot[i])
+#     LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',FlightsDF$Copilot[i])
+#     LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',FlightsDF$DateC[i])
+#     LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',FlightsDF$DateF)
+#     LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',FlightsDF$AirCraft[i])
+#     LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',FlightsDF$Sensor[i])
+#     LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",FlightsDF$LogText[i])
+#      
+#     # Update Log file
+#     write.table(LogFile, file = paste0(FlightsDF$LogLoc[i],"FlightLog.md"), sep="",
+#                 row.names = FALSE, col.names = FALSE,  quote = FALSE)
+# 
+# 
+#     # Save GPKG file with ,modified or imported polygon
+#     if(!is.na(FlightsDF$geometry)){
+#       st_write(GeneratePol(FlightsDF$geometry[i]),
+#                paste0(FlightsDF$LogLoc[i],"\\AOI.gpkg"),
+#                delete_layer=TRUE
+#                )
+#   }
+#      
+#   }
+# }
+################################################################################
+# ### Create Mission folder structure based on root, name, setup and standard name
+# CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF, MisName, IndexStart){
+#   
+#   # Change directory to Target location
+#   setwd(TargetLoc)
+#   
+#   # Create Bat File with modified structure
+#   write.table(MainStructure, file = "Temporal.bat", sep="",
+#               row.names = FALSE, col.names = FALSE,  quote = FALSE)
+#   
+#   # Call system console, execute bat file and delete it
+#   shell.exec("Temporal.bat")
+#   Sys.sleep(1)
+#   file.remove("Temporal.bat")
+#   
+#   FillMetadata(Root, TargetLoc, FlightsDF, MisName, IndexStart)
+#   
+#   setwd(Root)
+# 
+# }
+################################################################################
+#' # Customised TRUE-FALSE switch button for Rshiny
+#' # Only sing CSS3 code (No javascript)
+#' #
+#' # Sébastien Rochette
+#' # http://statnmap.com/en/
+#' # April 2016
+#' #
+#' # CSS3 code was found on https://proto.io/freebies/onoff/
+#' # For CSS3 customisation, refer to this website.
 #' 
-#' To be used with CSS script 'button.css' stored in a 'www' folder in your Shiny app folder
+#' #' A function to change the Original checkbox of rshiny
+#' #' into a nice true/false or on/off switch button
+#' #' No javascript involved. Only CSS code.
+#' #' 
+#' #' To be used with CSS script 'button.css' stored in a 'www' folder in your Shiny app folder
+#' #' 
+#' #' @param inputId The input slot that will be used to access the value.
+#' #' @param label Display label for the control, or NULL for no label.
+#' #' @param value Initial value (TRUE or FALSE).
+#' #' @param col Color set of the switch button. Choose between "GB" (Grey-Blue) and "RG" (Red-Green)
+#' #' @param type Text type of the button. Choose between "TF" (TRUE - FALSE), "OO" (ON - OFF) or leave empty for no text.
 #' 
-#' @param inputId The input slot that will be used to access the value.
-#' @param label Display label for the control, or NULL for no label.
-#' @param value Initial value (TRUE or FALSE).
-#' @param col Color set of the switch button. Choose between "GB" (Grey-Blue) and "RG" (Red-Green)
-#' @param type Text type of the button. Choose between "TF" (TRUE - FALSE), "OO" (ON - OFF) or leave empty for no text.
-
-switchButton <- function(inputId, label, value=FALSE, col = "GB", type="TF") {
-  
-  # color class
-  if (col != "RG" & col != "GB") {
-    stop("Please choose a color between \"RG\" (Red-Green) 
-      and \"GB\" (Grey-Blue).")
-  }
-  if (!type %in% c("OO", "TF", "YN")){
-    warning("No known text type (\"OO\", \"TF\" or \"YN\") have been specified, 
-     button will be empty of text") 
-  }
-  if(col == "RG"){colclass <- "RedGreen"}
-  if(col == "GB"){colclass <- "GreyBlue"}
-  if(type == "OO"){colclass <- paste(colclass,"OnOff")}
-  if(type == "TF"){colclass <- paste(colclass,"TrueFalse")}
-  if(type == "YN"){colclass <- paste(colclass,"YesNo")}
-  
-  # No javascript button - total CSS3
-  # As there is no javascript, the "checked" value implies to
-  # duplicate code for giving the possibility to choose default value
-  
-  if(value){
-    tagList(
-      tags$div(class = "form-group shiny-input-container",
-               tags$div(class = colclass,
-                        tags$label(label, class = "control-label"),
-                        tags$div(class = "onoffswitch",
-                                 tags$input(type = "checkbox", name = "onoffswitch", class = "onoffswitch-checkbox",
-                                            id = inputId, checked = ""
-                                 ),
-                                 tags$label(class = "onoffswitch-label", `for` = inputId,
-                                            tags$span(class = "onoffswitch-inner"),
-                                            tags$span(class = "onoffswitch-switch")
-                                 )
-                        )
-               )
-      )
-    )
-  } else {
-    tagList(
-      tags$div(class = "form-group shiny-input-container",
-               tags$div(class = colclass,
-                        tags$label(label, class = "control-label"),
-                        tags$div(class = "onoffswitch",
-                                 tags$input(type = "checkbox", name = "onoffswitch", class = "onoffswitch-checkbox",
-                                            id = inputId
-                                 ),
-                                 tags$label(class = "onoffswitch-label", `for` = inputId,
-                                            tags$span(class = "onoffswitch-inner"),
-                                            tags$span(class = "onoffswitch-switch")
-                                 )
-                        )
-               )
-      )
-    ) 
-  }
-}
+#' switchButton <- function(inputId, label, value=FALSE, col = "GB", type="TF") {
+#'   
+#'   # color class
+#'   if (col != "RG" & col != "GB") {
+#'     stop("Please choose a color between \"RG\" (Red-Green) 
+#'       and \"GB\" (Grey-Blue).")
+#'   }
+#'   if (!type %in% c("OO", "TF", "YN")){
+#'     warning("No known text type (\"OO\", \"TF\" or \"YN\") have been specified, 
+#'      button will be empty of text") 
+#'   }
+#'   if(col == "RG"){colclass <- "RedGreen"}
+#'   if(col == "GB"){colclass <- "GreyBlue"}
+#'   if(type == "OO"){colclass <- paste(colclass,"OnOff")}
+#'   if(type == "TF"){colclass <- paste(colclass,"TrueFalse")}
+#'   if(type == "YN"){colclass <- paste(colclass,"YesNo")}
+#'   
+#'   # No javascript button - total CSS3
+#'   # As there is no javascript, the "checked" value implies to
+#'   # duplicate code for giving the possibility to choose default value
+#'   
+#'   if(value){
+#'     tagList(
+#'       tags$div(class = "form-group shiny-input-container",
+#'                tags$div(class = colclass,
+#'                         tags$label(label, class = "control-label"),
+#'                         tags$div(class = "onoffswitch",
+#'                                  tags$input(type = "checkbox", name = "onoffswitch", class = "onoffswitch-checkbox",
+#'                                             id = inputId, checked = ""
+#'                                  ),
+#'                                  tags$label(class = "onoffswitch-label", `for` = inputId,
+#'                                             tags$span(class = "onoffswitch-inner"),
+#'                                             tags$span(class = "onoffswitch-switch")
+#'                                  )
+#'                         )
+#'                )
+#'       )
+#'     )
+#'   } else {
+#'     tagList(
+#'       tags$div(class = "form-group shiny-input-container",
+#'                tags$div(class = colclass,
+#'                         tags$label(label, class = "control-label"),
+#'                         tags$div(class = "onoffswitch",
+#'                                  tags$input(type = "checkbox", name = "onoffswitch", class = "onoffswitch-checkbox",
+#'                                             id = inputId
+#'                                  ),
+#'                                  tags$label(class = "onoffswitch-label", `for` = inputId,
+#'                                             tags$span(class = "onoffswitch-inner"),
+#'                                             tags$span(class = "onoffswitch-switch")
+#'                                  )
+#'                         )
+#'                )
+#'       )
+#'     ) 
+#'   }
+#' }
+################################################################################
