@@ -51,16 +51,17 @@ ui <- tagList(
                       icon = icon("location"),
                       sidebarLayout(
                         sidebarPanel(width = 4,
+                                     #__________________________________________               
                                      tags$div(title="In this tab, you will find all the necessary fields to create a new mission structure or add flights to existing missions. The  target drive is set up in the lidar computer's D drive.",
                                               h4(strong("Creator assistant"),
                                                  align = "center"),
                                      ),
-                                     
+                                     #__________________________________________ 
                                      tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button. The app will return an error if the fields are filled partially.",
                                               h5(strong("Target drive"),
                                                  align = "left"),
                                      ),
-                                     
+                                     #__________________________________________ 
                                      splitLayout(
                                        cellWidths = c("40%", "60%"),
                                        div(
@@ -83,11 +84,11 @@ ui <- tagList(
                                          )
                                        )
                                      ),
-                                     
+                                     #__________________________________________ 
                                      tags$div(title="This folder is assigned to you in the email, do not use another project location, as this might lead to confusion. If your folder does not appear, please get in touch with the UAS team immediately.",
                                               uiOutput("rootLoc")
                                      ),
-                                     
+                                     #__________________________________________ 
                                      splitLayout(cellWidths = c("50%","50%"),
                                                  
                                                  tags$div(title="Select which type of data you want to create. For example, you can choose between creating a whole mission or adding flights to existing missions.",
@@ -108,14 +109,16 @@ ui <- tagList(
                                                                          options = list(dropdownParent = 'body')),
                                                  )
                                                  ),
+                                     #__________________________________________ 
                                      tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button. The app will return an error if the fields are filled partially.",
                                               h5(strong("Flight Data"),
                                                  align = "left"),
                                      ),
-                                     
+                                     #__________________________________________ 
                                      splitLayout(cellWidths = c("50%", "50%"),
                                                  textInput("pilot", "Pilot*", ""),
                                                  textInput("copilot", "Co-Pilot*", "")),
+                                     #__________________________________________ 
                                      splitLayout(cellWidths = c("50%", "50%"),
                                                  tags$div(title="This name will be used on the folder name as guidance to understand the flight's purpose. Avoid using any names that contain numbers, dates or special characters. Also, avoid including the sensor's or UAV's name since those will be automatically included. (f.e. 1_FlightName_Phantom4RGB).",
                                                           textInput("flightNam", "Flight label*", "")
@@ -129,11 +132,14 @@ ui <- tagList(
                                                                     format = "yyyy_mm_dd")
                                                           ),
                                      ),
+                                     #__________________________________________ 
                                      h5(strong("Equipment used"), align = "left"),
+                                     #__________________________________________ 
                                      splitLayout(cellWidths = c("50%", "50%"),
                                                  uiOutput("AirCraft"),
                                                  uiOutput("Sensor")
                                                  ),
+                                     #__________________________________________ 
                                      h5(strong("Log Information"), align = "left"),
                                      textAreaInput("LogInformation",
                                                    NULL,
@@ -141,14 +147,15 @@ ui <- tagList(
                                                    value = "",
                                                    placeholder = "Add mission comments here...",
                                                    height = "125px"),
+                                     #__________________________________________ 
                                      tags$hr(style="border-color: gray;"),
-                                     
+                                     #__________________________________________ 
                                      actionButton("add", NULL, icon = icon("plus"),
                                                   #style = 'margin-top:23px',
                                                   size ="lg",
                                                   width = "100%")
                                      ),
-                        
+                        #_______________________________________________________
                         mainPanel(tags$div(title="Main Data table: All values stored here will be used to generate folder structure. Please check and modify if needed by double click on the fields.",
                                   DT::dataTableOutput("Flights")
                                   ),
@@ -170,62 +177,72 @@ ui <- tagList(
                       icon = icon("temperature-full"),
                       sidebarLayout(
                         sidebarPanel(width = 4,
+                                     #__________________________________________  
                                      tags$div(title="In this tab, you will find all the necessary fields to calibrate DJI thermal images",
                                               h4(strong("Thermal calibration"),
                                                  align = "center"),
                                      ),
-                                     
+                                     #__________________________________________  
                                      tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button. The app will return an error if the fields are filled partially.",
                                               h5(strong("DJI-SDK"), align = "left"),
                                      ),
-                                     
+                                     #__________________________________________  
                                      textInput("sdk_dir", "Select SDK Directory", paste0(Root,"/www/1_SDK")),
-                                     
+                                     #__________________________________________  
                                      actionButton("sdk_download", "Get ThermalSDK", icon = icon("download"),
                                           size ="lg",
                                           width = "100%"),
-                        
-                                     tags$hr(style="border-color: gray;"),
-                                     
+                                     #__________________________________________  
                                      tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button. The app will return an error if the fields are filled partially.",
-                                              h5(strong("Select Project"), align = "left"),
+                                              h5(strong("Select thermal images allocation"), align = "left"),
                                      ),
-                                     
+                                     #__________________________________________  
                                      splitLayout(
                                        cellWidths = c("50%", "50%"),
                                        div(
-                                         textInput("in_dir", "Input Directory",NULL)
+                                         uiOutput("ThermalProtLoc")
                                        ),
                                        div(
-                                         textInput("out_dir", "Output Directory",NULL)
+                                         uiOutput("ThermalFlightLoc")
                                        )
                                      ),
-                                     
+                                     #__________________________________________  
+                                     splitLayout(
+                                       cellWidths = c("50%", "50%"),
+                                       div(
+                                         disabled(textInput("in_Thdir", "Input dir", NULL))
+                                       ),
+                                       div(
+                                         disabled(textInput("out_Thdir", "Output dir", NULL))
+                                       )
+                                     ),
+                                     #__________________________________________  
                                      actionButton("makemapthermalCal", "Make map", icon = icon("map"),
                                                   size ="lg",
                                                   width = "100%"),
-                                     
-                                     tags$hr(style="border-color: gray;"),
-                                     
+                                     #__________________________________________  
                                      tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button. The app will return an error if the fields are filled partially.",
                                               h5(strong("Set parameters"), align = "left"),
                                      ),
-                                     
+                                     #__________________________________________  
                                      sliderInput("emissivity", "Emissivity", 0.1, 1, 1, step = 0.01),
+                                     #__________________________________________  
                                      sliderInput("humidity", "Humidity", 20, 100, 70, step = 5),
+                                     #__________________________________________  
                                      sliderInput("distance", "Distance", 1, 25, 25, step = 1),
-                                     
+                                     #__________________________________________  
                                      tags$hr(style="border-color: gray;"),
-                                     
+                                     #__________________________________________  
                                      actionButton("startTCal_button", NULL, icon = icon("play"),
                                                   size ="lg",
                                                   width = "100%"),
-                                     
+                                     #__________________________________________  
                                      br(),
-                                     
+                                     #__________________________________________  
                                      progressBar(id = "TCalProgBar", value = 0, title = " ", display_pct = T)
                                        
                         ),
+                        #_______________________________________________________
                         mainPanel(width = 8,
                                   uiOutput("ThermalMain") )
              )),
@@ -692,21 +709,32 @@ server <- function(input, output, session) {
   SelectedCel <- reactive({!is.null(input$Flights_rows_selected)})  
   
   ###################################################################           
-  # Load Project Tab                                                            ----
-  ###################################################################           
-  # Load Project Tab                                                            ----
-  ###################################################################           
-  # Mission Planner                                                             ----
-  ###################################################################           
-  # Processing wizard                                                           ----
-  ###################################################################           
-  # Thermal Tab                                                                 ----
-  #### Create objects
+  # Thermal Tab                                                                 
+  #### Render objects                                                           ----
+  # Render ThermalProtLoc element
+  output$ThermalProtLoc <- renderUI({
+    selectizeInput("ThermalProtLoc", "Select Project:",
+                   choices = c("", list.dirs(path = TargetDrive(),
+                                             full.names = FALSE,
+                                             recursive = FALSE)),
+                   selected = "",
+                   options = list(dropdownParent = 'body'))
+  })
+  # Render ThermalFlightLoc element
+  output$ThermalFlightLoc <- renderUI({
+    selectizeInput("ThermalFlightLoc", "Select Flight:",
+                   choices = c("", list.dirs(path = TargetDrive(),
+                                             full.names = FALSE,
+                                             recursive = FALSE)),
+                   selected = "",
+                   options = list(dropdownParent = 'body'))
+  })
   # Render intro HTML
   output$ThermalMain <- renderUI({
     includeHTML(paste0(Root,"/www/0_IntroPages/ThermalTab.html"))
   })
-  #### Observe Events                                                           
+
+  #### Observe Events                                                           ----                                                           
   # Get thermal SDK
   observeEvent(input$sdk_download, {
     
@@ -719,8 +747,8 @@ server <- function(input, output, session) {
       text = div(br(),"Getting the SDK from DJI...", style="font-size:160%")
     )
     
-    Sys.sleep(10)
-    #getSDK(input$sdk_dir)
+    # Call download function
+    getSDK(input$sdk_dir)
     
     # delete waiting GIF
     remove_modal_gif()
@@ -740,34 +768,39 @@ server <- function(input, output, session) {
         imageUrl = "",
         animation = TRUE
       )
-      } else{shinyjs::alert("Something went wrong!", title = "Error")}
+    } else{shinyjs::alert("Something went wrong!", title = "Error")}
     
   })
+  
   # Start calibration function
   observeEvent(input$startTCal_button, {
+    
+    # Get system OS
+    OS <- Sys.info()["sysname"] %>% as.character() %>% tolower()
     
     # Create a list of available files in directory
     files <- list.files(input$sdk_dir, full.names = TRUE, recursive = TRUE)
     
+    # Look for the bdji_irp executable 
+    sdkPath <- files %>%
+      grep("\\bdji_irp\\b", ., ignore.case = TRUE, value = TRUE) %>%
+      grep(OS, ., ignore.case = TRUE, value = TRUE) %>%
+      grep("release_x64", ., ignore.case = TRUE, value = TRUE)
+    
     # Check for SDK
-    if (length(files) > 0) {
+    if (!identical(sdkPath, character(0))) {
       
-      # Files were found, proceed to select the right one for further processing
-      sdkPath <- files %>%
-        grep("\\bdji_irp\\b", ., ignore.case = TRUE, value = TRUE) %>%
-        grep(Sys.info()["sysname"] %>% as.character() %>% tolower(), ., ignore.case = TRUE, value = TRUE) %>%
-        grep("release_x64", ., ignore.case = TRUE, value = TRUE)
-      
-      # Check if all fields are filled
-      if (is.null(input$in_dir) || is.null(input$out_dir)) {
+      # Check if all the rest of the fields are filled    * Needs to be checked!
+      if (is.null(input$in_Thdir) || is.null(input$out_Thdir)) {
         shinyjs::alert("Please fill in all required fields.", title = "Error")
       } else {
+        
         # Get the input values
         emissivity <- input$emissivity
         humidity <- input$humidity
         distance <- input$distance
-        in_dir <- input$in_dir
-        out_dir <- input$out_dir
+        in_Thdir <- input$in_Thdir
+        out_Thdir <- input$out_Thdir
         
         # Reset progress bar
         updateProgressBar(id = "TCalProgBar", value = 0)
@@ -781,7 +814,7 @@ server <- function(input, output, session) {
         )
         
         # Perform data processing by calling the ThermlCal function
-        #ThermalCal(sdkPath, emissivity, humidity, distance, in_dir, out_dir)
+        ThermalCal(OS, sdkPath, emissivity, humidity, distance, in_Thdir, out_Thdir)
         
         # delete waiting GIF
         remove_modal_gif()
@@ -789,22 +822,27 @@ server <- function(input, output, session) {
         # Reset progress bar
         updateProgressBar(id = "TCalProgBar", value = 0)
       }
-      
-      
-      
+  
     } else {
       shinyalert("SDK Error", "SDK not fount, please download!", type = "error")
     }
     
   })
+  
   # Render leafletmap of image locations
   observeEvent(input$makemapthermalCal, {
     output$ThermalMain <- renderUI({
       
     })
   })
+  ###################################################################           
+  # Load Project Tab                                                            ----
+  ###################################################################           
+  # Mission Planner                                                             ----
+  ###################################################################           
+  # Processing wizard                                                           ----
+  ###################################################################           
   
-  ####
 }
 ################################################################################
 #######################    EXECUTE THE APP   ################################### ----
