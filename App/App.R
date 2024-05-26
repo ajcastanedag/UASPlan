@@ -7,15 +7,13 @@
 ##### Load libraries                                                            -----
 pacman::p_load("shiny","shinyWidgets", "stringr","shinyjs", "shinythemes", "shinyFiles",
                "leaflet","leaflet.extras", "tidyverse", "rmarkdown", "shinyBS",
-               "easycsv","sf","sfheaders","shinyalert","threejs")
+               "easycsv","sf","sfheaders","shinyalert","threejs", "exifr","shinybusy")
 ################################################################################
 Root <- paste0(getwd(),"/App/")
- ##### Add resource path                                                         ----- 
+##### Add resource path                                                         ----- 
 addResourcePath(prefix = 'media', directoryPath = paste0(Root,"/www"))
 ##### Include Functions file-> IF NOT SPECIFIED LIDAR COMPUTER FILE WILL BE USED----- 
 source(paste0(Root,"/www/3_Functions/Base.R"))
-##### Possible output locations general directory (E drive)                     ----- 
-#TargetDrive() <- paste0("/home/antonio/Desktop/")
 ##### Set path to general style                                                 ----- 
 Style <- paste0(Root,"/www/2_Style/UAS_Style_AJCG.css")
 ################################################################################
@@ -163,6 +161,75 @@ ui <- tagList(
                                   ))
                       )),
              ###################################################################
+             # Thermal Calibration                                              ----
+             tabPanel("ThermCal",
+                      tags$head(
+                        # Include our custom CSS
+                        includeCSS(Style)
+                      ),
+                      icon = icon("temperature-full"),
+                      sidebarLayout(
+                        sidebarPanel(width = 4,
+                                     tags$div(title="In this tab, you will find all the necessary fields to calibrate DJI thermal images",
+                                              h4(strong("Thermal calibration"),
+                                                 align = "center"),
+                                     ),
+                                     
+                                     tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button. The app will return an error if the fields are filled partially.",
+                                              h5(strong("DJI-SDK"), align = "left"),
+                                     ),
+                                     
+                                     textInput("sdk_dir", "Select SDK Directory", paste0(Root,"/www/1_SDK")),
+                                     
+                                     actionButton("sdk_download", "Get ThermalSDK", icon = icon("download"),
+                                          size ="lg",
+                                          width = "100%"),
+                        
+                                     tags$hr(style="border-color: gray;"),
+                                     
+                                     tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button. The app will return an error if the fields are filled partially.",
+                                              h5(strong("Select Project"), align = "left"),
+                                     ),
+                                     
+                                     splitLayout(
+                                       cellWidths = c("50%", "50%"),
+                                       div(
+                                         textInput("in_dir", "Input Directory",NULL)
+                                       ),
+                                       div(
+                                         textInput("out_dir", "Output Directory",NULL)
+                                       )
+                                     ),
+                                     
+                                     actionButton("makemapthermalCal", "Make map", icon = icon("map"),
+                                                  size ="lg",
+                                                  width = "100%"),
+                                     
+                                     tags$hr(style="border-color: gray;"),
+                                     
+                                     tags$div(title="In this section, you must fill all fields containing a star and add them to the table using the + button. The app will return an error if the fields are filled partially.",
+                                              h5(strong("Set parameters"), align = "left"),
+                                     ),
+                                     
+                                     sliderInput("emissivity", "Emissivity", 0.1, 1, 1, step = 0.01),
+                                     sliderInput("humidity", "Humidity", 20, 100, 70, step = 5),
+                                     sliderInput("distance", "Distance", 1, 25, 25, step = 1),
+                                     
+                                     tags$hr(style="border-color: gray;"),
+                                     
+                                     actionButton("startTCal_button", NULL, icon = icon("play"),
+                                                  size ="lg",
+                                                  width = "100%"),
+                                     
+                                     br(),
+                                     
+                                     progressBar(id = "TCalProgBar", value = 0, title = " ", display_pct = T)
+                                       
+                        ),
+                        mainPanel(width = 8,
+                                  uiOutput("ThermalMain") )
+             )),
+             ###################################################################
              # # Load Project Tab                                                 ----
              # tabPanel("Load Project",
              #          tags$head(
@@ -217,8 +284,8 @@ server <- function(input, output, session) {
     return(includeHTML(paste0(Root,'www/0_IntroPage/instructions.html')))
   }
   output$inc<-renderUI({getPage()})
-  ###################################################################   
-  # Create Tab                                                                  
+  ###################################################################           
+  # Create Tab                                                                  ----
   #### Create objects                                                           ----
   # Create empty SP object to store loaded AOI
   Aoi_Pol <<- NULL
@@ -624,16 +691,120 @@ server <- function(input, output, session) {
   # React to selection of cell in Table 
   SelectedCel <- reactive({!is.null(input$Flights_rows_selected)})  
   
-  ###################################################################           ---
-  # Load Project Tab 
-  ###################################################################           ---
-  # Load Project Tab 
-  ###################################################################           ---
-  # Mission Planner
-  ###################################################################           ---
-  # Processing wizard
-
-
+  ###################################################################           
+  # Load Project Tab                                                            ----
+  ###################################################################           
+  # Load Project Tab                                                            ----
+  ###################################################################           
+  # Mission Planner                                                             ----
+  ###################################################################           
+  # Processing wizard                                                           ----
+  ###################################################################           
+  # Thermal Tab                                                                 ----
+  #### Create objects
+  # Render intro HTML
+  output$ThermalMain <- renderUI({
+    includeHTML(paste0(Root,"/www/0_IntroPages/ThermalTab.html"))
+  })
+  #### Observe Events                                                           
+  # Get thermal SDK
+  observeEvent(input$sdk_download, {
+    
+    # show waiting GIF
+    show_modal_gif(
+      src = paste0("media/4_Graphs/GIF/dude4.gif"),
+      width = "450px",
+      height = "450px",
+      modal_size = "m",
+      text = div(br(),"Getting the SDK from DJI...", style="font-size:160%")
+    )
+    
+    Sys.sleep(10)
+    #getSDK(input$sdk_dir)
+    
+    # delete waiting GIF
+    remove_modal_gif()
+    
+    # Check for SDK
+    if (length(list.files(input$sdk_dir, full.names = F, recursive = T)) > 0) {
+      shinyalert(
+        title = "SDK downloaded!",
+        text = " ",
+        size = "s",
+        closeOnEsc = TRUE,
+        closeOnClickOutside = TRUE,
+        showConfirmButton = FALSE,
+        showCancelButton = FALSE,
+        type = "success",
+        timer = 1500,
+        imageUrl = "",
+        animation = TRUE
+      )
+      } else{shinyjs::alert("Something went wrong!", title = "Error")}
+    
+  })
+  # Start calibration function
+  observeEvent(input$startTCal_button, {
+    
+    # Create a list of available files in directory
+    files <- list.files(input$sdk_dir, full.names = TRUE, recursive = TRUE)
+    
+    # Check for SDK
+    if (length(files) > 0) {
+      
+      # Files were found, proceed to select the right one for further processing
+      sdkPath <- files %>%
+        grep("\\bdji_irp\\b", ., ignore.case = TRUE, value = TRUE) %>%
+        grep(Sys.info()["sysname"] %>% as.character() %>% tolower(), ., ignore.case = TRUE, value = TRUE) %>%
+        grep("release_x64", ., ignore.case = TRUE, value = TRUE)
+      
+      # Check if all fields are filled
+      if (is.null(input$in_dir) || is.null(input$out_dir)) {
+        shinyjs::alert("Please fill in all required fields.", title = "Error")
+      } else {
+        # Get the input values
+        emissivity <- input$emissivity
+        humidity <- input$humidity
+        distance <- input$distance
+        in_dir <- input$in_dir
+        out_dir <- input$out_dir
+        
+        # Reset progress bar
+        updateProgressBar(id = "TCalProgBar", value = 0)
+        
+        # show waiting GIF
+        show_modal_gif(
+          src = paste0("media/4_Graphs/GIF/dude1.gif"),
+          width = "860px",
+          height = "500px",
+          modal_size = "l"
+        )
+        
+        # Perform data processing by calling the ThermlCal function
+        #ThermalCal(sdkPath, emissivity, humidity, distance, in_dir, out_dir)
+        
+        # delete waiting GIF
+        remove_modal_gif()
+        
+        # Reset progress bar
+        updateProgressBar(id = "TCalProgBar", value = 0)
+      }
+      
+      
+      
+    } else {
+      shinyalert("SDK Error", "SDK not fount, please download!", type = "error")
+    }
+    
+  })
+  # Render leafletmap of image locations
+  observeEvent(input$makemapthermalCal, {
+    output$ThermalMain <- renderUI({
+      
+    })
+  })
+  
+  ####
 }
 ################################################################################
 #######################    EXECUTE THE APP   ################################### ----

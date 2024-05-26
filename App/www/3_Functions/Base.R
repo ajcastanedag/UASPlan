@@ -3,7 +3,7 @@
 # the folder structures for the aircraft - sensor combinations. The txt files are
 # converted in .bat files and executed in the windows shell, finally the .bat file
 # is erased.
-################################################################################----
+################################################################################ Create Mission function ----
 CreateMission <- function(dir_path, Name) {
   
   # Create the main directory
@@ -27,7 +27,7 @@ CreateMission <- function(dir_path, Name) {
   }
   
 }
-#################################################################################################################################################################### 
+################################################################################ Create Folder structures ---- 
 CreateFolder <- function(dir_path, DataFrame) {
   
   #print(paste0(dir_path," - ",selected_system," - ",Name))
@@ -133,7 +133,7 @@ CreateFolder <- function(dir_path, DataFrame) {
       return(FALSE)  # Folder structure already exists
     }
   }
-  ############################################################################# All RGB
+  ############################################################################## All RGB
   if (grepl("RGB",selected_system)  || grepl("RX1RII",selected_system)  || grepl("D2M",selected_system) ) {
     # Create the main directory
     project_dir <- file.path(dir_path, Name)
@@ -187,7 +187,7 @@ CreateFolder <- function(dir_path, DataFrame) {
       return(FALSE)  # Folder structure already exists
     }
   }
-  #############################################################################  LiAirV
+  ############################################################################## LiAirV
   if (grepl("LiAirV",selected_system)) {
     
     # Create the main directory
@@ -229,7 +229,7 @@ CreateFolder <- function(dir_path, DataFrame) {
       return(FALSE)  # Folder structure already exists
     }
   }
-  #############################################################################  Qube240
+  ############################################################################## Qube240
   if (grepl("Qube240",selected_system)) {
     
     # Create the main directory
@@ -273,8 +273,9 @@ CreateFolder <- function(dir_path, DataFrame) {
           for (flight_subdir_name in YSBase_subdirs) {
             flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
             dir.create(flight_sub_dir)
-            ############
-            if (flight_subdir_name == "0_Raw") {
+            
+            # Create subsubdirectories inside 0_Raw or 1_Proccessed for YS * This might change
+            if (flight_subdir_name == "0_Raw" || flight_subdir_name == "1_Proccessed") {
               
               YSBase_subsubdirs <- c("EMLID", "QBASE")
 
@@ -282,11 +283,8 @@ CreateFolder <- function(dir_path, DataFrame) {
                 flight_subsub_dir <- file.path(flight_sub_dir, flight_subsubdir_name)
                 dir.create(flight_subsub_dir)
               }
-
             }
-            ##########
-            }
-          
+          }
         }
         
         # Create subdirectories inside 4_RawOutput for YS
@@ -309,47 +307,46 @@ CreateFolder <- function(dir_path, DataFrame) {
       return(FALSE)  # Folder structure already exists
     }
   }
-  #############################################################################  NanoHP
+  ############################################################################## NanoHP
   if (grepl("NanoHP",selected_system)) {
-    
-    # # Create the main directory
-    # project_dir <- file.path(dir_path, Name)
-    # if (!dir.exists(project_dir)) {
-    #   dir.create(project_dir)
-    # 
-    #   # Create subdirectories 0_Images, 1_Agisoft, 2_Reports, 3_FlightFiles, 4_RawOutput
-    #   subdirectories <- c("0_BaseStation", "1_LiAirVData", "2_Reports", "3_FlightFiles", "4_RawOutput")
-    # 
-    #   # Create subdirectories inside 3_FlightFiles
-    #   if ("3_FlightFiles" %in% subdirectories) {
-    #     flight_files_subdirs <- c("0_Log", "1_Plan", "2_Other")
-    #   }
-    # 
-    #   for (sub_dir_name in subdirectories) {
-    #     sub_dir <- file.path(project_dir, sub_dir_name)
-    #     dir.create(sub_dir)
-    # 
-    #     # Create subdirectories inside 3_FlightFiles
-    #     if (sub_dir_name == "3_FlightFiles") {
-    # 
-    #       # Create a text file inside 4_Export
-    #       text_file <- file.path(sub_dir, "metadata.md")
-    #       file.create(text_file)
-    # 
-    #       # Fill metadata on metadata.md
-    #       FillMetadata(text_file, DataFrame)
-    # 
-    #       for (flight_subdir_name in flight_files_subdirs) {
-    #         flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
-    #         dir.create(flight_sub_dir)
-    #       }
-    #     }
-    #   }
-    # 
-    #   return(TRUE)  # Success
-    # } else {
-    #   return(FALSE)  # Folder structure already exists
-    # }
+
+    # Create the main directory
+    project_dir <- file.path(dir_path, Name)
+    if (!dir.exists(project_dir)) {
+      dir.create(project_dir)
+
+      # Create subdirectories 0_Images, 1_Agisoft, 2_Reports, 3_FlightFiles, 4_RawOutput
+      subdirectories <- c("0_Images", "1_NHProjects", "2_Reports", "3_FlightFiles", "4_RawOutput")
+
+      # Create subdirectories inside 3_FlightFiles
+      if ("3_FlightFiles" %in% subdirectories) {
+        flight_files_subdirs <- c("0_GNSS", "1_Plan", "2_Other")
+      }
+
+      for (sub_dir_name in subdirectories) {
+        sub_dir <- file.path(project_dir, sub_dir_name)
+        dir.create(sub_dir)
+
+        # Create subdirectories inside 3_FlightFiles
+        if (sub_dir_name == "3_FlightFiles") {
+
+          # Create a text file inside 4_Export
+          text_file <- file.path(sub_dir, "metadata.md")
+          file.create(text_file)
+
+          # Fill metadata on metadata.md
+          FillMetadata(text_file, DataFrame)
+
+          for (flight_subdir_name in flight_files_subdirs) {
+            flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
+            dir.create(flight_sub_dir)
+          }
+        }
+      }
+      return(TRUE)  # Success
+    } else {
+      return(FALSE)  # Folder structure already exists
+    }
   }
   #############################################################################  L1
   if (grepl("L1",selected_system)) {
@@ -393,7 +390,7 @@ CreateFolder <- function(dir_path, DataFrame) {
       return(FALSE)  # Folder structure already exists
     }
   }
-  #############################################################################  H20T M3T with TERRA
+  ############################################################################## H20T M3T with TERRA
   if (grepl("H20T",selected_system) || grepl("3TTerra",selected_system) || grepl("3MTerra",selected_system)) {
     
     # Create the main directory
@@ -448,9 +445,8 @@ CreateFolder <- function(dir_path, DataFrame) {
       return(FALSE)  # Folder structure already exists
     }
   }
-  
 }
-################################################################################
+################################################################################ Fill metadata flights ----
 FillMetadata <- function(text_file_location, FlightsDF) {
   # Extracting required fields from the FlightsDF dataframe
   project_location <- as.character("Fix")
@@ -476,7 +472,7 @@ FillMetadata <- function(text_file_location, FlightsDF) {
   # Writing the Markdown content to the text file
   writeLines(markdown_content, con = text_file_location)
 }
-################################################################################
+################################################################################ Create QGis Project ----
 create_qgis_project <- function(path, name) {
   # Create a basic QGIS project XML structure
   qgis_project <- '<?xml version="1.0" encoding="UTF-8"?>\n
@@ -493,7 +489,63 @@ create_qgis_project <- function(path, name) {
   # Return the path to the created .qgz file
   #return(qgs_file)
 }
+################################################################################ Get SDK functionm
+getSDK <- function(Path){
+  
+  download.file("https://dl.djicdn.com/downloads/dji_thermal_sdk/20221108/dji_thermal_sdk_v1.4_20220929.zip", dest="SDK.zip", mode="wb") 
+  unzip("SDK.zip", exdir = Path)
+  file.remove("SDK.zip") 
+  
+  return()
+}
 ################################################################################
+ThermalCal <- function(sdk_dir, emissivity, humidity,distance,in_dir,out_dir){
+  
+  # short version for running commands in terminal
+  run <- function(x) shell(x, intern=FALSE, wait=TRUE)
+
+  # List of Files
+  in_files = list.files(in_dir, full.names = T, pattern = "_T")
+  
+  ### calibration/conversion procedure (...could be paralleled)
+  for(i in 1:length(in_files)){
+    
+    #Update status of bar with each image
+    updateProgressBar(id = "TCalProgBar", value = i, total = length(in_files))
+
+    # calibration to celsius
+    in_exif = exifr::read_exif(in_files[i])
+    in_name = in_files[i]
+    out_name = paste0(out_dir, substr(basename(in_files[i]), 0, nchar(basename(in_files[i]))-4), ".raw")
+    run(paste0(sdk_dir,"//utility/bin/windows/release_x64/dji_irp.exe -s ", in_name, " -a measure -o ", out_name, " --measurefmt float32",
+               " --emissivity ", emissivity, " --humidity ", humidity, " --distance ", distance))
+
+    # from .raw (hex) to .tif (celsius in float)
+    raw_data <- readBin(out_name, "double", size = 4, n = in_exif$ImageWidth*in_exif$ImageHeight)
+    image_matrix <- matrix(raw_data, nrow = in_exif$ImageHeight, ncol = in_exif$ImageWidth, byrow = T)
+    out_name_tif = paste0(substr(out_name, 0, nchar(out_name)-4), ".tif")
+    write_tif(image_matrix, path = out_name_tif, overwrite = TRUE)
+
+    # transfer metadata (exif)
+    exiftool_call(paste0("-Model=", in_exif$Model[1]), out_name_tif)
+    exiftool_call(paste0("-Make=", in_exif$Make[1]), out_name_tif)
+    exiftool_call(paste0("-Orientation=", in_exif$Orientation[1]), out_name_tif)
+    exiftool_call(paste0("-FocalLength=", in_exif$FocalLength[1]), out_name_tif)
+    exiftool_call(paste0("-FocalLengthIn35mmFormat=", in_exif$FocalLengthIn35mmFormat[1]), out_name_tif)
+    exiftool_call(paste0("-DigitalZoomRatio=", in_exif$DigitalZoomRatio[1]), out_name_tif)
+    exiftool_call(paste0("-ApertureValue=", in_exif$ApertureValue[1]), out_name_tif)
+    exiftool_call(paste0("-GPSAltitude=", in_exif$GPSAltitude[1]), out_name_tif)
+    exiftool_call(paste0("-GPSLatitude=", in_exif$GPSLatitude[1]), out_name_tif)
+    exiftool_call(paste0("-GPSLongitude=", in_exif$GPSLongitude[1]), out_name_tif)
+  }
+  
+  ### remove temp files
+  file.remove(list.files(out_dir, recursive = TRUE, full.names = T, pattern = "_original"))
+  file.remove(list.files(out_dir, recursive = TRUE, full.names = T, pattern = "_T.raw"))
+  
+}
+################################################################################ Graveyard ----
+
 ### Transform leaflet mods on AOI into new polygon (SF)
 ModPolToSf <- function(Pol, New=F){
   
@@ -521,7 +573,7 @@ ModPolToSf <- function(Pol, New=F){
   
   return(sf)
 }
-################################################################################
+
 # Transform geometries from DT into sf objects to export individually
 GeneratePol <- function(GeomSF){
   # Aoi_Arr[[2]]
@@ -532,76 +584,9 @@ GeneratePol <- function(GeomSF){
   
   return(SfObj)
 }
-################################################################################
-################################################################################
-################################################################################---
-################################################################################
-### Create Folder structure based on root, name, setup and standard name
-# FillMetadata <- function(Root, TargetLoc, FlightsDF, MisName, IndexStart=1){
-#   
-#   for(i in 1:nrow(FlightsDF)){
-#     
-#     FlightPath <- paste0(TargetLoc,
-#                          "\\",
-#                          IndexStart+i,
-#                          "_",
-#                          FlightsDF$AirCraft[i],
-#                          FlightsDF$Sensor[i],
-#                          "\\3_FlightFiles\\0_Log\\")
-#     
-#     #print(FlightPath)
-#     
-#     # Read Log Structure 
-#     LogFile <- noquote(readLines(paste0(Root,"\\www\\5_LogStructure\\FlightLog.txt")))
-#     
-#     # Replace fields
-#     LogFile[grep('* Project Location:', LogFile)] <- paste0('* Project Location: ',FlightsDF$RootLoc[i])
-#     LogFile[grep('* Mission Name:'    , LogFile)] <- paste0('* Mission Name:     ',FlightsDF$MisName[i])
-#     LogFile[grep('* Pilot:'           , LogFile)] <- paste0('* Pilot:            ',FlightsDF$Pilot[i])
-#     LogFile[grep('* Copilot:'         , LogFile)] <- paste0('* Copilot:          ',FlightsDF$Copilot[i])
-#     LogFile[grep('* Date of creation:', LogFile)] <- paste0('* Date of creation: ',FlightsDF$DateC[i])
-#     LogFile[grep('* Date of Flight:'  , LogFile)] <- paste0('* Date of Flight:   ',FlightsDF$DateF)
-#     LogFile[grep('* Aircraft:'        , LogFile)] <- paste0('* Aircraft:         ',FlightsDF$AirCraft[i])
-#     LogFile[grep('* Sensor:'          , LogFile)] <- paste0('* Sensor:           ',FlightsDF$Sensor[i])
-#     LogFile[grep('PlatformLogger'     , LogFile)+2] <- paste0("->",FlightsDF$LogText[i])
-#      
-#     # Update Log file
-#     write.table(LogFile, file = paste0(FlightsDF$LogLoc[i],"FlightLog.md"), sep="",
-#                 row.names = FALSE, col.names = FALSE,  quote = FALSE)
-# 
-# 
-#     # Save GPKG file with ,modified or imported polygon
-#     if(!is.na(FlightsDF$geometry)){
-#       st_write(GeneratePol(FlightsDF$geometry[i]),
-#                paste0(FlightsDF$LogLoc[i],"\\AOI.gpkg"),
-#                delete_layer=TRUE
-#                )
-#   }
-#      
-#   }
-# }
-################################################################################
-# ### Create Mission folder structure based on root, name, setup and standard name
-# CreateFolder <- function(Root, TargetLoc, MainStructure, FlightsDF, MisName, IndexStart){
-#   
-#   # Change directory to Target location
-#   setwd(TargetLoc)
-#   
-#   # Create Bat File with modified structure
-#   write.table(MainStructure, file = "Temporal.bat", sep="",
-#               row.names = FALSE, col.names = FALSE,  quote = FALSE)
-#   
-#   # Call system console, execute bat file and delete it
-#   shell.exec("Temporal.bat")
-#   Sys.sleep(1)
-#   file.remove("Temporal.bat")
-#   
-#   FillMetadata(Root, TargetLoc, FlightsDF, MisName, IndexStart)
-#   
-#   setwd(Root)
-# 
-# }
-################################################################################
+
+
+################################################################################ Button custom (temporal) ----
 #' # Customised TRUE-FALSE switch button for Rshiny
 #' # Only sing CSS3 code (No javascript)
 #' #
@@ -681,4 +666,3 @@ GeneratePol <- function(GeomSF){
 #'     ) 
 #'   }
 #' }
-################################################################################

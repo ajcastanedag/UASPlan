@@ -307,3 +307,8 @@ li {
 .TrueFalse .onoffswitch-inner:after {
   content: "FALSE";
 }
+
+/* styles.css */
+.progress-group .progress-title {
+  display: none;
+}
