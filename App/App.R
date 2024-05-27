@@ -200,10 +200,26 @@ ui <- tagList(
                                      splitLayout(
                                        cellWidths = c("50%", "50%"),
                                        div(
-                                         uiOutput("ThermalProtLoc")
+                                         selectizeInput(
+                                           "ThWSSel",
+                                           label = "Working Station:",
+                                           choices = list("", "WSI", "WSII", "Manual"),
+                                           selected = "Manual",
+                                           options = list(dropdownParent = 'body')
+                                         )
                                        ),
                                        div(
-                                         uiOutput("ThermalFlightLoc")
+                                         selectizeInput("ThProjLoc", "Select Project:", c(""))
+                                       )
+                                     ),
+                                     #__________________________________________ 
+                                     splitLayout(
+                                       cellWidths = c("50%", "50%"),
+                                       div(
+                                         selectizeInput("ThMisLoc", "Select Project:", c(""))
+                                       ),
+                                       div(
+                                         selectizeInput("ThFlightLoc", "Select Project:", c(""))
                                        )
                                      ),
                                      #__________________________________________  
@@ -711,33 +727,17 @@ server <- function(input, output, session) {
   ###################################################################           
   # Thermal Tab                                                                 
   #### Render objects                                                           ----
-  # Render ThermalProtLoc element
-  output$ThermalProtLoc <- renderUI({
-    selectizeInput("ThermalProtLoc", "Select Project:",
-                   choices = c("", list.dirs(path = TargetDrive(),
-                                             full.names = FALSE,
-                                             recursive = FALSE)),
-                   selected = "",
-                   options = list(dropdownParent = 'body'))
-  })
-  # Render ThermalFlightLoc element
-  output$ThermalFlightLoc <- renderUI({
-    selectizeInput("ThermalFlightLoc", "Select Flight:",
-                   choices = c("", list.dirs(path = TargetDrive(),
-                                             full.names = FALSE,
-                                             recursive = FALSE)),
-                   selected = "",
-                   options = list(dropdownParent = 'body'))
-  })
   # Render intro HTML
   output$ThermalMain <- renderUI({
-    includeHTML(paste0(Root,"/www/0_IntroPages/ThermalTab.html"))
+    tags$iframe(src="media/0_IntroPages/ThermalTab.html",
+                width = "100%",
+                height = "125%",
+                frameborder="0",
+                style = "width: 100%; height: 100vh; border: none;")
   })
-
   #### Observe Events                                                           ----                                                           
   # Get thermal SDK
   observeEvent(input$sdk_download, {
-    
     # show waiting GIF
     show_modal_gif(
       src = paste0("media/4_Graphs/GIF/dude4.gif"),
@@ -767,58 +767,45 @@ server <- function(input, output, session) {
         timer = 1500,
         imageUrl = "",
         animation = TRUE
-      )
-    } else{shinyjs::alert("Something went wrong!", title = "Error")}
-    
-  })
+      )} else
+      {shinyjs::alert("Something went wrong!", title = "Error")}
   
+  })
   # Start calibration function
   observeEvent(input$startTCal_button, {
-    
     # Get system OS
     OS <- Sys.info()["sysname"] %>% as.character() %>% tolower()
-    
     # Create a list of available files in directory
     files <- list.files(input$sdk_dir, full.names = TRUE, recursive = TRUE)
-    
     # Look for the bdji_irp executable 
     sdkPath <- files %>%
       grep("\\bdji_irp\\b", ., ignore.case = TRUE, value = TRUE) %>%
       grep(OS, ., ignore.case = TRUE, value = TRUE) %>%
       grep("release_x64", ., ignore.case = TRUE, value = TRUE)
-    
     # Check for SDK
     if (!identical(sdkPath, character(0))) {
-      
       # Check if all the rest of the fields are filled    * Needs to be checked!
-      if (is.null(input$in_Thdir) || is.null(input$out_Thdir)) {
-        shinyjs::alert("Please fill in all required fields.", title = "Error")
+      if (input$in_Thdir == "" |   input$out_Thdir == "") {
+        shinyalert("Information Error", "Please enter all the needed information!", type = "error")
       } else {
-        
         # Get the input values
         emissivity <- input$emissivity
         humidity <- input$humidity
         distance <- input$distance
         in_Thdir <- input$in_Thdir
         out_Thdir <- input$out_Thdir
-        
         # Reset progress bar
         updateProgressBar(id = "TCalProgBar", value = 0)
-        
         # show waiting GIF
         show_modal_gif(
           src = paste0("media/4_Graphs/GIF/dude1.gif"),
           width = "860px",
           height = "500px",
-          modal_size = "l"
-        )
-        
+          modal_size = "l")
         # Perform data processing by calling the ThermlCal function
         ThermalCal(OS, sdkPath, emissivity, humidity, distance, in_Thdir, out_Thdir)
-        
         # delete waiting GIF
         remove_modal_gif()
-        
         # Reset progress bar
         updateProgressBar(id = "TCalProgBar", value = 0)
       }
@@ -828,7 +815,28 @@ server <- function(input, output, session) {
     }
     
   })
-  
+  # Get the
+  observeEvent(input$ThWSSel, {                                                 
+    if(input$ThWSSel == "Manual"){
+      shinyjs::disable("ThProjLoc")
+      shinyjs::disable("ThMisLoc")
+      shinyjs::disable("ThFlightLoc")
+      shinyjs::enable("in_Thdir")
+      shinyjs::enable("out_Thdir")
+    } else if(input$ThWSSel == "WSI"){
+      shinyjs::enable("ThProjLoc")
+      shinyjs::enable("ThMisLoc")
+      shinyjs::enable("ThFlightLoc")
+      shinyjs::disable("in_Thdir")
+      shinyjs::disable("out_Thdir")
+    } else if(input$ThWSSel == "WSII"){
+      shinyjs::enable("ThProjLoc")
+      shinyjs::enable("ThMisLoc")
+      shinyjs::enable("ThFlightLoc")
+      shinyjs::disable("in_Thdir")
+      shinyjs::disable("out_Thdir")
+    }
+  }) 
   # Render leafletmap of image locations
   observeEvent(input$makemapthermalCal, {
     output$ThermalMain <- renderUI({

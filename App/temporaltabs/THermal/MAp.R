@@ -4,21 +4,21 @@ library(leaflet)
 library(RColorBrewer)
 library(pbapply)
 
-Wd <- "/home/cowboybebop/Documents/ShareRemina/6_Thermal60m_DJIM300H20T/0_Images/W/"
+Wd <- "/media/antonio/Gelb/DJI_202308150814_001_AirportSiteBenAlt60/"
 
-image_files <- list.files(Wd, pattern = "\\.(JPG|jpeg|png)$", full.names = TRUE, ignore.case = TRUE)
+image_files <- list.files(Wd, pattern = "_D.JPG", full.names = TRUE, ignore.case = TRUE)
 
 # Function to extract GPS data from a single image
 extract_gps_data <- function(image_path) {
   exif_data <- read_exif(image_path)
   gps_data <- exif_data %>% 
-    select(SourceFile, GPSLatitude, GPSLongitude, GPSAltitude, AmbientTemperature, Reflection, RelativeHumidity) %>% 
+    select(SourceFile, GPSLatitude, GPSLongitude, GPSAltitude) %>% 
     filter(!is.na(GPSLatitude) & !is.na(GPSLongitude))
   return(gps_data)
 }
 
 # Extract GPS data from all images
-gps_data_list <- pblapply(image_files, extract_gps_data)
+gps_data_list <- lapply(image_files, extract_gps_data)
 gps_data <- bind_rows(gps_data_list)
 
 # Define a color palette based on altitude
