@@ -203,7 +203,7 @@ ui <- tagList(
                                          selectizeInput(
                                            "ThWSSel",
                                            label = "Working Station:",
-                                           choices = list("", "WSI", "WSII", "Manual"),
+                                           choices = list("", "WSI", "WSII", "Manual", "AJCG"),
                                            selected = "Manual",
                                            options = list(dropdownParent = 'body')
                                          )
@@ -216,10 +216,10 @@ ui <- tagList(
                                      splitLayout(
                                        cellWidths = c("50%", "50%"),
                                        div(
-                                         selectizeInput("ThMisLoc", "Select Project:", c(""))
+                                         selectizeInput("ThMisLoc", "Select Mission:", c(""))
                                        ),
                                        div(
-                                         selectizeInput("ThFlightLoc", "Select Project:", c(""))
+                                         selectizeInput("ThFlightLoc", "Select FLight:", c(""))
                                        )
                                      ),
                                      #__________________________________________  
@@ -815,33 +815,91 @@ server <- function(input, output, session) {
     }
     
   })
-  # Get the
-  observeEvent(input$ThWSSel, {                                                 
+  # Get the possible Projects from the working station
+  observeEvent(input$ThWSSel, { 
+    
+    updateSelectizeInput(session, "ThProjLoc",
+                         choices = c("", list.dirs(path = Thdir_WSVal(),
+                                                   full.names = FALSE,
+                                                   recursive = FALSE)),
+                         selected = "",
+                         options = list(dropdownParent = 'body'))
+
+  }) 
+  # Get the possible Flights from the working station
+  # observeEvent(input$ThProjLoc, { 
+  #   
+  #   PossibleMissions <- list.dirs(path = paste0(Thdir_WSVal(),input$ThProjLoc),
+  #                                 full.names = FALSE,
+  #                                 recursive = FALSE)
+  #   print(PossibleMissions)
+  #   updateSelectizeInput(session, "ThProjLoc",
+  #                        choices = c("", PossibleMissions),
+  #                        selected = "",
+  #                        options = list(dropdownParent = 'body'))
+  #   
+  # }) 
+  # Observe the combined value and update the text input
+  observe({
     if(input$ThWSSel == "Manual"){
       shinyjs::disable("ThProjLoc")
       shinyjs::disable("ThMisLoc")
       shinyjs::disable("ThFlightLoc")
       shinyjs::enable("in_Thdir")
       shinyjs::enable("out_Thdir")
-    } else if(input$ThWSSel == "WSI"){
+      updateTextInput(session, "in_Thdir", value = "")
+      updateTextInput(session, "out_Thdir", value = "")
+    } else if(input$ThWSSel != "Manual"){
       shinyjs::enable("ThProjLoc")
       shinyjs::enable("ThMisLoc")
       shinyjs::enable("ThFlightLoc")
       shinyjs::disable("in_Thdir")
       shinyjs::disable("out_Thdir")
-    } else if(input$ThWSSel == "WSII"){
-      shinyjs::enable("ThProjLoc")
-      shinyjs::enable("ThMisLoc")
-      shinyjs::enable("ThFlightLoc")
-      shinyjs::disable("in_Thdir")
-      shinyjs::disable("out_Thdir")
-    }
-  }) 
+      
+      #updateTextInput(session, "in_Thdir", value = inout_Thdir_Val()[1])
+      #updateTextInput(session, "out_Thdir", value = inout_Thdir_Val()[2])
+    } 
+  })
   # Render leafletmap of image locations
   observeEvent(input$makemapthermalCal, {
     output$ThermalMain <- renderUI({
       
     })
+  })
+  #### Reactive Elements
+  # Reactive element to crate read the path of the Working station
+  Thdir_WSVal <- reactive({
+    RootFolder <- ""
+    if(input$ThWSSel == "WSI"){
+      RootFolder <- paste0("D:/1_Projects")
+    } else if(input$ThWSSel == "WSII"){
+      RootFolder <- paste0("B:/1_Projects")
+    } else if(input$ThWSSel == "AJCG"){
+      RootFolder <- paste0("/home/antonio/Desktop")
+    } 
+    return(RootFolder)
+  })
+  # Reactive expression to combine input values
+  inout_Thdir_Val <- reactive({
+    
+    globalThVal <- ""
+    inVal <- ""
+    outVal <- ""
+    
+    if(input$ThWSSel == "WSI"){
+      globalThVal <- paste0("D:/1_Projects/")
+    } else if(input$ThWSSel == "WSII"){
+      globalThVal <- paste0("B:/1_Projects/")
+    } else if(input$ThWSSel == "AJCG"){
+      globalThVal <- paste0("/home/antonio/Desktop/")
+    } 
+    
+    inVal <- paste0(globalThVal,input$ThProjLoc,input$ThMisLoc, input$ThFlightLoc ,"T")
+    outVal <- paste0(globalThVal, "T_Cal")
+      
+    Thdir_Val <- c(inVal, outVal)
+  
+    return(Thdir_Val)
   })
   ###################################################################           
   # Load Project Tab                                                            ----
