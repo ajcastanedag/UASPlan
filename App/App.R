@@ -6,8 +6,8 @@
 ################################################################################
 ##### Load libraries                                                            -----
 pacman::p_load("shiny","shinyWidgets", "stringr","shinyjs", "shinythemes", "shinyFiles",
-               "leaflet","leaflet.extras", "tidyverse", "rmarkdown", "shinyBS",
-               "easycsv","sf","sfheaders","shinyalert","threejs", "exifr","shinybusy")
+               "leaflet","leaflet.extras", "tidyverse", "rmarkdown", "shinyBS", "htmlwidgets",
+               "easycsv","sf","sfheaders","shinyalert","threejs", "exifr","shinybusy","RColorBrewer")
 ################################################################################
 Root <- paste0(getwd(),"/App/")
 ##### Add resource path                                                         ----- 
@@ -23,8 +23,7 @@ options(shiny.port = 5555)
 ui <- tagList(
   tags$head(
     # Include our custom CSS
-    includeCSS(Style)
-    #tags$link(rel = "stylesheet", type = "text/css", href = "/www/2_Style/UASstyle.css")
+    includeCSS(Style),
   ),
   useShinyjs(),
   navbarPage(title = div(img(src='media/4_Graphs/Logo.png',
@@ -219,7 +218,7 @@ ui <- tagList(
                                          selectizeInput("ThMisLoc", "Select Mission:", c(""))
                                        ),
                                        div(
-                                         selectizeInput("ThFlightLoc", "Select FLight:", c(""))
+                                         selectizeInput("ThFlightLoc", "Select Flight:", c(""))
                                        )
                                      ),
                                      #__________________________________________  
@@ -260,7 +259,7 @@ ui <- tagList(
                         ),
                         #_______________________________________________________
                         mainPanel(width = 8,
-                                  uiOutput("ThermalMain") )
+                                  uiOutput("ThermalMain") ),
              )),
              ###################################################################
              # # Load Project Tab                                                 ----
@@ -667,22 +666,7 @@ server <- function(input, output, session) {
       shinyjs::enable("AirCraft")
       shinyjs::enable("Sensor")}
   })
-  
-  # # Edited Features
-  # observeEvent(input$map_draw_edited_features, {
-  #   Aoi_Pol <<- ModPolToSf(input$map_draw_edited_features)
-  # })
-  
-  # # Created Features
-  # observeEvent(input$map_draw_new_feature, {
-  #   Aoi_Pol <<- ModPolToSf(input$map_draw_new_feature, T)
-  # })
-  # 
-  # # Deleted Features
-  # observeEvent(input$map_draw_deleted_features, {
-  #   Aoi_Pol <<- NULL
-  # })
-  
+
   #### Reactive Functions                                                       ----
   # # Create base map (tiles + gray path) on a reactive function (Base Map Create)                
   # base.map <- reactive({
@@ -818,29 +802,6 @@ server <- function(input, output, session) {
   # Get the possible Projects from the working station
   observeEvent(input$ThWSSel, { 
     
-    updateSelectizeInput(session, "ThProjLoc",
-                         choices = c("", list.dirs(path = Thdir_WSVal(),
-                                                   full.names = FALSE,
-                                                   recursive = FALSE)),
-                         selected = "",
-                         options = list(dropdownParent = 'body'))
-
-  }) 
-  # Get the possible Flights from the working station
-  # observeEvent(input$ThProjLoc, { 
-  #   
-  #   PossibleMissions <- list.dirs(path = paste0(Thdir_WSVal(),input$ThProjLoc),
-  #                                 full.names = FALSE,
-  #                                 recursive = FALSE)
-  #   print(PossibleMissions)
-  #   updateSelectizeInput(session, "ThProjLoc",
-  #                        choices = c("", PossibleMissions),
-  #                        selected = "",
-  #                        options = list(dropdownParent = 'body'))
-  #   
-  # }) 
-  # Observe the combined value and update the text input
-  observe({
     if(input$ThWSSel == "Manual"){
       shinyjs::disable("ThProjLoc")
       shinyjs::disable("ThMisLoc")
@@ -850,23 +811,128 @@ server <- function(input, output, session) {
       updateTextInput(session, "in_Thdir", value = "")
       updateTextInput(session, "out_Thdir", value = "")
     } else if(input$ThWSSel != "Manual"){
+      updateSelectizeInput(session, "ThProjLoc",
+                           choices = c("", list.dirs(path = Thdir_WSVal(),
+                                                     full.names = FALSE,
+                                                     recursive = FALSE)),
+                           selected = "",
+                           options = list(dropdownParent = 'body'))
       shinyjs::enable("ThProjLoc")
       shinyjs::enable("ThMisLoc")
       shinyjs::enable("ThFlightLoc")
       shinyjs::disable("in_Thdir")
       shinyjs::disable("out_Thdir")
-      
-      #updateTextInput(session, "in_Thdir", value = inout_Thdir_Val()[1])
-      #updateTextInput(session, "out_Thdir", value = inout_Thdir_Val()[2])
-    } 
+    }
+  }) 
+  # Get the possible Flights from the working station
+  observeEvent(input$ThProjLoc, {
+
+    PossibleMissions <- list.dirs(path = paste0(Thdir_WSVal(),"/",input$ThProjLoc),
+                                  full.names = FALSE,
+                                  recursive = FALSE)
+    
+    updateSelectizeInput(session, "ThMisLoc",
+                         choices = c("", PossibleMissions),
+                         selected = "",
+                         options = list(dropdownParent = 'body'))
+
   })
-  # Render leafletmap of image locations
-  observeEvent(input$makemapthermalCal, {
+  # Get the possible Flights from the working station
+  observeEvent(input$ThMisLoc, {
+    
+    PossibleFlights <- list.dirs(path = paste0(Thdir_WSVal(),"/",input$ThProjLoc,"/",input$ThMisLoc,"/0_Flights/"),
+                                  full.names = FALSE,
+                                  recursive = FALSE)
+    
+    updateSelectizeInput(session, "ThFlightLoc",
+                         choices = c("", PossibleFlights),
+                         selected = "",
+                         options = list(dropdownParent = 'body'))
+    
+  })
+  # Get the possible Flights from the working station
+  observeEvent(input$ThFlightLoc, {
+    updateTextInput(session, "in_Thdir", value = inout_Thdir_Val()[1])
+    updateTextInput(session, "out_Thdir", value = inout_Thdir_Val()[2])
+  })
+  # When Proceed button for crating MAP
+  observeEvent(input$thermalProceedMap, {
+    
+    # Check that data object exists and is data frame.
+    removeModal()
+
+    # Give feedback to check the progress bar
+    shinyalert(
+      title = "Check the progress bar!",
+      text = paste0("Please wait while the metadata for the images in your project is being extracted."),
+      size = "s",
+      closeOnEsc = TRUE,
+      closeOnClickOutside = TRUE,
+      showConfirmButton = TRUE,
+      showCancelButton = FALSE,
+      type = "success",
+      imageUrl = "",
+      animation = TRUE
+    )
+    
+    MakeThermalMap()
+    
+  })
+  # When Proceed button for crating MAP
+  observeEvent(input$thermalImportMap,{
+    # Check that data object exists and is data frame.
+    removeModal()
+    
+    Map <- readLines(paste0(inout_Thdir_Val()[1] %>% dirname() %>% dirname(), "/3_FlightFiles/2_Other/OverviewMap.html"))
+    
+    # Concatenate the lines into a single string
+    srcdoc_content <- paste(Map, collapse = "\n")
+    
+    # Render existing Map
     output$ThermalMain <- renderUI({
-      
+      # Render the iframe with srcdoc attribute
+      tags$iframe(srcdoc = srcdoc_content,
+                  width = "100%",
+                  height = "100%",
+                  frameborder="0",
+                  style = "width: 100%; height: 85vh; border: none;")
     })
   })
-  #### Reactive Elements
+  # Make, Render & Save leaflet map of image locations
+  observeEvent(input$makemapthermalCal, {
+  
+    MapPath <- paste0(inout_Thdir_Val()[1] %>% dirname() %>% dirname(), "/3_FlightFiles/2_Other/")
+    
+    # Check if a map has been created
+    if(file.exists(paste0(MapPath,"/OverviewMap.html"))){
+      
+      # Modal dialog to check if structure was created
+      showModal(modalDialog(
+        title = "Map creation",
+        "A map has already been found. Click 'Proceed' to create a new map, or click 'Import' to load the existing one.",
+        footer = tagList(
+          actionButton("thermalProceedMap", "Proceed"),
+          actionButton("thermalImportMap", "Import")
+        )
+      ))
+    } else {
+      # Give feedback to check the progress bar
+      shinyalert(
+        title = "Check the progress bar!",
+        text = paste0("Please wait while the metadata for the images in your project is being extracted."),
+        size = "s",
+        closeOnEsc = TRUE,
+        closeOnClickOutside = TRUE,
+        showConfirmButton = TRUE,
+        showCancelButton = FALSE,
+        type = "success",
+        imageUrl = "",
+        animation = TRUE
+      )
+      
+      MakeThermalMap()}
+  })
+  #### Reactive Elements                                                        ----
   # Reactive element to crate read the path of the Working station
   Thdir_WSVal <- reactive({
     RootFolder <- ""
@@ -875,32 +941,99 @@ server <- function(input, output, session) {
     } else if(input$ThWSSel == "WSII"){
       RootFolder <- paste0("B:/1_Projects")
     } else if(input$ThWSSel == "AJCG"){
-      RootFolder <- paste0("/home/antonio/Desktop")
+      RootFolder <- paste0("/home/cowboybebop/Documents/ShareRemina/")
     } 
     return(RootFolder)
   })
   # Reactive expression to combine input values
   inout_Thdir_Val <- reactive({
     
-    globalThVal <- ""
+    globalThVal <- Thdir_WSVal()
     inVal <- ""
     outVal <- ""
     
-    if(input$ThWSSel == "WSI"){
-      globalThVal <- paste0("D:/1_Projects/")
-    } else if(input$ThWSSel == "WSII"){
-      globalThVal <- paste0("B:/1_Projects/")
-    } else if(input$ThWSSel == "AJCG"){
-      globalThVal <- paste0("/home/antonio/Desktop/")
-    } 
-    
-    inVal <- paste0(globalThVal,input$ThProjLoc,input$ThMisLoc, input$ThFlightLoc ,"T")
-    outVal <- paste0(globalThVal, "T_Cal")
+    inVal <-  paste0(globalThVal, input$ThProjLoc,"/", input$ThMisLoc,"/0_Flights/", input$ThFlightLoc,"/0_Images/1_Thermal/")
+    outVal <- paste0(globalThVal, input$ThProjLoc,"/", input$ThMisLoc,"/0_Flights/", input$ThFlightLoc,"/0_Images/2_ThermalCal")
       
     Thdir_Val <- c(inVal, outVal)
   
     return(Thdir_Val)
   })
+  # Reactive function to create the ThermalMap
+  MakeThermalMap <- reactive({
+
+     MapPath <- paste0(inout_Thdir_Val()[1] %>% dirname() %>% dirname(), "/3_FlightFiles/2_Other/")
+     #
+     AvailableImages <- list.files(path = inout_Thdir_Val()[1],
+                                   pattern = "_T.JPG",
+                                   all.files = T,
+                                   full.names = T)
+
+     total_files <- length(AvailableImages)
+
+     # Initialize an empty list to store GPS data
+     gps_data_list <- list()
+     # Loop through the images and update the progress bar
+     for (i in seq_along(AvailableImages)) {
+       gps_data_list[[i]] <- extract_gps_data(AvailableImages[i])
+       updateProgressBar(session, id = "TCalProgBar", value = i, total = total_files)
+     }
+
+     # Combine the list of data frames into one data frame
+     gps_data <- do.call(rbind, gps_data_list)
+
+     # Render the Leaflet map
+     output$ThermalMain <- renderUI({
+       leafletOutput("ThermalMap", width="100%",height="1000px")
+     })
+
+     # Render leaflet Map
+     output$ThermalMap <- renderLeaflet({
+
+       # Define a color palette based on altitude
+       palette <- colorNumeric(palette = brewer.pal(9, "YlOrRd"), domain = gps_data$GPSAltitude, na.color = "transparent")
+
+       # Create the base map layers
+       satellite <- providers$Esri.WorldImagery
+       dark <- providers$CartoDB.DarkMatter
+
+       ThMap <- leaflet(gps_data) %>%
+         addTiles(group = "OpenStreetMap") %>%
+         addProviderTiles(satellite, group = "Satellite") %>%
+         addProviderTiles(dark, group = "Dark") %>%
+         addScaleBar(position = "bottomleft") %>%
+         addCircleMarkers(lat = ~GPSLatitude,
+                          lng = ~GPSLongitude,
+                          color = ~palette(GPSAltitude),
+                          radius = 5,
+                          stroke = FALSE, # No border
+                          fillOpacity = 0.8,
+                          popup = ~paste("<b>Altitude:</b>", GPSAltitude, "m", "<br/>",
+                                         "<b>Relative Humidity:</b>", RelativeHumidity, "<br/>",
+                                         "<b>Emissivity:</b>", Emissivity, "<br/>",
+                                         "<b>Reflection:</b>", Reflection, "<br/>",
+                                         "<b>Ambient Temperature:</b>", AmbientTemperature, "°C"))%>%
+         addLegend(pal = palette,
+                   values = gps_data$GPSAltitude,
+                   title = "Altitude (m)",
+                   position = "topright") %>%
+         addLayersControl(
+           position = "topleft",
+           baseGroups = c("OpenStreetMap", "Satellite", "Dark"),
+           options = layersControlOptions(collapsed = TRUE) # Set collapsed to TRUE
+         ) %>%
+         addMiniMap(tiles = providers$Esri.WorldStreetMap, toggleDisplay = TRUE, position = "bottomright")
+
+       # Save the leaflet map as an HTML file
+       htmlwidgets::saveWidget(ThMap, file = paste0(MapPath,"/OverviewMap.html"), selfcontained = TRUE)
+
+       # Render map on GUI
+       ThMap
+       })
+
+     # Reset progress bar
+     updateProgressBar(id = "TCalProgBar", value = 0)
+   })
   ###################################################################           
   # Load Project Tab                                                            ----
   ###################################################################           
