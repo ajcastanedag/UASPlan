@@ -498,7 +498,7 @@ getSDK <- function(Path){
   
   return()
 }
-################################################################################ Perform thermal calibration ----
+################################################################################
 ThermalCal <- function(OS, sdk_dir, emissivity, humidity,distance,in_dir,out_dir){
   
   print(c(OS, sdk_dir, emissivity, humidity,distance,in_dir,out_dir))
@@ -546,16 +546,6 @@ ThermalCal <- function(OS, sdk_dir, emissivity, humidity,distance,in_dir,out_dir
   # file.remove(list.files(out_dir, recursive = TRUE, full.names = T, pattern = "_T.raw"))
   
 }
-################################################################################ Extract GPS data from a single image
-extract_gps_data <- function(image_path) {
-  exif_data <- read_exif(image_path)
-  gps_data <- exif_data %>% 
-    select(SourceFile, GPSLatitude, GPSLongitude, GPSAltitude, RelativeHumidity, Emissivity, Reflection, AmbientTemperature) %>% 
-    filter(!is.na(GPSLatitude) & !is.na(GPSLongitude))
-  return(gps_data)
-}
-
-tst <- extract_gps_data("/home/cowboybebop/Documents/ShareRemina/ThermalSample/Alps/0_Flights/20240530_South_Mavic3TAgisoft/0_Images/1_Thermal/DJI_20230421122908_0001_T.JPG")
 ################################################################################ Graveyard ----
 
 ### Transform leaflet mods on AOI into new polygon (SF)
