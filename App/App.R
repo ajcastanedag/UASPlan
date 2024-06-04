@@ -941,7 +941,7 @@ server <- function(input, output, session) {
     } else if(input$ThWSSel == "WSII"){
       RootFolder <- paste0("B:/1_Projects")
     } else if(input$ThWSSel == "AJCG"){
-      RootFolder <- paste0("/home/cowboybebop/Documents/ShareRemina/")
+      RootFolder <- paste0("/home/antonio/Desktop/")
     } 
     return(RootFolder)
   })
