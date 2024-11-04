@@ -290,7 +290,7 @@ CreateFolder <- function(dir_path, DataFrame) {
         # Create subdirectories inside 4_RawOutput for YS
         if (sub_dir_name == "4_RawOutput") {
           
-          YSBase_subdirs <- c("0_PointCloud", "2_Raster")
+          YSBase_subdirs <- c("0_PointCloud", "1_Raster")
           
           for (flight_subdir_name in YSBase_subdirs) {
             flight_sub_dir <- file.path(sub_dir, flight_subdir_name)
